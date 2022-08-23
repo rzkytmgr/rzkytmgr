@@ -1,0 +1,12 @@
+{
+  "name": "rimbun",
+  "version": "1.0.0",
+  "description": "green your github commit section, so you'll look like a pro",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app"
+  },
+  "keywords": [],
+  "author": "rzkytmgr",
+  "license": "ISC"
+}
