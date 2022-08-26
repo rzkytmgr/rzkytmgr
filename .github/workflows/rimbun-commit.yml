@@ -8,6 +8,10 @@ jobs:
   commit:
     runs-on: ubuntu-latest
     steps:
+      - name: Timezone
+      - uses: szenius/set-timezone@v1.0
+        with:
+          timezoneLinux: 'Asia/Jakarta'
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
         with:
