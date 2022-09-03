@@ -21,7 +21,7 @@ jobs:
         run: |
           git config --local user.name "$COMMIT_USER"
           git config --local user.email "$COMMIT_EMAIL"
-          git commit -m "update README.md" -a
+          git commit -m "Last update `date`" -a
       - name: Push
         uses: ad-m/github-push-action@master
         with:
