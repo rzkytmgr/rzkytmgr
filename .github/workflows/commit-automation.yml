@@ -1,6 +1,7 @@
 name: Commit Automation
 
 on:
+  workflow_dispatch:
   schedule:
     - cron: 0 7,14 * * *
 
