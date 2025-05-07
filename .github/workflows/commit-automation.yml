@@ -1,0 +1,25 @@
+name: Commit Automation
+
+on:
+  schedule:
+    - cron: 0 7,14 * * *
+
+jobs:
+  Commit-Automation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Initiate Commit
+        env:
+          GITHUB_USER: ${{ secrets.GHB_USER }}
+          GITHUB_EMAIL: ${{ secrets.GHB_EMAIL }}
+        run: |
+          git config --local user.name "$GITHUB_USER"
+          git config --local user.email "$GITHUB_EMAIL"
+          DATETIME=$(date "+%A, %F %T")
+          git commit --allow-empty -m "$DATETIME"
+      - name: Initiate Push
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}
