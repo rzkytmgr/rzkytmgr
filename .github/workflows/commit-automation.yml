@@ -3,7 +3,7 @@ name: Commit Automation
 on:
   workflow_dispatch:
   schedule:
-    - cron: 0 7,14 * * *
+    - cron: 0 7 * * *
 
 jobs:
   Commit-Automation:
@@ -17,8 +17,12 @@ jobs:
         run: |
           git config --local user.name "$GITHUB_USER"
           git config --local user.email "$GITHUB_EMAIL"
-          DATETIME=$(date "+%A, %F %T")
-          git commit --allow-empty -m "$DATETIME"
+          COUNT=$(( ( RANDOM % 10 ) + 1 ))
+          for (( i=1; i<=$COUNT; i++ ))
+          do
+            DATETIME=$(date "+%A, %F %T")
+            git commit --allow-empty -m "$DATETIME"
+          done
       - name: Initiate Push
         uses: ad-m/github-push-action@master
         with:
