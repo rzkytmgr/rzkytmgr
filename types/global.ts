@@ -30,13 +30,13 @@ export type ShowcaseCardType = {
     link: string;
     title: string;
     description: string;
-    techstack: string;
+    techstack: string[];
     date: string;
     slug: string;
     is_archive: boolean;
 };
 
-export type ReadingCardType = {
+export type ExplorationCardType = {
     id: string;
     link: string;
     category: string;

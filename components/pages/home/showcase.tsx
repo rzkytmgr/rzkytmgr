@@ -69,7 +69,7 @@ export const ShowcaseHomeSection = ({ value }: ShowcaseHomeSectionProps) => {
                                     href={`/showcase/${data.slug}`}
                                     className={cn(
                                         "transition-transform cursor-pointer",
-                                        "flex-inline items-center hover:underline",
+                                        "flex-inline items-center hover:underline line-clamp-1",
                                     )}
                                 >
                                     <Typography
@@ -85,7 +85,7 @@ export const ShowcaseHomeSection = ({ value }: ShowcaseHomeSectionProps) => {
                                 <Typography
                                     as="p"
                                     size="sm"
-                                    className="text-gray-500 line-clamp-4 max-w-3xl"
+                                    className="text-gray-500 line-clamp-3 max-w-3xl"
                                 >
                                     {data.description}
                                 </Typography>
@@ -96,7 +96,7 @@ export const ShowcaseHomeSection = ({ value }: ShowcaseHomeSectionProps) => {
                                     size="xs"
                                     className="font-mono text-neutral-500"
                                 >
-                                    {data.techstack}
+                                    {data.techstack[0]}
                                 </Typography>
                                 <Link
                                     href={`/showcase/${data.slug}`}

@@ -1,4 +1,4 @@
-import { getContent } from "./frontmatter";
+import { getConfig } from "./content";
 
 type AuthorSocialType = {
     name: string;
@@ -30,4 +30,4 @@ export type AppConfigType = {
     };
 };
 
-export const config = getContent("index")!.data as AppConfigType;
+export const config = getConfig() as AppConfigType;

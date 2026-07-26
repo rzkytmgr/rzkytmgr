@@ -1,14 +1,20 @@
 import { Components } from "@/components/pages/home/_components";
 import { config } from "@/lib/config";
+import { getLatestExperiments, getLatestShowcases } from "@/services";
+import { getLatestExplorations } from "@/services/exploration";
 import {
     LaboratoryCardType,
-    ReadingCardType,
+    ExplorationCardType,
     ShowcaseCardType,
     WriteupsCardType,
 } from "@/types/global";
 import { cn } from "@/utils";
 
-export default function AppPage() {
+export default async function AppPage() {
+    const showcases = await getLatestShowcases();
+    const laboratory = await getLatestExperiments();
+    const exploration = await getLatestExplorations();
+
     const writeups: WriteupsCardType[] = [
         {
             id: "WU-01",
@@ -52,133 +58,6 @@ export default function AppPage() {
         },
     ];
 
-    const showcases: ShowcaseCardType[] = [
-        {
-            id: "SCPR-03",
-            link: "https://github.com/nestjs/nest",
-            title: "Commerce API",
-            description:
-                "A scalable REST API built for modern e-commerce platforms, providing secure authentication, product management, order processing, and payment integration while following a modular architecture for long-term maintainability.",
-            techstack: "NestJS",
-            date: "Aug 03, 2026",
-            slug: "SCPR-03-commerce-api",
-            is_archive: false,
-        },
-        {
-            id: "SCPR-04",
-            link: "https://github.com/supabase/supabase",
-            title: "Pulse CMS",
-            description:
-                "A lightweight content management system focused on simplicity and speed. It enables developers to manage blog posts, media assets, and user permissions through an elegant interface backed by a modern backend infrastructure.",
-            techstack: "Supabase",
-            date: "Sep 18, 2026",
-            slug: "SCPR-04-pulse-cms",
-            is_archive: true,
-        },
-        {
-            id: "SCPR-05",
-            link: "https://github.com/tailwindlabs/tailwindcss",
-            title: "Portfolio Studio",
-            description:
-                "A customizable portfolio template for developers and designers featuring smooth animations, dark mode support, SEO optimization, and a modular component system that makes personalization quick and effortless.",
-            techstack: "Tailwind CSS",
-            date: "Oct 05, 2026",
-            slug: "SCPR-05-portfolio-studio",
-            is_archive: false,
-        },
-        {
-            id: "SCPR-06",
-            link: "https://github.com/prisma/prisma",
-            title: "Invoice Hub",
-            description:
-                "A web application for generating and managing invoices with support for recurring billing, client management, payment tracking, and downloadable PDF invoices. The project emphasizes reliability and a straightforward user experience.",
-            techstack: "Prisma",
-            date: "Nov 21, 2026",
-            slug: "SCPR-06-invoice-hub",
-            is_archive: true,
-        },
-    ];
-
-    const reading: ReadingCardType[] = [
-        {
-            id: "ACH-01",
-            link: "https://github.com/",
-            category: "Open Source",
-            title: "Released My First Open Source Project on GitHub",
-            date: "Jun 27",
-        },
-        {
-            id: "ACH-02",
-            link: "https://dev.to/",
-            category: "Writing",
-            title: "Published an Article About Modern Frontend Development",
-            date: "Jul 09",
-        },
-        {
-            id: "ACH-03",
-            link: "https://www.producthunt.com/",
-            category: "Product Launch",
-            title: "Launched a Developer Portfolio Template",
-            date: "Aug 16",
-        },
-        {
-            id: "ACH-04",
-            link: "https://www.linkedin.com/",
-            category: "Career",
-            title: "Started a New Role as Full Stack Developer",
-            date: "Sep 03",
-        },
-    ];
-
-    const laboratory: LaboratoryCardType[] = [
-        {
-            id: "EXP-01",
-            slug: "building-scalable-rest-api-with-nestjs",
-            title: "Building a Scalable REST API with NestJS",
-            description:
-                "Designed and developed a modular REST API that supports authentication, role-based authorization, request validation, and database abstraction. The project focused on maintainability, scalability, and clean architecture while serving as the backend for multiple frontend applications.",
-            is_archive: false,
-            stack: ["NestJS", "PostgreSQL", "Prisma", "JWT", "Docker"],
-            date: "Jun 26, 2026",
-        },
-        {
-            id: "EXP-02",
-            slug: "developing-modern-dashboard-with-nextjs",
-            title: "Developing a Modern Analytics Dashboard with Next.js",
-            description:
-                "Created a responsive analytics dashboard featuring server-side rendering, interactive charts, authentication, and optimized performance. The application provides real-time insights while maintaining an intuitive user experience across desktop and mobile devices.",
-            is_archive: false,
-            stack: [
-                "Next.js",
-                "TypeScript",
-                "Tailwind CSS",
-                "Recharts",
-                "Supabase",
-            ],
-            date: "Jul 18, 2026",
-        },
-        {
-            id: "EXP-03",
-            slug: "designing-reusable-ui-component-library",
-            title: "Designing a Reusable UI Component Library",
-            description:
-                "Built a collection of reusable UI components with a consistent design system, accessibility support, and comprehensive documentation. The library reduced development time and ensured a unified user interface across multiple projects.",
-            is_archive: true,
-            stack: ["React", "TypeScript", "Tailwind CSS", "Storybook", "Vite"],
-            date: "Sep 02, 2026",
-        },
-        {
-            id: "EXP-04",
-            slug: "automating-ci-cd-deployment-pipeline",
-            title: "Automating CI/CD Deployment Pipeline for Web Applications",
-            description:
-                "Implemented an automated deployment workflow that performs testing, code quality checks, containerization, and production deployment. The pipeline significantly reduced manual deployment effort while improving reliability and release consistency.",
-            is_archive: false,
-            stack: ["GitHub Actions", "Docker", "Nginx", "Linux", "AWS"],
-            date: "Oct 21, 2026",
-        },
-    ];
-
     return (
         <main
             id="main-content"
@@ -204,19 +83,26 @@ export default function AppPage() {
                     writeups,
                 }}
             />
+
             <Components.Showcases
                 value={{
-                    showcases,
+                    showcases: [...showcases.values()] as ShowcaseCardType[],
                 }}
             />
-            <Components.Reading
+
+            <Components.Exploration
                 value={{
-                    reading,
+                    exploration: [
+                        ...exploration.values(),
+                    ] as ExplorationCardType[],
                 }}
             />
+
             <Components.Laboratory
                 value={{
-                    laboratory,
+                    laboratory: [
+                        ...laboratory.values(),
+                    ] as LaboratoryCardType[],
                 }}
             />
         </main>

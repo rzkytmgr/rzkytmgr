@@ -1,21 +1,23 @@
 import { HomeSection } from "@/components/structured/home-section";
 import { Typography } from "@/components/ui/typography";
-import { ReadingCardType } from "@/types/global";
+import { ExplorationCardType } from "@/types/global";
 import { cn } from "@/utils";
 import { ExternalLink } from "lucide-react";
 import Link from "next/link";
 
-type ReadingHomeSectionProps = {
+type ExplorationHomeSectionProps = {
     value: {
-        reading: ReadingCardType[];
+        exploration: ExplorationCardType[];
     };
 };
 
-export const ReadingHomeSection = ({ value }: ReadingHomeSectionProps) => {
+export const ExplorationHomeSection = ({
+    value,
+}: ExplorationHomeSectionProps) => {
     return (
-        <HomeSection id="reading" title="Worth to Explore" className="mb-8">
+        <HomeSection id="exporation" title="Worth to Explore" className="mb-8">
             <div className="flex flex-col">
-                {value.reading.map((data) => (
+                {value.exploration.map((data) => (
                     <article
                         key={data.id}
                         className={cn(
@@ -28,7 +30,7 @@ export const ReadingHomeSection = ({ value }: ReadingHomeSectionProps) => {
                             size="xs"
                             className="hidden lg:flex font-mono text-neutral-500 col-span-1"
                         >
-                            {data.date}
+                            {data.date.slice(0, -6)}
                         </Typography>
                         <div className="flex flex-col col-span-11">
                             <Typography
@@ -37,7 +39,7 @@ export const ReadingHomeSection = ({ value }: ReadingHomeSectionProps) => {
                                 className="font-mono text-neutral-500 mb-1"
                             >
                                 <span className="lg:hidden">
-                                    {data.date} ·{" "}
+                                    {data.date.slice(0, -6)} ·{" "}
                                 </span>
                                 {data.category}
                             </Typography>

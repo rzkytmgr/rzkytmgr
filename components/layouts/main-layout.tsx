@@ -1,5 +1,5 @@
 "use client";
-import { AppConfigType } from "@/lib/config";
+import type { AppConfigType } from "@/lib/config";
 import React from "react";
 import { Navbar } from "../structured/navbar";
 import { Footer } from "../structured/footer";
