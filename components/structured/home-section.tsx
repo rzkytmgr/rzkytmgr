@@ -1,41 +1,50 @@
-import { cn } from "@/utils";
-import { HTMLAttributes } from "react";
+import type { HTMLAttributes, ReactNode } from "react";
 import { Typography } from "../ui/typography";
+import { cn } from "@/utils";
 
-type HomeSectionProps = {
-    id: string;
-    title: string;
-    children: React.ReactNode;
-    className?: string;
-} & HTMLAttributes<HTMLDivElement>;
+type HomeSectionProps = Readonly<
+    {
+        id: string;
+        title: string;
+        children: ReactNode;
+        className?: string;
+    } & HTMLAttributes<HTMLElement>
+>;
 
-export const HomeSection = ({
+export function HomeSection({
     id,
     title,
     children,
     className,
     ...props
-}: HomeSectionProps) => {
+}: HomeSectionProps) {
     return (
-        <section id={id}>
+        <section id={id} className={cn("pt-32", className)} {...props}>
             <div
                 className={cn(
-                    "flex items-center justify-between border-b",
-                    "border-smooth-border/70 mb-3 pb-3",
-                    className,
+                    "flex",
+                    "items-center",
+                    "justify-between",
+                    "mb-3",
+                    "border-b",
+                    "border-smooth-border/70",
+                    "pb-3",
                 )}
-                {...props}
             >
                 <Typography
                     as="h2"
                     size="xs"
-                    className="font-mono uppercase text-neutral-500 tracking-wider"
+                    className={cn(
+                        "font-mono",
+                        "uppercase",
+                        "tracking-wider",
+                        "text-neutral-500",
+                    )}
                 >
                     {title}
                 </Typography>
             </div>
-
             {children}
         </section>
     );
-};
+}

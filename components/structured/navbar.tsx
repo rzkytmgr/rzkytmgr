@@ -1,82 +1,156 @@
 "use client";
 
-import Link from "next/link";
 import { Moon, PanelLeft, Sun } from "lucide-react";
-import type { NavbarItemType } from "@/types/global";
-import { NavbarItem } from "./navbar-item";
-import { cn } from "@/utils";
-import { sansMontserrat } from "@/lib/fonts";
+import Link from "next/link";
+import type { MouseEventHandler } from "react";
+import { montserrat } from "@/lib/fonts";
 import { useSidebarStore } from "@/store/sidebar-store";
+import type { NavbarItemType } from "@/types/global";
+import { cn } from "@/utils";
+import { NavbarItem } from "./navbar-item";
 
-type NavbarProps = {
+type NavbarProps = Readonly<{
     value: {
         title: string;
         items: NavbarItemType[];
     };
-};
+}>;
 
 export function Navbar({ value }: NavbarProps) {
     const toggleSidebar = useSidebarStore((state) => state.toggleSidebar);
+
     const sidebarState = useSidebarStore((state) => state.open);
+
+    const handleOpenSidebar: MouseEventHandler<HTMLButtonElement> = (event) => {
+        event.stopPropagation();
+        toggleSidebar();
+    };
+
     return (
         <header
             className={cn(
-                "sticky top-0 z-50 w-full",
-                "border-b border-smooth-border/70 dark:border-smooth-border/70",
-                "bg-background/80 dark:bg-background/80 backdrop-blur-md",
+                "sticky",
+                "top-0",
+                "z-50",
+                "w-full",
+                "border-b",
+                "border-smooth-border/70",
+                "bg-background/80",
+                "backdrop-blur-md",
             )}
         >
-            <div className="max-w-6xl mx-auto px-5 md:px-6 h-16 flex items-center justify-between">
-                <div className="flex-1 flex justify-start block lg:hidden">
+            <div
+                className={cn(
+                    "mx-auto",
+                    "flex",
+                    "h-16",
+                    "w-full",
+                    "max-w-6xl",
+                    "items-center",
+                    "justify-between",
+                    "px-5",
+                    "md:px-6",
+                )}
+            >
+                <div
+                    className={cn(
+                        "flex",
+                        "flex-1",
+                        "justify-start",
+                        "lg:hidden",
+                    )}
+                >
                     <button
                         id="sidebar-toggle"
+                        type="button"
+                        aria-label="Open sidebar"
+                        aria-expanded={sidebarState}
+                        aria-controls="sidebar"
+                        onClick={handleOpenSidebar}
                         className={cn(
-                            "p-2 rounded-md text-journal-light-muted dark:text-journal-dark-muted",
-                            "hover:bg-neutral-100 dark:hover:bg-neutral-900 transition-colors cursor-pointer",
+                            "cursor-pointer",
+                            "rounded-md",
+                            "p-2",
+                            "text-journal-light-muted",
+                            "transition-colors",
+                            "hover:bg-neutral-100",
                             "active:bg-neutral-100",
-                            sidebarState ? "bg-neutral-100" : "",
+                            "dark:text-journal-dark-muted",
+                            "dark:hover:bg-neutral-900",
+                            sidebarState && "bg-neutral-100",
                         )}
-                        aria-label="Sidebar toggle button"
-                        onClick={toggleSidebar}
                     >
-                        <PanelLeft className="w-5 h-5 block" />
+                        <PanelLeft
+                            aria-hidden="true"
+                            className={cn("size-5")}
+                        />
                     </button>
                 </div>
 
                 <Link
-                    href={"/"}
+                    href="/"
                     className={cn(
-                        "font-sans text-sm font-bold tracking-tight flex-none lg:flex-1",
-                        "hover:text-journal-accent transition-colors flex items-center gap-1",
-                        sansMontserrat.className,
+                        "flex",
+                        "flex-none",
+                        "items-center",
+                        "gap-1",
+                        "font-sans",
+                        "text-sm",
+                        "font-bold",
+                        "tracking-tight",
+                        "transition-colors",
+                        "hover:text-journal-accent",
+                        "lg:flex-1",
+                        montserrat.className,
                     )}
-                    aria-label="Brand Title"
                 >
                     {value.title}
                 </Link>
 
                 <nav
-                    className="hidden lg:flex flex-none items-center gap-7 shrink-0 grow-0"
-                    aria-label="Navigation Bar"
+                    aria-label="Primary navigation"
+                    className={cn(
+                        "hidden",
+                        "flex-none",
+                        "shrink-0",
+                        "grow-0",
+                        "items-center",
+                        "gap-7",
+                        "lg:flex",
+                    )}
                 >
                     {value.items.map(({ href, label }) => (
-                        <NavbarItem key={label} href={href} aria-label={label}>
+                        <NavbarItem key={label} href={href}>
                             {label}
                         </NavbarItem>
                     ))}
                 </nav>
 
-                <div className="flex-1 flex justify-end">
+                <div className={cn("flex", "flex-1", "justify-end")}>
                     <button
                         id="theme-toggle"
+                        type="button"
+                        aria-label="Toggle interface theme"
                         className={cn(
-                            "p-2 rounded-md text-journal-light-muted dark:text-journal-dark-muted",
-                            "hover:bg-neutral-100 dark:hover:bg-neutral-900 transition-colors cursor-pointer",
+                            "cursor-pointer",
+                            "rounded-md",
+                            "p-2",
+                            "text-journal-light-muted",
+                            "transition-colors",
+                            "hover:bg-neutral-100",
+                            "dark:text-journal-dark-muted",
+                            "dark:hover:bg-neutral-900",
                         )}
-                        aria-label="Toggle interface theme button"
                     >
-                        <Sun className="w-5 h-5 dark:block hidden" />
-                        <Moon className="w-5 h-5 block dark:hidden" />
+                        <Sun
+                            aria-hidden="true"
+                            className={cn("hidden", "size-5", "dark:block")}
+                        />
+
+                        <Moon
+                            aria-hidden="true"
+                            className={cn("block", "size-5", "dark:hidden")}
+                        />
                     </button>
                 </div>
             </div>

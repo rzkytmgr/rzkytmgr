@@ -1,33 +1,33 @@
 import { getConfig } from "./content";
 
-type AuthorSocialType = {
+export type AuthorSocialType = Readonly<{
     name: string;
     href: string;
-};
+}>;
 
-type AuthorType = {
+export type AuthorType = Readonly<{
     name: string;
     title: string;
     email: string;
     social: AuthorSocialType[];
-};
+}>;
 
-export type AppConfigType = {
+export type AppConfigType = Readonly<{
     title: string;
     author: AuthorType;
     rss: string;
-    ui: {
-        home: {
-            hero: {
+    ui: Readonly<{
+        home: Readonly<{
+            hero: Readonly<{
                 heading: string;
                 subheading: string;
-            };
-        };
-        footer: {
+            }>;
+        }>;
+        footer: Readonly<{
             description: string;
             copyright: string;
-        };
-    };
-};
+        }>;
+    }>;
+}>;
 
 export const config = getConfig() as AppConfigType;

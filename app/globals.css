@@ -25,10 +25,8 @@
     /* --font-sans:
         var(--font-plus-jakarta-sans), "Plus Jakarta Sans Fallback",
         ui-sans-serif, system-ui, sans-serif; */
-    --font-sans: var(--font-sans-inter), ui-sans-serif, system-ui, sans-serif;
-
-    --font-mono:
-        var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, monospace;
+    --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+    --font-mono: var(--font-mono), ui-monospace, SFMono-Regular, monospace;
 
     /* Colors */
     --color-background: var(--background);

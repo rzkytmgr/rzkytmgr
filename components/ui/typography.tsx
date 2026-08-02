@@ -1,7 +1,8 @@
-import { cn, cva, VariantProps } from "@/utils";
-import { ComponentPropsWithoutRef, ElementType } from "react";
+import { cn, cva } from "@/utils";
+import type { VariantProps } from "@/utils";
+import type { ComponentPropsWithoutRef, ElementType, ReactNode } from "react";
 
-const tvariants = cva([], {
+const typographyVariants = cva("", {
     variants: {
         weight: {
             thin: "font-thin",
@@ -26,11 +27,14 @@ const tvariants = cva([], {
     },
 });
 
-type TypographyProps<T extends ElementType> = VariantProps<typeof tvariants> & {
-    as?: T;
-    className?: string;
-    children: React.ReactNode;
-} & ComponentPropsWithoutRef<T>;
+type TypographyProps<T extends ElementType> = Readonly<
+    VariantProps<typeof typographyVariants> & {
+        as?: T;
+        children: ReactNode;
+        className?: string;
+    }
+> &
+    ComponentPropsWithoutRef<T>;
 
 export function Typography<T extends ElementType = "p">({
     as,
@@ -40,12 +44,13 @@ export function Typography<T extends ElementType = "p">({
     className,
     ...props
 }: TypographyProps<T>) {
-    const Component = as || "p";
+    const Component: ElementType = as ?? "p";
+
     return (
         <Component
             {...props}
             className={cn(
-                tvariants({
+                typographyVariants({
                     weight,
                     size,
                 }),

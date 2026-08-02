@@ -1,37 +1,34 @@
 import {
     IBM_Plex_Sans,
-    Inter,
+    IBM_Plex_Serif,
     JetBrains_Mono,
     Montserrat,
-    Plus_Jakarta_Sans,
 } from "next/font/google";
 
-export const sansJakarta = Plus_Jakarta_Sans({
+export const montserrat = Montserrat({
     subsets: ["latin"],
-    weight: ["200", "300", "400", "500", "600", "700", "800"],
-    variable: "--font-plus-jakarta-sans",
+    weight: ["400", "500", "600", "700"],
+    variable: "--font-montserrat",
+    display: "swap",
 });
 
-export const monoJetbrains = JetBrains_Mono({
+export const sans = IBM_Plex_Sans({
     subsets: ["latin"],
-    weight: ["100", "200", "400", "500", "600", "700", "800"],
-    variable: "--font-jetbrains-mono",
+    weight: ["400", "500", "600", "700"],
+    variable: "--font-sans",
+    display: "swap",
 });
 
-export const sansInter = Inter({
+export const serif = IBM_Plex_Serif({
     subsets: ["latin"],
-    weight: ["100", "200", "400", "500", "600", "700", "800", "900"],
-    variable: "--font-sans-inter",
+    weight: ["400", "500", "600", "700"],
+    variable: "--font-serif",
+    display: "swap",
 });
 
-export const sansMontserrat = Montserrat({
+export const mono = JetBrains_Mono({
     subsets: ["latin"],
-    weight: ["100", "200", "400", "500", "600", "700", "800", "900"],
-    variable: "--font-sans-inter",
-});
-
-export const sansIBMPlex = IBM_Plex_Sans({
-    subsets: ["latin"],
-    weight: ["100", "200", "400", "500", "600", "700"],
-    variable: "--font-sans-inter",
+    weight: ["400", "500", "600", "700"],
+    variable: "--font-mono",
+    display: "swap",
 });

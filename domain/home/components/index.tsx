@@ -4,7 +4,7 @@ import { ExplorationHomeSection } from "./exploration";
 import { ShowcaseHomeSection } from "./showcase";
 import { WriteupsHomeSection } from "./writeups";
 
-export const Components = {
+export const HomeComponents = {
     Hero: HeroSection,
     Writeups: WriteupsHomeSection,
     Showcases: ShowcaseHomeSection,

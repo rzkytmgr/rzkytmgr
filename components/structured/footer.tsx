@@ -1,9 +1,9 @@
+import Link from "next/link";
 import type { NavbarItemType, SocialType } from "@/types/global";
 import { cn } from "@/utils";
-import Link from "next/link";
 import { Typography } from "../ui/typography";
 
-type FooterProps = {
+type FooterProps = Readonly<{
     value: {
         title: string;
         social: SocialType[];
@@ -13,22 +13,43 @@ type FooterProps = {
         };
         items: NavbarItemType[];
     };
-};
+}>;
 
 export function Footer({ value }: FooterProps) {
     return (
         <>
-            <hr className="border-smooth-border/70" />
-            <footer className="max-w-6xl w-full m-auto px-6 pt-16 space-y-16">
-                <section className="grid grid-cols-1 md:grid-cols-[3fr_1fr_1fr] gap-12">
-                    <div className="flex-inline flex-col">
+            <hr className={cn("border-smooth-border/70")} />
+
+            <footer
+                className={cn(
+                    "mx-auto",
+                    "w-full",
+                    "max-w-6xl",
+                    "space-y-16",
+                    "px-6",
+                    "pt-16",
+                )}
+            >
+                <section
+                    className={cn(
+                        "grid",
+                        "grid-cols-1",
+                        "gap-12",
+                        "md:grid-cols-[3fr_1fr_1fr]",
+                    )}
+                >
+                    <div className={cn("flex", "flex-col")}>
                         <Link
-                            href={"#"}
+                            href="/"
                             className={cn(
-                                "font-sans text-sm font-bold tracking-tight",
-                                "hover:text-journal-accent transition-colors",
+                                "font-sans",
+                                "text-sm",
+                                "font-bold",
+                                "tracking-tight",
+                                "transition-colors",
+                                "hover:text-journal-accent",
+                                "focus-visible:text-journal-accent",
                             )}
-                            aria-label="Home"
                         >
                             {value.title}
                         </Link>
@@ -36,45 +57,99 @@ export function Footer({ value }: FooterProps) {
                         <Typography
                             as="p"
                             size="sm"
-                            className="text-gray-500 mt-3 max-w-xs"
+                            className={cn("mt-3", "max-w-xs", "text-gray-500")}
                         >
                             {value.static.description}
                         </Typography>
                     </div>
-                    <div className="space-y-4">
+
+                    <div className={cn("space-y-4")}>
                         <Typography
-                            as="h4"
+                            as="h2"
                             size="xs"
-                            className="uppercase font-mono text-neutral-500"
+                            className={cn(
+                                "font-mono",
+                                "uppercase",
+                                "text-neutral-500",
+                            )}
                         >
                             Navigate
                         </Typography>
-                        <ul className="space-y-2 text-sm text-gray-700">
+
+                        <ul
+                            className={cn(
+                                "space-y-3",
+                                "text-sm",
+                                "text-gray-700",
+                            )}
+                        >
                             {value.items.map(({ label, href }) => (
                                 <li key={label}>
-                                    <Link href={href}>{label}</Link>
+                                    <Link
+                                        href={href}
+                                        className={cn(
+                                            "transition-colors",
+                                            "hover:text-journal-accent",
+                                            "focus-visible:text-journal-accent",
+                                        )}
+                                    >
+                                        {label}
+                                    </Link>
                                 </li>
                             ))}
                         </ul>
                     </div>
-                    <div className="space-y-4">
+
+                    <div className={cn("space-y-4")}>
                         <Typography
-                            as="h4"
+                            as="h2"
                             size="xs"
-                            className="uppercase font-mono text-neutral-500"
+                            className={cn(
+                                "font-mono",
+                                "uppercase",
+                                "text-neutral-500",
+                            )}
                         >
                             Elsewhere
                         </Typography>
-                        <ul className="space-y-2 text-sm text-gray-700">
+
+                        <ul
+                            className={cn(
+                                "space-y-3",
+                                "text-sm",
+                                "text-gray-700",
+                            )}
+                        >
                             {value.social.map(({ name, href }) => (
                                 <li key={name}>
-                                    <Link href={href}>{name}</Link>
+                                    <Link
+                                        href={href}
+                                        className={cn(
+                                            "transition-colors",
+                                            "hover:text-journal-accent",
+                                            "focus-visible:text-journal-accent",
+                                        )}
+                                    >
+                                        {name}
+                                    </Link>
                                 </li>
                             ))}
                         </ul>
                     </div>
                 </section>
-                <section className="border-t border-smooth-border/70 font-mono text-xs py-8 text-neutral-500 text-center lg:text-left">
+
+                <section
+                    className={cn(
+                        "border-t",
+                        "border-smooth-border/70",
+                        "py-8",
+                        "font-mono",
+                        "text-center",
+                        "text-xs",
+                        "text-neutral-500",
+                        "lg:text-left",
+                    )}
+                >
                     <Typography as="span" size="xs">
                         © {new Date().getFullYear()} {value.static.copyright}
                     </Typography>

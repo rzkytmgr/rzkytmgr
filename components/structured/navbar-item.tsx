@@ -1,24 +1,28 @@
 import Link from "next/link";
-import { HTMLAttributes } from "react";
+import type { AnchorHTMLAttributes, ReactNode } from "react";
 import { cn } from "@/utils";
 
-type NavbarItemProps = {
-    href: string;
-    className?: string;
-    children?: React.ReactNode;
-} & HTMLAttributes<HTMLAnchorElement>;
+type NavbarItemProps = Readonly<
+    Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "children" | "href"> & {
+        href: string;
+        children: ReactNode;
+    }
+>;
 
-export const NavbarItem = ({
+export function NavbarItem({
     href,
     children,
     className,
     ...props
-}: NavbarItemProps) => {
+}: NavbarItemProps) {
     return (
         <Link
             href={href}
             className={cn(
-                "text-sm text-foreground border-journal-accent pb-1",
+                "border-journal-accent",
+                "pb-1",
+                "text-sm",
+                "text-foreground",
                 className,
             )}
             {...props}
@@ -26,4 +30,4 @@ export const NavbarItem = ({
             {children}
         </Link>
     );
-};
+}

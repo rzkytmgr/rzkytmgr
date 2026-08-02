@@ -13,6 +13,7 @@ type MainLayoutProps = {
 };
 
 export function MainLayout({ config, children }: MainLayoutProps) {
+    const toggleSidebar = useSidebarStore((state) => state.closeSidebar);
     const sidebarState = useSidebarStore((state) => state.open);
 
     const items = [
@@ -51,6 +52,7 @@ export function MainLayout({ config, children }: MainLayoutProps) {
             />
             <div
                 id="app"
+                onClick={toggleSidebar}
                 className={cn(
                     "transition-transform duration-300 ease-out",
                     sidebarState

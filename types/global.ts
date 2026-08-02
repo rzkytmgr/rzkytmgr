@@ -17,7 +17,7 @@ export type TranslatorReturnType =
 
 export type WriteupsCardType = {
     id: string;
-    tags: string[];
+    tag: string;
     slug: string;
     title: string;
     description: string;

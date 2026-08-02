@@ -17,7 +17,7 @@ export const getConfig = () => {
 export const getContent = async (filename: string, dir: string = "") => {
     const regex = /^[a-z0-9-_]+$/;
 
-    if (!regex.test(filename) || (dir && !regex.test(dir))) {
+    if (!regex.test(filename)) {
         return null;
     }
 
@@ -27,4 +27,9 @@ export const getContent = async (filename: string, dir: string = "") => {
 
     const content = await fs.promises.readFile(filepath, "utf-8");
     return matter(content);
+};
+
+export const getContentMetadata = async (filename: string, dir?: string) => {
+    const content = (await getContent(filename, dir))!;
+    return content.data;
 };
