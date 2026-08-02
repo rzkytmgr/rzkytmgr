@@ -41,8 +41,8 @@ export function HomeSection({
                         "text-neutral-500",
                     )}
                 >
-                    {title}{" "}
-                </Typography>{" "}
+                    {title}
+                </Typography>
             </div>
 
             {children}

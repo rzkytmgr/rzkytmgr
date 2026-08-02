@@ -80,7 +80,11 @@ export function WriteupsHomeSection({ value }: WriteupsHomeSectionProps) {
                                 as="h3"
                                 size="xl"
                                 weight="semibold"
-                                className={cn("line-clamp-2", "md:text-2xl")}
+                                className={cn(
+                                    "line-clamp-2",
+                                    "max-w-4xl",
+                                    "md:text-2xl",
+                                )}
                             >
                                 <Link
                                     href={`/blog/${data.slug}`}

@@ -1,33 +1,39 @@
 import path from "node:path";
-import { getContent, getContentMetadata } from "@/lib/content";
-import { parseFilename, parseSlug } from "../string";
+import type { GrayMatterFile } from "gray-matter";
+import { parseContentFilename } from "../string";
+import { getContent, getContentMetadata } from "@/lib/content/loader";
 
-export const contentMapping = async (
+export function loadCollectionEntries<T>(
+    filenames: string[],
+    dir: string,
+): Promise<[string, T][]>;
+
+export function loadCollectionEntries(
+    filenames: string[],
+    dir: string,
+    includeContent: true,
+): Promise<[string, GrayMatterFile<string>][]>;
+
+export async function loadCollectionEntries<T>(
     filenames: string[],
     dir: string,
     includeContent = false,
-): Promise<[string, unknown][]> => {
-    const fetchContent = includeContent ? getContent : getContentMetadata;
-    if (dir !== "writeups") {
-        return await Promise.all(
-            filenames.map(async (filename) => [
-                parseSlug(filename),
-                await fetchContent(parseFilename(filename), dir),
-            ]),
-        );
-    } else {
-        return await Promise.all(
-            filenames.map(async (filepath) => {
-                const splitPath = filepath.split(path.sep);
-                const filename = splitPath.findLast((e) => e)!;
+) {
+    return Promise.all(
+        filenames.map(async (relativePath) => {
+            const { slug } = parseContentFilename(path.basename(relativePath));
+
+            if (includeContent) {
                 return [
-                    parseSlug(filename),
-                    await fetchContent(
-                        parseFilename(filename),
-                        path.join(dir, ...splitPath.slice(0, -1)),
-                    ),
-                ];
-            }),
-        );
-    }
-};
+                    slug,
+                    await getContent(path.join(dir, relativePath)),
+                ] as const;
+            }
+
+            return [
+                slug,
+                await getContentMetadata<T>(path.join(dir, relativePath)),
+            ] as const;
+        }),
+    );
+}

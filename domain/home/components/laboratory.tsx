@@ -50,7 +50,7 @@ export function LaboratoryHomeSection({ value }: LaboratoryHomeSectionProps) {
                                 size="xs"
                                 className={cn("font-mono", "text-neutral-500")}
                             >
-                                {data.id}{" "}
+                                {data.id}
                             </Typography>
 
                             {data.is_archive && (

@@ -40,7 +40,7 @@ export function ShowcaseHomeSection({ value }: ShowcaseHomeSectionProps) {
                             "border-smooth-border/70",
                             "bg-white",
                             "p-6",
-                            index > 2 && "hidden lg:block",
+                            index > 2 && "block lg:hidden",
                         )}
                     >
                         <div className={cn("flex", "flex-col", "gap-3")}>
@@ -56,9 +56,8 @@ export function ShowcaseHomeSection({ value }: ShowcaseHomeSectionProps) {
                                 )}
                             >
                                 <div className={cn("flex", "items-center")}>
-                                    {" "}
                                     <Typography as="span" size="xs">
-                                        {data.id}{" "}
+                                        {data.id}
                                     </Typography>
                                     {data.is_archive && (
                                         <Typography
@@ -130,7 +129,7 @@ export function ShowcaseHomeSection({ value }: ShowcaseHomeSectionProps) {
                                 as="h3"
                                 size="lg"
                                 weight="semibold"
-                                className={cn("mt-2", "line-clamp-2")}
+                                className={cn("mt-2")}
                             >
                                 <Link
                                     href={`/showcase/${data.slug}`}
@@ -139,6 +138,7 @@ export function ShowcaseHomeSection({ value }: ShowcaseHomeSectionProps) {
                                         "items-center",
                                         "transition-colors",
                                         "hover:underline",
+                                        "line-clamp-1",
                                     )}
                                 >
                                     {data.title}

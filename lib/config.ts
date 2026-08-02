@@ -1,4 +1,4 @@
-import { getConfig } from "./content";
+import { getConfig } from "./content/loader";
 
 export type AuthorSocialType = Readonly<{
     name: string;

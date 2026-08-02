@@ -1,8 +1,6 @@
-import { Typography } from "@/components/ui/typography";
 import { WriteupsComponent } from "@/domain/writeups/components";
 import { getAllWriteupSlug, getWriteupBySlug } from "@/domain/writeups/service";
 import { cn } from "@/utils";
-import { GrayMatterFile } from "gray-matter";
 
 export const dynamicParams = false;
 
@@ -14,12 +12,12 @@ type BlogPageProps = {
 
 export async function generateStaticParams() {
     const writeupSlug = getAllWriteupSlug();
-    return writeupSlug.map(({ slug }) => ({ slug }));
+    return writeupSlug.map((slug) => ({ slug }));
 }
 
 export default async function BlogPage({ params }: BlogPageProps) {
     const { slug } = await params;
-    const post = (await getWriteupBySlug(slug, true)) as GrayMatterFile<string>;
+    const post = await getWriteupBySlug(slug);
     const metadata = post.data;
 
     return (

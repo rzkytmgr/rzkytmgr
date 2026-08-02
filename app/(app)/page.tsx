@@ -5,12 +5,6 @@ import { getLatestExperiments } from "@/domain/laboratory/service";
 import { getLatestShowcases } from "@/domain/showcase/service";
 import { getLatestWriteups } from "@/domain/writeups/service";
 import { config } from "@/lib/config";
-import {
-    ExplorationCardType,
-    LaboratoryCardType,
-    ShowcaseCardType,
-    WriteupsCardType,
-} from "@/types/global";
 import { cn } from "@/utils";
 
 export const metadata: Metadata = {
@@ -26,17 +20,10 @@ export default async function AppPage() {
         getLatestWriteups(),
     ]);
 
-    const showcaseItems = Array.from(showcases.values()) as ShowcaseCardType[];
-
-    const laboratoryItems = Array.from(
-        laboratory.values(),
-    ) as LaboratoryCardType[];
-
-    const explorationItems = Array.from(
-        exploration.values(),
-    ) as ExplorationCardType[];
-
-    const writeupItems = Array.from(writeups.values()) as WriteupsCardType[];
+    const showcaseItems = Array.from(showcases.values());
+    const laboratoryItems = Array.from(laboratory.values());
+    const explorationItems = Array.from(exploration.values());
+    const writeupItems = Array.from(writeups.values());
 
     return (
         <main
@@ -63,19 +50,16 @@ export default async function AppPage() {
                     },
                 }}
             />
-
             <HomeComponents.Writeups
                 value={{
                     writeups: writeupItems,
                 }}
             />
-
             <HomeComponents.Showcases
                 value={{
                     showcases: showcaseItems,
                 }}
             />
-
             <HomeComponents.Exploration
                 value={{ exploration: explorationItems }}
             />

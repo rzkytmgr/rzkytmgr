@@ -1,26 +1,26 @@
+import { scanCollection } from "@/lib/content/scanner";
+import { ExplorationCardType } from "@/types/global";
 import { parseSlug } from "@/utils";
-import { contentMapping } from "@/utils/server/content";
-import fs from "node:fs";
-import path from "node:path";
+import { loadCollectionEntries } from "@/utils/server/content";
 
-const explorationContentPath = path.resolve("contents", "exploration");
-const filenames = fs
-    .readdirSync(explorationContentPath)
-    .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+const filenames = scanCollection("exploration");
 
 export const getAllExplorationSlug = () => {
     return filenames.map((filename) => parseSlug(filename));
 };
 
 export const getAllExplorations = async () => {
-    return new Map<string, unknown>(
-        await contentMapping(filenames, "exploration"),
+    return new Map(
+        await loadCollectionEntries<ExplorationCardType>(
+            filenames,
+            "exploration",
+        ),
     );
 };
 
 export const getLatestExplorations = async (total = 4) => {
-    return new Map<string, unknown>(
-        await contentMapping(
+    return new Map(
+        await loadCollectionEntries<ExplorationCardType>(
             filenames.slice(filenames.length - total),
             "exploration",
         ),
