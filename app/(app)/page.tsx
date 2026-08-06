@@ -53,18 +53,30 @@ export default async function AppPage() {
             <HomeComponents.Writeups
                 value={{
                     writeups: writeupItems,
+                    title: config.ui.home.sections.writeups,
                 }}
+                animationDelay={0.1}
             />
             <HomeComponents.Showcases
                 value={{
                     showcases: showcaseItems,
+                    title: config.ui.home.sections.showcase,
                 }}
+                animationDelay={0.2}
             />
             <HomeComponents.Exploration
-                value={{ exploration: explorationItems }}
+                value={{
+                    exploration: explorationItems,
+                    title: config.ui.home.sections.exploration,
+                }}
+                animationDelay={0.3}
             />
             <HomeComponents.Laboratory
-                value={{ laboratory: laboratoryItems }}
+                value={{
+                    laboratory: laboratoryItems,
+                    title: config.ui.home.sections.laboratory,
+                }}
+                animationDelay={0.4}
             />
         </main>
     );

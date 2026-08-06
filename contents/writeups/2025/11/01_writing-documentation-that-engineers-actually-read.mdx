@@ -1,0 +1,90 @@
+---
+id: WU-06
+title: Writing Documentation That Engineers Actually Read
+tag: Documentation
+slug: writing-documentation-that-engineers-actually-read
+description: >-
+    Why most internal documentation rots, and how to write docs that survive —
+    documenting decisions, keeping examples runnable, writing for the reader's
+    goal, and making documentation part of the review process.
+date: "Nov 07, 2025"
+readingTime: 6 min read
+---
+
+> “The best documentation is the one that answers the question before it is asked.”
+
+Most documentation fails not because it is incomplete, but because it is written for the author instead of the reader. This article is a short playbook for writing docs that engineers open, read, and trust.
+
+## Document Decisions, Not Just Commands
+
+A README full of commands is useful until the commands change. A decision log is useful forever. When you write about a system, answer the questions the code cannot:
+
+- Why does this module exist?
+- Why is it shaped this way?
+- What was rejected, and why?
+
+```markdown
+# ADR-014: Move scheduled exports to the job worker
+
+## Status
+
+Accepted
+
+## Context
+
+The cron process shared a database connection pool with the API,
+causing latency spikes during nightly export runs.
+
+## Decision
+
+Move exports to the existing job worker with a scheduled trigger.
+
+## Consequences
+
+- Exports no longer compete with API traffic
+- Retries and observability come for free
+- One more moving part to understand — mitigated by the worker docs
+```
+
+## Write for the Reader’s Goal
+
+Readers arrive with a task, not a desire to admire your prose. Structure pages around the three questions they actually ask:
+
+1. **How do I run this?** — quick start, always first
+2. **How do I change this?** — the shape of the code, the tests, the conventions
+3. **Why is it like this?** — the decisions, the constraints, the trade-offs
+
+If a page cannot be skimmed in thirty seconds and still deliver value, it is a novel, not documentation.
+
+## Keep Examples Runnable
+
+An example that does not run is a lie with syntax highlighting. Treat examples like code:
+
+```bash
+# Every documented command should be verified in CI
+for example in docs/examples/*.sh; do
+    bash "$example" || exit 1
+done
+```
+
+If an example breaks, either fix it or delete it. A stale example teaches the opposite of documentation.
+
+> [!NOTE]
+> Screenshots and diagrams decay faster than prose. If a diagram cannot be regenerated from source, it will be wrong within a year.
+
+## Make Docs Part of the Review Process
+
+Documentation rots when it is optional. The cheapest fix is to make docs part of the pull request:
+
+- [x] New behavior ships with a one-paragraph doc update
+- [x] Renamed flags update the reference page in the same PR
+- [x] Removed endpoints update the deprecation notes
+- [ ] “Docs will come later” is an accepted reason
+
+## Conclusion
+
+Documentation is not a chore at the end of a project. It is a decision-making tool for the next engineer who touches the system — possibly you, six months from now, with no memory of today’s context.
+
+> “Write the documentation you wish you had found.”
+
+If the docs are good enough that a new engineer can make their first change without asking anyone, they have paid for themselves.

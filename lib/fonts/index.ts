@@ -15,20 +15,20 @@ export const montserrat = Montserrat({
 export const sans = IBM_Plex_Sans({
     subsets: ["latin"],
     weight: ["400", "500", "600", "700"],
-    variable: "--font-sans",
+    variable: "--font-ibm-plex-sans",
     display: "swap",
 });
 
 export const serif = IBM_Plex_Serif({
     subsets: ["latin"],
     weight: ["400", "500", "600", "700"],
-    variable: "--font-serif",
+    variable: "--font-ibm-plex-serif",
     display: "swap",
 });
 
 export const mono = JetBrains_Mono({
     subsets: ["latin"],
     weight: ["400", "500", "600", "700"],
-    variable: "--font-mono",
+    variable: "--font-jetbrains-mono",
     display: "swap",
 });

@@ -1,9 +1,11 @@
 "use client";
 import type { AppConfigType } from "@/lib/config";
-import React from "react";
+import { usePathname } from "next/navigation";
+import React, { useEffect, useRef } from "react";
 import { Navbar } from "../structured/navbar";
 import { Footer } from "../structured/footer";
 import { Sidebar } from "../structured/sidebar";
+import { NAV_ITEMS } from "@/lib/navigation";
 import { useSidebarStore } from "@/store/sidebar-store";
 import { cn } from "@/utils";
 
@@ -13,46 +15,28 @@ type MainLayoutProps = {
 };
 
 export function MainLayout({ config, children }: MainLayoutProps) {
-    const toggleSidebar = useSidebarStore((state) => state.closeSidebar);
+    const closeSidebar = useSidebarStore((state) => state.closeSidebar);
     const sidebarState = useSidebarStore((state) => state.open);
+    const pathname = usePathname();
+    const prevPathname = useRef(pathname);
 
-    const items = [
-        {
-            href: "/",
-            label: "Home",
-        },
-        {
-            href: "/showcase",
-            label: "Showcase",
-        },
-        {
-            href: "/writeups",
-            label: "Writeups",
-        },
-        {
-            href: "/lab",
-            label: "Laboratory",
-        },
-        {
-            href: "/about",
-            label: "About",
-        },
-        {
-            href: "/contact",
-            label: "Contact",
-        },
-    ];
+    useEffect(() => {
+        if (prevPathname.current !== pathname) {
+            closeSidebar();
+            prevPathname.current = pathname;
+        }
+    }, [pathname, closeSidebar]);
 
     return (
         <React.Fragment>
             <Sidebar
                 value={{
-                    items,
+                    items: NAV_ITEMS,
                 }}
             />
             <div
                 id="app"
-                onClick={toggleSidebar}
+                onClick={closeSidebar}
                 className={cn(
                     "transition-transform duration-300 ease-out",
                     sidebarState
@@ -63,7 +47,7 @@ export function MainLayout({ config, children }: MainLayoutProps) {
                 <Navbar
                     value={{
                         title: config.title,
-                        items,
+                        items: NAV_ITEMS,
                     }}
                 />
                 {children}
@@ -85,7 +69,7 @@ export function MainLayout({ config, children }: MainLayoutProps) {
                             description: config.ui.footer.description,
                             copyright: `${config.author.name}. ${config.ui.footer.copyright}`,
                         },
-                        items,
+                        items: NAV_ITEMS,
                     }}
                 />
             </div>

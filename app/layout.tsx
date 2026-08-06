@@ -1,21 +1,45 @@
 import type { Metadata } from "next";
 import { config } from "@/lib/config";
-import { mono, sans } from "@/lib/fonts";
+import { mono, sans, serif } from "@/lib/fonts";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { cn } from "@/utils/cn";
 import "./globals.css";
 
 export const metadata: Metadata = {
+    metadataBase: new URL(config.url),
     title: {
         default: config.title,
-        template: `%s | ${config.title}`,
+        template: `%s - ${config.author.name}`,
     },
-    description:
-        "A personal portfolio featuring software projects, technical experiments, and engineering write-ups.",
+    description: config.description,
     applicationName: config.title,
+    icons: {
+        icon: "/favicon.ico",
+    },
     robots: {
         index: true,
         follow: true,
+    },
+    openGraph: {
+        title: config.title,
+        description: config.description,
+        type: "website",
+        locale: "en_US",
+        siteName: config.title,
+        images: [
+            {
+                url: "/og.png",
+                width: 1200,
+                height: 630,
+                alt: config.title,
+            },
+        ],
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: config.title,
+        description: config.description,
+        images: ["/og.png"],
     },
 };
 
@@ -28,7 +52,12 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <html
             lang="en"
             data-scroll-behavior="smooth"
-            className={cn(mono.variable, sans.variable, "scroll-smooth")}
+            className={cn(
+                mono.variable,
+                sans.variable,
+                serif.variable,
+                "scroll-smooth",
+            )}
             suppressHydrationWarning
         >
             <body

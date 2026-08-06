@@ -8,14 +8,24 @@ import { cn } from "@/utils";
 type ExplorationHomeSectionProps = Readonly<{
     value: {
         exploration: ExplorationCardType[];
+        title: string;
     };
+    animationDelay?: number;
 }>;
 
-export function ExplorationHomeSection({ value }: ExplorationHomeSectionProps) {
+export function ExplorationHomeSection({
+    value,
+    animationDelay,
+}: ExplorationHomeSectionProps) {
     return (
-        <HomeSection id="exploration" title="Worth to Explore" className="mb-8">
+        <HomeSection
+            id="exploration"
+            title={value.title}
+            className="mb-8"
+            animationDelay={animationDelay}
+        >
             {value.exploration.map((data) => {
-                const year = data.date.slice(0, -6);
+                const year = new Date(data.date).getFullYear();
 
                 return (
                     <article

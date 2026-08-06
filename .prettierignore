@@ -1,0 +1,32 @@
+# Dependencies
+node_modules
+.pnp
+.pnp.*
+
+# Build output
+.next
+out
+build
+dist
+coverage
+
+# Generated / typed files
+next-env.d.ts
+*.tsbuildinfo
+
+# Lockfiles
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Environment
+.env
+.env.*
+
+# Misc
+.DS_Store
+*.pem
+
+# Static assets that should stay as-is
+public/**/*.svg
+public/favicon.ico

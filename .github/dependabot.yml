@@ -1,0 +1,26 @@
+version: 2
+updates:
+    - package-ecosystem: npm
+      directory: /
+      schedule:
+          interval: weekly
+      open-pull-requests-limit: 10
+      labels:
+          - dependencies
+      ignore:
+          - dependency-name: "*"
+            update-types:
+                - version-update:semver-major
+      groups:
+          production-dependencies:
+              dependency-type: production
+          development-dependencies:
+              dependency-type: development
+
+    - package-ecosystem: github-actions
+      directory: /
+      schedule:
+          interval: weekly
+      open-pull-requests-limit: 10
+      labels:
+          - dependencies

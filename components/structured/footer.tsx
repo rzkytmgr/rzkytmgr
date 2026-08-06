@@ -57,7 +57,12 @@ export function Footer({ value }: FooterProps) {
                         <Typography
                             as="p"
                             size="sm"
-                            className={cn("mt-3", "max-w-xs", "text-gray-500")}
+                            className={cn(
+                                "mt-3",
+                                "max-w-xs",
+                                "text-gray-500",
+                                "dark:text-neutral-500",
+                            )}
                         >
                             {value.static.description}
                         </Typography>
@@ -74,13 +79,13 @@ export function Footer({ value }: FooterProps) {
                             )}
                         >
                             Navigate
-                        </Typography>
-
+                        </Typography>{" "}
                         <ul
                             className={cn(
                                 "space-y-3",
                                 "text-sm",
                                 "text-gray-700",
+                                "dark:text-neutral-300",
                             )}
                         >
                             {value.items.map(({ label, href }) => (
@@ -118,6 +123,7 @@ export function Footer({ value }: FooterProps) {
                                 "space-y-3",
                                 "text-sm",
                                 "text-gray-700",
+                                "dark:text-neutral-300",
                             )}
                         >
                             {value.social.map(({ name, href }) => (

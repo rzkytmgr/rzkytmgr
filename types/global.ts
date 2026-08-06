@@ -1,19 +1,22 @@
-import { useTranslations } from "next-intl";
-import { getTranslations } from "next-intl/server";
-
 export type NavbarItemType = {
     href: string;
     label: string;
+};
+
+export type AdjacentItemType = {
+    href: string;
+    title: string;
+};
+
+export type AdjacentType = {
+    previous: AdjacentItemType | null;
+    next: AdjacentItemType | null;
 };
 
 export type SocialType = {
     href: string;
     name: string;
 };
-
-export type TranslatorReturnType =
-    | Awaited<ReturnType<typeof getTranslations>>
-    | ReturnType<typeof useTranslations>;
 
 export type WriteupsCardType = {
     id: string;
@@ -27,7 +30,11 @@ export type WriteupsCardType = {
 
 export type ShowcaseCardType = {
     id: string;
-    link: string;
+    link: {
+        repository?: string;
+
+        preview?: string;
+    };
     title: string;
     description: string;
     techstack: string[];

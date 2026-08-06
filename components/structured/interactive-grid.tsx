@@ -1,5 +1,6 @@
 "use client";
 
+import { useTheme } from "next-themes";
 import type { MouseEventHandler } from "react";
 import { useCallback, useEffect, useRef } from "react";
 import { cn } from "@/utils";
@@ -24,6 +25,13 @@ export function InteractiveGrid({ className }: InteractiveGridProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const activeCellsRef = useRef(new Map<string, ActiveCell>());
     const animationFrameRef = useRef<number | null>(null);
+    const themeRef = useRef<string>("light");
+
+    const { resolvedTheme } = useTheme();
+
+    useEffect(() => {
+        themeRef.current = resolvedTheme ?? "light";
+    }, [resolvedTheme]);
 
     const renderCells = useCallback(() => {
         const grid = gridRef.current;
@@ -69,7 +77,9 @@ export function InteractiveGrid({ className }: InteractiveGridProps) {
 
             const x = cell.column * GRID_SIZE + 1;
             const y = cell.row * GRID_SIZE + 1;
-            context.fillStyle = `rgba(24, 24, 27, ${opacity})`;
+            const isDark = themeRef.current === "dark";
+            const cellColor = isDark ? "228, 228, 231" : "24, 24, 27";
+            context.fillStyle = `rgba(${cellColor}, ${opacity})`;
             context.fillRect(x, y, GRID_SIZE - 1, GRID_SIZE - 1);
         }
 
@@ -136,6 +146,7 @@ export function InteractiveGrid({ className }: InteractiveGridProps) {
                 "-translate-y-1/2",
                 "overflow-hidden",
                 "bg-[linear-gradient(to_right,rgba(30,41,59,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(30,41,59,0.05)_1px,transparent_1px)]",
+                "dark:bg-[linear-gradient(to_right,rgba(228,228,231,0.07)_1px,transparent_1px),linear-gradient(to_bottom,rgba(228,228,231,0.07)_1px,transparent_1px)]",
                 "bg-[size:56px_56px]",
                 "[mask-image:radial-gradient(ellipse_72%_68%_at_50%_50%,black_0%,black_40%,rgba(0,0,0,0.8)_58%,transparent_78%)]",
                 "[-webkit-mask-image:radial-gradient(ellipse_72%_68%_at_50%_50%,black_0%,black_40%,rgba(0,0,0,0.8)_58%,transparent_78%)]",

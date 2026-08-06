@@ -20,7 +20,13 @@ export function MainHead({
     return (
         <section
             aria-labelledby="article-title"
-            className={cn("relative", "mb-24", "space-y-3")}
+            className={cn(
+                "relative",
+                "mb-12",
+                "space-y-3",
+
+                "overflow-hidden",
+            )}
         >
             <InteractiveGrid />
             <div
@@ -33,6 +39,7 @@ export function MainHead({
                     "text-xs",
                     "leading-relaxed",
                     "text-zinc-600",
+                    "dark:text-zinc-400",
                 )}
             >
                 <Typography as="p" size="xs">
@@ -53,6 +60,9 @@ export function MainHead({
                         "py-1",
                         "font-mono",
                         "text-gray-700",
+                        "dark:border-neutral-500",
+                        "dark:bg-neutral-100",
+                        "dark:text-neutral-700",
                     )}
                 >
                     {tag}
@@ -70,6 +80,7 @@ export function MainHead({
                     "leading-[1.25]",
                     "tracking-tight",
                     "text-zinc-950",
+                    "dark:text-zinc-50",
                     "md:text-4xl",
                 )}
             >
@@ -85,6 +96,7 @@ export function MainHead({
                     "text-base",
                     "leading-relaxed",
                     "text-zinc-600",
+                    "dark:text-zinc-400",
                     "md:text-lg",
                 )}
             >

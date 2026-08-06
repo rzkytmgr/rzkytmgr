@@ -1,3 +1,6 @@
+"use client";
+
+import { motion, useReducedMotion } from "framer-motion";
 import { cn } from "@/utils";
 
 type HeroTypeMarkProps = {
@@ -5,9 +8,26 @@ type HeroTypeMarkProps = {
 };
 
 export function HeroTypeMark({ className }: HeroTypeMarkProps) {
+    const reduceMotion = useReducedMotion();
+
     return (
-        <div
+        <motion.div
             aria-hidden="true"
+            initial={
+                reduceMotion
+                    ? { opacity: 0 }
+                    : { opacity: 0, filter: "blur(8px)" }
+            }
+            animate={
+                reduceMotion
+                    ? { opacity: 1 }
+                    : { opacity: 1, filter: "blur(0px)" }
+            }
+            transition={{
+                duration: 0.7,
+                delay: 0.05,
+                ease: [0.22, 1, 0.36, 1],
+            }}
             className={cn(
                 "pointer-events-none",
                 "absolute",
@@ -33,6 +53,6 @@ export function HeroTypeMark({ className }: HeroTypeMarkProps) {
             >
                 Aa
             </div>
-        </div>
+        </motion.div>
     );
 }

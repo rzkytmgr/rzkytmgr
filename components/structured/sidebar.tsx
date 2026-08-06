@@ -14,6 +14,7 @@ type SidebarProps = Readonly<{
 
 export function Sidebar({ value }: SidebarProps) {
     const sidebarState = useSidebarStore((state) => state.open);
+    const closeSidebar = useSidebarStore((state) => state.closeSidebar);
 
     return (
         <aside
@@ -28,6 +29,8 @@ export function Sidebar({ value }: SidebarProps) {
                 "w-72",
                 "border-r",
                 "border-smooth-border/70",
+                "bg-background",
+                "shadow-2xl",
                 "transition-transform",
                 "duration-300",
                 "ease-out",
@@ -54,7 +57,11 @@ export function Sidebar({ value }: SidebarProps) {
                     className={cn("mt-8", "flex", "flex-col", "gap-3")}
                 >
                     {value.items.map(({ href, label }) => (
-                        <NavbarItem key={label} href={href}>
+                        <NavbarItem
+                            key={label}
+                            href={href}
+                            onClick={closeSidebar}
+                        >
                             {label}
                         </NavbarItem>
                     ))}

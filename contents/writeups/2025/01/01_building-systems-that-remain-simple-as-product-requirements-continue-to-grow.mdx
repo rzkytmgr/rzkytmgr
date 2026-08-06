@@ -1,30 +1,19 @@
 ---
-id: WU-01
-title: "Building Systems That Remain Simple as Product Requirements Continue to Grow"
+id: WU-02
+title: Building Systems That Remain Simple as Product Requirements Continue to Grow
 tag: Software Engineering
-slug: "building-systems-that-remain-simple-as-product-requirements-continue-to-grow"
-description: "A comprehensive dummy article designed to test every major Markdown and frontmatter rendering style in a personal blog, including headings, lists, quotes, tables, images, code blocks, HTML, and extended Markdown features."
-date: "Aug 01, 2026"
-readingTime: "12 min read"
+slug: building-systems-that-remain-simple-as-product-requirements-continue-to-grow
+description: >-
+    A comprehensive dummy article designed to test every major Markdown and
+    frontmatter rendering style in a personal blog, including headings, lists,
+    quotes, tables, images, code blocks, HTML, and extended Markdown features.
+date: "Jan 15, 2025"
+readingTime: 7 min read
 ---
-
-# Building Systems That Remain Simple as Product Requirements Continue to Grow
 
 > “Complexity is not a feature. It is a cost that should be paid only when it solves a real problem.”
 
-As a product grows, new requirements often appear faster than a team can evaluate their long-term impact. Features accumulate, services begin to split apart, new databases are introduced, and an architecture that was once easy to understand gradually becomes difficult to reason about.
-
-This article is **dummy content** created to test a blog's Markdown rendering and visual styling. However, the content and structure are intentionally written to resemble a real technical article.
-
----
-
-## Table of Contents
-
-1. [Starting with the Problem](#starting-with-the-problem)
-2. [Understanding Complexity](#understanding-complexity)
-3. [Architecture Examples](#architecture-examples)
-4. [Trade-offs to Consider](#trade-offs-to-consider)
-5. [Conclusion](#conclusion)
+This article is **dummy content** created to preview how every major Markdown element renders in this blog. It intentionally combines real-looking technical prose with a complete tour of headings, text formatting, links, images, quotes, lists, code blocks, tables, and extended Markdown features. Wherever the topic feels generic, that is on purpose: the goal is to exercise the renderer, not to teach a specific subject.
 
 ---
 
@@ -41,21 +30,19 @@ For example, an application may initially contain:
 
 Over time, new requirements appear:
 
-- The number of users increases
-- Traffic becomes unpredictable
-- New features must be released faster
-- Multiple business domains begin evolving independently
+1. The number of users increases
+2. Traffic becomes unpredictable
+3. New features must be released faster
+4. Multiple business domains begin evolving independently
 
-At this point, a team may consider:
+At this point a team may consider:
 
 - Splitting the application into multiple services
 - Adding a message broker
 - Introducing a distributed cache
 - Separating databases by business domain
 
-However, these decisions are not automatically correct.
-
-> Adding a new technology may solve one problem while introducing several new operational problems.
+However, these decisions are not automatically correct. Adding a new technology may solve one problem while introducing several new operational problems.
 
 ### Core Principles
 
@@ -66,51 +53,17 @@ A few useful principles are:
 3. **Introduce complexity gradually.**
 4. **Make sure the team can support the operational cost.**
 
----
-
-## Understanding Complexity
-
-Complexity can be divided into two broad categories.
-
-### 1. Essential Complexity
-
-Complexity that comes directly from the business problem itself.
-
-Examples include:
-
-- Payment processing
-- Tax calculation
-- Inventory management
-- Cross-region data synchronization
-
-This complexity is difficult to remove because it is inherent to the domain.
-
-### 2. Accidental Complexity
-
-Complexity introduced by implementation decisions.
-
-Examples include:
-
-- Too many abstractions
-- Unnecessary frameworks
-- Excessive microservices
-- Difficult deployment configurations
-
-This type of complexity can often be reduced through simpler design decisions.
-
-#### Important Note
+#### A Deeper Note
 
 Sometimes an abstraction looks elegant while hiding the actual flow of a program.
 
-##### Example
+##### Even Smaller Subheading
 
-Suppose we have a function named `calculateTotal()`.
+This tests the fifth heading level, including its spacing and typography.
 
-The name looks simple, but its implementation might call several services, read from a cache, access a database, and publish an event.
+###### The Smallest Heading
 
-###### Consequence
-
-A simple function name does not necessarily imply simple behavior.
+And this tests the sixth and final heading level, down to the smallest size in the hierarchy.
 
 ---
 
@@ -151,6 +104,10 @@ https://example.com/articles/testing-markdown
 An email address:
 
 [hello@example.com](mailto:hello@example.com)
+
+A relative link inside the same site:
+
+[Read the related writeup](/blog/building-systems-that-remain-simple-as-product-requirements-continue-to-grow)
 
 ---
 
@@ -284,6 +241,8 @@ Nested task lists:
 ## Horizontal Rules
 
 The following variations are usually rendered as horizontal rules.
+
+---
 
 ---
 
@@ -439,17 +398,14 @@ ON articles (published_at DESC);
 ```python
 from dataclasses import dataclass
 
-
 @dataclass
 class Article:
     id: str
     title: str
     reading_time: int
 
-
 def format_reading_time(article: Article) -> str:
     return f"{article.reading_time} min read"
-
 
 article = Article(
     id="WU-0001",
@@ -501,63 +457,18 @@ A table with formatting:
 
 ---
 
-## HTML Inside Markdown
+## Trade-offs to Consider
 
-<div class="custom-callout">
+| Decision                  | Benefits                                | Costs                                                |
+| ------------------------- | --------------------------------------- | ---------------------------------------------------- |
+| Modular Monolith          | Simple deployment and local development | Requires discipline to preserve module boundaries    |
+| Microservices             | Independent deployment and scaling      | Higher operational and distributed-system complexity |
+| Shared Database           | Simple data access and transactions     | Strong coupling between services                     |
+| Database per Service      | Clear data ownership                    | More difficult cross-service queries                 |
+| Synchronous Communication | Easy request-response model             | Strong runtime dependency                            |
+| Asynchronous Messaging    | Better decoupling and resilience        | Eventual consistency and debugging complexity        |
 
-### Custom Callout
-
-HTML elements can be used if the Markdown renderer allows raw HTML.
-
-<strong>Strong HTML text</strong>
-
-<em>Emphasized HTML text</em>
-
-<mark>Highlighted HTML text</mark>
-
-</div>
-
-<details>
-<summary>Click to reveal additional details</summary>
-
-This content is located inside a `details` element.
-
-- Supports lists
-- Supports **bold text**
-- Supports `inline code`
-
-```javascript
-console.log("Code inside a details element");
-```
-
-</details>
-
-<br />
-
-<div align="center">
-
-This text uses the HTML attribute `align="center"`.
-
-</div>
-
----
-
-## Mermaid Diagram
-
-```mermaid
-flowchart LR
-    Client[Client]
-    Gateway[API Gateway]
-    UserService[User Service]
-    ArticleService[Article Service]
-    Database[(PostgreSQL)]
-
-    Client --> Gateway
-    Gateway --> UserService
-    Gateway --> ArticleService
-    UserService --> Database
-    ArticleService --> Database
-```
+The correct choice depends on the actual constraints of the product, team, infrastructure, and business domain.
 
 ---
 
@@ -573,16 +484,22 @@ Performance should be measured using data rather than assumptions.[^performance]
 
 ---
 
-## Definition Lists
+## GitHub-Style Alerts
 
-Software Architecture
-: The high-level structure of a system and the important decisions that shape it.
+> [!NOTE]
+> This is an important note. Some Markdown renderers support GitHub-style alerts.
 
-Maintainability
-: The ability of a system to be understood, repaired, and extended over time.
+> [!TIP]
+> Use the simplest solution that still satisfies the requirements.
 
-Observability
-: The ability to understand the internal state of a system through external outputs such as logs, metrics, and traces.
+> [!IMPORTANT]
+> Make sure important architectural decisions have clear and documented reasons.
+
+> [!WARNING]
+> Do not optimize before identifying the actual bottleneck.
+
+> [!CAUTION]
+> Database schema changes may affect other systems.
 
 ---
 
@@ -605,25 +522,6 @@ Unicode characters:
 ∞ ≠ ≈ ≤ ≥
 
 λ π Σ Δ
-
----
-
-## GitHub-Style Alerts
-
-> [!NOTE]
-> This is an important note. Some Markdown renderers support GitHub-style alerts.
-
-> [!TIP]
-> Use the simplest solution that still satisfies the requirements.
-
-> [!IMPORTANT]
-> Make sure important architectural decisions have clear and documented reasons.
-
-> [!WARNING]
-> Do not optimize before identifying the actual bottleneck.
-
-> [!CAUTION]
-> Database schema changes may affect other systems.
 
 ---
 
@@ -663,21 +561,6 @@ A monolith is often easier to build and operate at the beginning. However, it ca
 
 ---
 
-## Trade-offs to Consider
-
-| Decision                  | Benefits                                | Costs                                                |
-| ------------------------- | --------------------------------------- | ---------------------------------------------------- |
-| Modular Monolith          | Simple deployment and local development | Requires discipline to preserve module boundaries    |
-| Microservices             | Independent deployment and scaling      | Higher operational and distributed-system complexity |
-| Shared Database           | Simple data access and transactions     | Strong coupling between services                     |
-| Database per Service      | Clear data ownership                    | More difficult cross-service queries                 |
-| Synchronous Communication | Easy request-response model             | Strong runtime dependency                            |
-| Asynchronous Messaging    | Better decoupling and resilience        | Eventual consistency and debugging complexity        |
-
-The correct choice depends on the actual constraints of the product, team, infrastructure, and business domain.
-
----
-
 ## Conclusion
 
 A good system is not a system that uses the largest number of technologies.
@@ -694,21 +577,3 @@ A good system is one that:
 > “Simplicity is not the absence of complexity, but the careful management of it.”
 
 Thank you for reading this dummy article. 🎉
-
----
-
-## Metadata Testing
-
-| Field        | Value          |
-| ------------ | -------------- |
-| ID           | `WU-0001`      |
-| Date         | `Aug 01, 2026` |
-| Reading Time | `12 min read`  |
-| Status       | `Published`    |
-| Language     | `English`      |
-| Markdown     | `Extended`     |
-
-<!--
-This HTML comment should not be visible in the rendered output.
-It is included to test whether the renderer removes HTML comments.
--->
