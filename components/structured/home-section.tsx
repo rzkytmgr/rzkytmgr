@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { HTMLAttributes, ReactNode } from "react";
 import { FadeUp } from "./fade-up";
 import { Typography } from "../ui/typography";
@@ -10,6 +11,7 @@ type HomeSectionProps = Readonly<
         children: ReactNode;
         className?: string;
 
+        seeAllHref?: string;
         animationDelay?: number;
     } & HTMLAttributes<HTMLElement>
 >;
@@ -19,6 +21,7 @@ export function HomeSection({
     title,
     children,
     className,
+    seeAllHref,
     animationDelay = 0,
     ...props
 }: HomeSectionProps) {
@@ -48,6 +51,30 @@ export function HomeSection({
                     >
                         {title}
                     </Typography>
+
+                    {seeAllHref && (
+                        <Link
+                            href={seeAllHref}
+                            className={cn(
+                                "inline-flex",
+                                "items-center",
+                                "shrink-0",
+                                "whitespace-nowrap",
+                                "font-mono",
+                                "text-xs",
+                                "text-neutral-500",
+                                "transition-colors",
+                                "duration-200",
+                                "hover:text-journal-accent",
+                                "hover:underline",
+                                "underline-offset-4",
+                                "decoration-1",
+                                "dark:hover:text-journal-accent",
+                            )}
+                        >
+                            See all
+                        </Link>
+                    )}
                 </div>
                 {children}
             </FadeUp>

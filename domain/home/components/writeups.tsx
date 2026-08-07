@@ -19,6 +19,7 @@ export function WriteupsHomeSection({
         <HomeSection
             id="writeups"
             title={value.title}
+            seeAllHref="/writeups"
             className={cn("mb-8")}
             animationDelay={animationDelay}
         >

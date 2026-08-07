@@ -110,7 +110,7 @@ export function WriteupsListItem({ data }: WriteupsListItemProps) {
                             "text-zinc-500",
                             "underline",
                             "transition-colors",
-                            "hover:text-zinc-700",
+                            "hover:text-journal-accent",
                         )}
                     >
                         Read more

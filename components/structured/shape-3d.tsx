@@ -9,11 +9,14 @@ import {
     type PointerEvent as ReactPointerEvent,
 } from "react";
 import {
+    buildDotGlobe,
     computeSafeZoom,
     computeShapeFit,
     generateFlaskScene,
     generateShapeScene,
+    generateTestTubeScene,
     projectShapeScene,
+    type DotGlobe,
     type ProjectedVertex,
     type ShapeFit,
     type ShapeScene,
@@ -26,7 +29,7 @@ type Shape3DProps = Readonly<{
 
     label?: string;
 
-    variant?: "auto" | "flask";
+    variant?: "auto" | "flask" | "test-tube" | "globe";
 }>;
 
 type Rotation = {
@@ -67,18 +70,32 @@ export function Shape3D({
     const reduceMotion = useReducedMotion();
     const { resolvedTheme } = useTheme();
 
-    const scene = useMemo(
+    const scene = useMemo<ShapeScene | null>(() => {
+        if (variant === "flask") {
+            return generateFlaskScene(seed);
+        }
+
+        if (variant === "test-tube") {
+            return generateTestTubeScene(seed);
+        }
+
+        if (variant === "globe") {
+            return null;
+        }
+
+        return generateShapeScene(seed);
+    }, [seed, variant]);
+
+    const globe = useMemo(
         () =>
-            variant === "flask"
-                ? generateFlaskScene(seed)
-                : generateShapeScene(seed),
+            variant === "globe" ? buildDotGlobe(GLOBE_DOT_COUNT, seed) : null,
         [seed, variant],
     );
 
     const rotationRef = useRef<Rotation>({
-        rx: scene.rx,
-        ry: scene.ry,
-        rz: scene.rz,
+        rx: scene?.rx ?? 0,
+        ry: scene?.ry ?? 0,
+        rz: scene?.rz ?? 0,
     });
     const zoomRef = useRef(1);
     const dragRef = useRef<DragState | null>(null);
@@ -89,11 +106,16 @@ export function Shape3D({
     } | null>(null);
     const layoutRef = useRef<Layout | null>(null);
     const colorRgbRef = useRef("100,116,139");
+    const animTimeRef = useRef(0);
     const dirtyRef = useRef(true);
     const visibleRef = useRef(true);
 
     useEffect(() => {
-        rotationRef.current = { rx: scene.rx, ry: scene.ry, rz: scene.rz };
+        rotationRef.current = {
+            rx: scene?.rx ?? 0,
+            ry: scene?.ry ?? 0,
+            rz: scene?.rz ?? 0,
+        };
         zoomRef.current = 1;
         dirtyRef.current = true;
     }, [scene]);
@@ -135,18 +157,17 @@ export function Shape3D({
             canvas.style.width = `${width}px`;
             canvas.style.height = `${height}px`;
 
-            const projected = projectShapeScene(
-                scene,
-                scene.rx,
-                scene.ry,
-                scene.rz,
-            );
+            const projected = scene
+                ? projectShapeScene(scene, scene.rx, scene.ry, scene.rz)
+                : [];
 
             layoutRef.current = {
                 width,
                 height,
                 dpr,
-                fit: computeShapeFit(projected, width, height),
+                fit: scene
+                    ? computeShapeFit(projected, width, height)
+                    : { scale: 1, centerX: 0, centerY: 0 },
             };
             dirtyRef.current = true;
         };
@@ -210,11 +231,35 @@ export function Shape3D({
 
             const delta = Math.min((time - last) / 1000, 0.1);
             last = time;
+            animTimeRef.current += delta;
 
             const canvas = canvasRef.current;
             const layout = layoutRef.current;
 
             if (!canvas || !layout) {
+                return;
+            }
+
+            if (variant === "globe" && globe) {
+                // The dot globe animates continuously; redraw every frame.
+                dirtyRef.current = true;
+
+                if (visibleRef.current) {
+                    drawDotGlobe(
+                        canvas,
+                        globe,
+                        layout,
+                        animTimeRef.current,
+                        rotationRef.current,
+                        zoomRef.current,
+                        colorRgbRef.current,
+                    );
+                }
+
+                return;
+            }
+
+            if (!scene) {
                 return;
             }
 
@@ -274,7 +319,7 @@ export function Shape3D({
         raf = requestAnimationFrame(loop);
 
         return () => cancelAnimationFrame(raf);
-    }, [reduceMotion, scene]);
+    }, [reduceMotion, scene, globe, variant]);
 
     const handlePointerDown = (event: ReactPointerEvent<HTMLCanvasElement>) => {
         event.preventDefault();
@@ -370,7 +415,11 @@ export function Shape3D({
 
     const handleDoubleClick = () => {
         zoomRef.current = 1;
-        rotationRef.current = { rx: scene.rx, ry: scene.ry, rz: scene.rz };
+        rotationRef.current = {
+            rx: scene?.rx ?? 0,
+            ry: scene?.ry ?? 0,
+            rz: scene?.rz ?? 0,
+        };
         dirtyRef.current = true;
     };
 
@@ -407,6 +456,78 @@ export function Shape3D({
             />
         </div>
     );
+}
+
+const GLOBE_DOT_COUNT = 512;
+
+const GLOBE_ROTATION_SPEED = 0.45;
+
+function drawDotGlobe(
+    canvas: HTMLCanvasElement,
+    globe: DotGlobe,
+    layout: Layout,
+    timeSeconds: number,
+    tilt: Rotation,
+    zoom: number,
+    colorRgb: string,
+) {
+    const context = canvas.getContext("2d");
+
+    if (!context) {
+        return;
+    }
+
+    const { width, height, dpr } = layout;
+    const centerX = width / 2;
+    const centerY = height / 2;
+    const globeRadius = Math.min(width, height) * 0.36 * zoom;
+    const angle = timeSeconds * GLOBE_ROTATION_SPEED;
+
+    const { rx, ry } = tilt;
+    const cosTiltX = Math.cos(rx);
+    const sinTiltX = Math.sin(rx);
+    const cosTiltY = Math.cos(ry);
+    const sinTiltY = Math.sin(ry);
+
+    context.setTransform(dpr, 0, 0, dpr, 0, 0);
+    context.clearRect(0, 0, width, height);
+
+    const { count, latSin, latCos, lon, radii, sizes } = globe;
+
+    for (let index = 0; index < count; index += 1) {
+        const currentLon = lon[index] + angle;
+
+        // Unit position on the sphere, then tilted by the user's drag.
+        const ux = latCos[index] * Math.sin(currentLon);
+        const uy = latSin[index];
+        const uz = latCos[index] * Math.cos(currentLon);
+
+        const px = ux * cosTiltY + uz * sinTiltY;
+        const pz1 = -ux * sinTiltY + uz * cosTiltY;
+        const py = uy * cosTiltX - pz1 * sinTiltX;
+        const pz = uy * sinTiltX + pz1 * cosTiltX;
+
+        // Dots on the back hemisphere are hidden; the visible ones sweep from
+        // the left edge to the right edge, reading as the globe spinning.
+        if (pz <= 0) {
+            continue;
+        }
+
+        const dotRadius = globeRadius * radii[index];
+        const x = px * dotRadius;
+        const y = py * dotRadius;
+
+        const brightness = pz ** 1.6;
+        const rectSize = 2.4 * sizes[index] * zoom;
+
+        context.fillStyle = `rgba(${colorRgb}, ${(0.1 + 0.9 * brightness).toFixed(3)})`;
+        context.fillRect(
+            centerX + x - rectSize / 2,
+            centerY - y - rectSize / 2,
+            rectSize,
+            rectSize,
+        );
+    }
 }
 
 function drawScene(

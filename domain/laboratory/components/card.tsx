@@ -112,7 +112,7 @@ export function LaboratoryCard({ data }: LaboratoryCardProps) {
                             "inline-flex",
                             "items-center",
                             "underline-offset-4",
-                            "decoration-smooth-border/70",
+                            "decoration-current",
                             "hover:underline",
                             "line-clamp-1",
                         )}
@@ -197,9 +197,9 @@ export function LaboratoryCard({ data }: LaboratoryCardProps) {
                             "text-zinc-500",
                             "underline",
                             "transition-colors",
-                            "hover:text-zinc-700",
+                            "hover:text-journal-accent",
                             "dark:text-zinc-400",
-                            "dark:hover:text-zinc-200",
+                            "dark:hover:text-journal-accent",
                         )}
                     >
                         Read more

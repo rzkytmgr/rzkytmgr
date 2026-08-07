@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
+    buildDotGlobe,
     computeSafeZoom,
     computeShapeFit,
     generateFlaskScene,
     generateShapeScene,
+    generateTestTubeScene,
     projectShapeScene,
 } from "@/lib/shapes-3d";
 
@@ -75,8 +77,83 @@ describe("generateFlaskScene", () => {
         ).toEqual(generateFlaskScene("building-scalable-rest-api-with-nestjs"));
     });
 
-    it("yields a valid flask mesh with in-range topology indices", () => {
+    it("yields a valid erlenmeyer mesh with in-range topology indices", () => {
         const scene = generateFlaskScene(
+            "building-scalable-rest-api-with-nestjs",
+        );
+        const count = scene.mesh.vertices.length;
+
+        expect(scene.mesh.faces.length).toBeGreaterThan(0);
+        expect(count).toBeGreaterThan(4);
+
+        for (const [a, b] of scene.mesh.edges) {
+            expect(a).toBeGreaterThanOrEqual(0);
+            expect(a).toBeLessThan(count);
+            expect(b).toBeGreaterThanOrEqual(0);
+            expect(b).toBeLessThan(count);
+        }
+
+        for (const face of scene.mesh.faces) {
+            for (const vertex of face) {
+                expect(vertex).toBeGreaterThanOrEqual(0);
+                expect(vertex).toBeLessThan(count);
+            }
+        }
+
+        expect(
+            scene.mesh.vertices.every((v) =>
+                [v.x, v.y, v.z].every(Number.isFinite),
+            ),
+        ).toBe(true);
+
+        expect(scene.spin).toEqual({ rx: 0, ry: 0, rz: 0 });
+    });
+
+    it("narrows toward the neck like an erlenmeyer flask", () => {
+        const scene = generateFlaskScene(
+            "building-scalable-rest-api-with-nestjs",
+        );
+        const { vertices } = scene.mesh;
+
+        const minY = Math.min(...vertices.map((v) => v.y));
+        const maxY = Math.max(...vertices.map((v) => v.y));
+
+        const radiusAt = (y: number) =>
+            Math.max(
+                ...vertices
+                    .filter((v) => v.y === y)
+                    .map((v) => Math.hypot(v.x, v.z)),
+            );
+
+        const neckRadius = radiusAt(minY);
+        const baseRadius = radiusAt(maxY);
+
+        expect(neckRadius).toBeLessThan(baseRadius * 0.5);
+    });
+
+    it("sits on a flat closed base", () => {
+        const scene = generateFlaskScene(
+            "building-scalable-rest-api-with-nestjs",
+        );
+        const { vertices } = scene.mesh;
+        const maxY = Math.max(...vertices.map((v) => v.y));
+        const baseVertices = vertices.filter((v) => v.y === maxY);
+
+        expect(baseVertices.some((v) => v.x === 0 && v.z === 0)).toBe(true);
+    });
+});
+
+describe("generateTestTubeScene", () => {
+    it("is deterministic for the same seed", () => {
+        expect(
+            generateTestTubeScene("building-scalable-rest-api-with-nestjs"),
+        ).toEqual(
+            generateTestTubeScene("building-scalable-rest-api-with-nestjs"),
+        );
+    });
+
+    it("yields a valid test tube mesh with in-range topology indices", () => {
+        const scene = generateTestTubeScene(
             "building-scalable-rest-api-with-nestjs",
         );
         const count = scene.mesh.vertices.length;
@@ -158,6 +235,57 @@ describe("computeShapeFit", () => {
         expect(maxX * 2).toBeLessThanOrEqual(600 * 0.7 + 1e-6);
         expect(maxY * 2).toBeLessThanOrEqual(338 * 0.7 + 1e-6);
         expect(fit.scale).toBeGreaterThan(0);
+    });
+});
+
+describe("buildDotGlobe", () => {
+    it("is deterministic for the same seed", () => {
+        expect(buildDotGlobe(512, "lab-seed")).toEqual(
+            buildDotGlobe(512, "lab-seed"),
+        );
+    });
+
+    it("produces the requested number of finite dots", () => {
+        const globe = buildDotGlobe(512, "lab-seed");
+
+        expect(globe.count).toBe(512);
+        expect(globe.latSin.length).toBe(512);
+        expect(globe.latCos.length).toBe(512);
+        expect(globe.lon.length).toBe(512);
+
+        for (const value of globe.latSin) {
+            expect(Number.isFinite(value)).toBe(true);
+            expect(Math.abs(value)).toBeLessThanOrEqual(1);
+        }
+
+        for (const value of globe.latCos) {
+            expect(Number.isFinite(value)).toBe(true);
+            expect(value).toBeGreaterThanOrEqual(0);
+        }
+
+        expect(globe.radii.every((r) => r > 0 && Number.isFinite(r))).toBe(
+            true,
+        );
+        expect(globe.sizes.every((s) => s > 0 && Number.isFinite(s))).toBe(
+            true,
+        );
+    });
+
+    it("spreads dots across both hemispheres", () => {
+        const globe = buildDotGlobe(512, "lab-seed");
+        let front = 0;
+        let back = 0;
+
+        for (let index = 0; index < globe.count; index += 1) {
+            if (Math.cos(globe.lon[index]) > 0) {
+                front += 1;
+            } else {
+                back += 1;
+            }
+        }
+
+        expect(front).toBeGreaterThan(globe.count * 0.4);
+        expect(back).toBeGreaterThan(globe.count * 0.4);
     });
 });
 

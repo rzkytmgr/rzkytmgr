@@ -26,6 +26,7 @@ const pillBase = cn(
     "font-mono",
     "text-xs",
     "transition-colors",
+    "shrink-0",
 );
 
 const pillActive = cn(
@@ -41,10 +42,10 @@ const pillIdle = cn(
     "border-smooth-border/70",
     "bg-transparent",
     "text-neutral-500",
-    "hover:border-zinc-400",
-    "hover:text-zinc-900",
-    "dark:hover:border-neutral-500",
-    "dark:hover:text-zinc-100",
+    "hover:border-journal-accent/60",
+    "hover:text-journal-accent",
+    "dark:hover:border-journal-accent/50",
+    "dark:hover:text-journal-accent",
 );
 
 export function FilterPills({
@@ -66,9 +67,14 @@ export function FilterPills({
             aria-label={ariaLabel}
             className={cn(
                 "flex",
-                "flex-wrap",
+                "flex-nowrap",
                 "items-center",
                 "gap-2",
+                "overflow-x-auto",
+                "overscroll-x-contain",
+                "[-ms-overflow-style:none]",
+                "[scrollbar-width:none]",
+                "[&::-webkit-scrollbar]:hidden",
                 className,
             )}
         >

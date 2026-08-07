@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { ArchiveNotice } from "@/components/structured/archive-notice";
 import { ArticlePager } from "@/components/structured/article-pager";
 import { FadeUp } from "@/components/structured/fade-up";
 import { GiscusComments } from "@/components/structured/giscus-comments";
@@ -82,7 +83,6 @@ export default async function LaboratoryDetailPage({
                     description={data.description}
                     date={data.date}
                     stack={data.stack}
-                    is_archive={data.is_archive}
                     readingTime={readingTime}
                     slug={data.slug}
                 />
@@ -100,6 +100,13 @@ export default async function LaboratoryDetailPage({
                 )}
             >
                 <div className="lg:col-span-2">
+                    {data.is_archive && (
+                        <ArchiveNotice
+                            message="This experiment has been archived and is no longer maintained. Some information or links may be outdated."
+                            className="mb-10"
+                        />
+                    )}
+
                     <Markdown html={contentHtml} className="font-serif" />
 
                     <GiscusComments config={config.giscus} />

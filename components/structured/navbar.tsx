@@ -90,11 +90,11 @@ export function Navbar({ value }: NavbarProps) {
                             "p-2",
                             "text-journal-light-muted",
                             "transition-colors",
-                            "hover:bg-neutral-100",
-                            "active:bg-neutral-100",
+                            "hover:bg-journal-accent/10",
+                            "active:bg-journal-accent/10",
                             "dark:text-journal-dark-muted",
-                            "dark:hover:bg-neutral-100",
-                            sidebarState && "bg-neutral-100",
+                            "dark:hover:bg-journal-accent/20",
+                            sidebarState && "bg-journal-accent/10",
                         )}
                     >
                         <PanelLeft
@@ -168,9 +168,9 @@ export function Navbar({ value }: NavbarProps) {
                             "p-2",
                             "text-journal-light-muted",
                             "transition-colors",
-                            "hover:bg-neutral-100",
+                            "hover:bg-journal-accent/10",
                             "dark:text-journal-dark-muted",
-                            "dark:hover:bg-neutral-100",
+                            "dark:hover:bg-journal-accent/20",
                         )}
                     >
                         <Sun

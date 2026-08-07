@@ -1,6 +1,6 @@
-import { TriangleAlert } from "lucide-react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { ArchiveNotice } from "@/components/structured/archive-notice";
 import { ArticlePager } from "@/components/structured/article-pager";
 import { FadeUp } from "@/components/structured/fade-up";
 import { GiscusComments } from "@/components/structured/giscus-comments";
@@ -83,7 +83,6 @@ export default async function ShowcaseDetailPage({
                     description={data.description}
                     date={data.date}
                     techstack={data.techstack}
-                    is_archive={data.is_archive}
                     readingTime={readingTime}
                     slug={data.slug}
                 />
@@ -102,45 +101,10 @@ export default async function ShowcaseDetailPage({
             >
                 <div className="lg:col-span-2">
                     {data.is_archive && (
-                        <div
-                            role="alert"
-                            className={cn(
-                                "mb-10",
-                                "flex",
-                                "items-start",
-                                "gap-3",
-                                "rounded-md",
-                                "border",
-                                "border-yellow-700/40",
-                                "bg-orange-50",
-                                "px-4",
-                                "py-3",
-                                "dark:border-yellow-500/40",
-                                "dark:bg-yellow-500/10",
-                            )}
-                        >
-                            <TriangleAlert
-                                aria-hidden="true"
-                                className={cn(
-                                    "mt-0.5",
-                                    "size-4",
-                                    "flex-none",
-                                    "text-yellow-700",
-                                    "dark:text-yellow-400",
-                                )}
-                            />
-                            <p
-                                className={cn(
-                                    "text-sm",
-                                    "leading-relaxed",
-                                    "text-yellow-800",
-                                    "dark:text-yellow-200",
-                                )}
-                            >
-                                This project is no longer maintained. Some
-                                information or links may be outdated.
-                            </p>
-                        </div>
+                        <ArchiveNotice
+                            message="This project is no longer maintained. Some information or links may be outdated."
+                            className="mb-10"
+                        />
                     )}
 
                     {}

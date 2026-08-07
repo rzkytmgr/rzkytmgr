@@ -19,6 +19,7 @@ export function LaboratoryHomeSection({
         <HomeSection
             id="laboratory"
             title={value.title}
+            seeAllHref="/lab"
             animationDelay={animationDelay}
         >
             <div

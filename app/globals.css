@@ -7,6 +7,7 @@
     --foreground: #171717;
 
     --smooth-border: #e5e5e5;
+    --journal-accent: #ff5e1f;
 
     --shiki-foreground: #24292e;
     --shiki-background: transparent;
@@ -41,6 +42,7 @@
     --foreground: #ededed;
 
     --smooth-border: #27272a;
+    --journal-accent: #ff5e1f;
 
     --shiki-foreground: #e1e4e8;
     --shiki-background: transparent;
@@ -93,7 +95,7 @@
     --color-neutral-900: var(--neutral-900);
     --color-neutral-950: var(--neutral-950);
 
-    --color-journal-accent: #4f46e5;
+    --color-journal-accent: var(--journal-accent);
     --color-journal-light-muted: #52525b;
     --color-journal-dark-muted: #a1a1aa;
 }
@@ -274,7 +276,17 @@
 }
 
 .markdown-body :not(pre) > code {
-    @apply rounded bg-neutral-100 px-1.5 py-0.5 font-mono text-[0.875em] text-zinc-800 dark:bg-neutral-100 dark:text-zinc-200;
+    @apply rounded bg-neutral-100 px-1.5 py-0.5 font-mono text-[0.875em] text-zinc-800 break-words dark:bg-neutral-100 dark:text-zinc-200;
+}
+
+/*
+ * Plain <pre><code> blocks (e.g. fenced blocks without a language) are not
+ * wrapped in a <figure> by rehype-pretty-code, so they miss the overflow
+ * handling above. Style them explicitly so long lines scroll horizontally
+ * instead of pushing the page wider on small screens.
+ */
+.markdown-body pre:not([data-language]) {
+    @apply my-6 max-w-full overflow-x-auto rounded-md border border-smooth-border/70 bg-neutral-100 p-4 font-mono text-[0.9em] leading-relaxed dark:bg-neutral-100;
 }
 
 .markdown-body figure[data-rehype-pretty-code-figure] {
@@ -344,7 +356,7 @@
 }
 
 .markdown-body .code-block-label__copy:focus-visible {
-    outline: 2px solid #4f46e5;
+    outline: 2px solid var(--color-journal-accent);
     outline-offset: 1px;
 }
 

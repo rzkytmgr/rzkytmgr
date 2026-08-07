@@ -19,6 +19,7 @@ export function ShowcaseHomeSection({
         <HomeSection
             id="showcase"
             title={value.title}
+            seeAllHref="/showcase"
             className={cn("mb-8")}
             animationDelay={animationDelay}
         >

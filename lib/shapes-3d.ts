@@ -397,18 +397,23 @@ function generateShapeSpin(prng: () => number): ShapeSpin {
 }
 
 function flask(prng: () => number): Mesh3D {
-    const segments = 10;
-    const scale = 0.9 + prng() * 0.25;
+    const segments = 14;
+    const scale = 0.95 + prng() * 0.15;
 
+    // Erlenmeyer profile: a narrow open neck at the top flaring into a wide
+    // conical body that ends in a flat base. Each entry is [y, radius].
     const profile: Array<[number, number]> = [
-        [-1.0, 0.72],
-        [-0.5, 1.0],
-        [0.0, 0.85],
-        [0.55, 0.3],
-        [1.25, 0.3],
+        [-1.0, 0.24],
+        [-0.86, 0.19],
+        [-0.5, 0.19],
+        [-0.1, 0.36],
+        [0.35, 0.66],
+        [0.7, 0.88],
+        [0.98, 1.0],
     ];
 
-    const vertices: Vec3[] = [{ x: 0, y: profile[0][0] * scale, z: 0 }];
+    const vertices: Vec3[] = [];
+    const faces: Mesh3D["faces"] = [];
 
     for (const [y, radius] of profile) {
         for (let seg = 0; seg < segments; seg += 1) {
@@ -421,16 +426,66 @@ function flask(prng: () => number): Mesh3D {
         }
     }
 
-    const faces: Mesh3D["faces"] = [];
+    for (let ring = 0; ring < profile.length - 1; ring += 1) {
+        const row = ring * segments;
+
+        for (let seg = 0; seg < segments; seg += 1) {
+            const next = (seg + 1) % segments;
+            faces.push([
+                row + seg,
+                row + next,
+                row + segments + next,
+                row + segments + seg,
+            ]);
+        }
+    }
+
+    // Flat base disc (the flask stands on this).
+    const baseCenter = vertices.length;
+    vertices.push({ x: 0, y: profile[profile.length - 1][0] * scale, z: 0 });
+
+    const baseRow = (profile.length - 1) * segments;
 
     for (let seg = 0; seg < segments; seg += 1) {
-        const a = 1 + seg;
-        const b = 1 + ((seg + 1) % segments);
-        faces.push([0, a, b]);
+        const next = (seg + 1) % segments;
+        faces.push([baseRow + seg, baseRow + next, baseCenter]);
+    }
+
+    return buildMesh(vertices, faces);
+}
+
+function testTube(prng: () => number): Mesh3D {
+    const segments = 12;
+    const scale = 0.95 + prng() * 0.15;
+
+    const profile: Array<[number, number]> = [
+        [-1.05, 0.44],
+        [-0.92, 0.35],
+        [-0.85, 0.34],
+        [0.4, 0.34],
+        [0.516, 0.32],
+        [0.619, 0.26],
+        [0.694, 0.17],
+        [0.735, 0.059],
+        [0.74, 0.012],
+    ];
+
+    const vertices: Vec3[] = [];
+    const faces: Mesh3D["faces"] = [];
+
+    for (const [y, radius] of profile) {
+        for (let seg = 0; seg < segments; seg += 1) {
+            const angle = (seg / segments) * Math.PI * 2;
+            vertices.push({
+                x: radius * Math.cos(angle) * scale,
+                y: y * scale,
+                z: radius * Math.sin(angle) * scale,
+            });
+        }
     }
 
     for (let ring = 0; ring < profile.length - 1; ring += 1) {
-        const row = 1 + ring * segments;
+        const row = ring * segments;
 
         for (let seg = 0; seg < segments; seg += 1) {
             const next = (seg + 1) % segments;
@@ -492,8 +547,23 @@ export function generateShapeScene(seed: string): ShapeScene {
 export function generateFlaskScene(seed: string): ShapeScene {
     const prng = mulberry32(hashString(seed));
 
+    // Static on purpose: the flask should not auto-rotate, but it stays
+    // interactive (drag to rotate, scroll to zoom) via the Shape3D component.
     return {
         mesh: flask(prng),
+        rx: 0.12,
+        ry: 0.65,
+        rz: 0,
+        fov: 3.2,
+        spin: { rx: 0, ry: 0, rz: 0 },
+    };
+}
+
+export function generateTestTubeScene(seed: string): ShapeScene {
+    const prng = mulberry32(hashString(seed));
+
+    return {
+        mesh: testTube(prng),
         rx: 0.1,
         ry: 0.7,
         rz: 0,
@@ -550,6 +620,40 @@ export function computeShapeFit(
 }
 
 const MAX_VIEWPORT_FRACTION = 0.9;
+
+export type DotGlobe = Readonly<{
+    count: number;
+
+    latSin: Float32Array;
+    latCos: Float32Array;
+    lon: Float32Array;
+    radii: Float32Array;
+    sizes: Float32Array;
+}>;
+
+export function buildDotGlobe(count: number, seed: string): DotGlobe {
+    const random = mulberry32(hashString(seed));
+    const goldenAngle = Math.PI * (3 - Math.sqrt(5));
+
+    const latSin = new Float32Array(count);
+    const latCos = new Float32Array(count);
+    const lon = new Float32Array(count);
+    const radii = new Float32Array(count);
+    const sizes = new Float32Array(count);
+
+    for (let index = 0; index < count; index += 1) {
+        // Fibonacci-sphere sampling spreads the dots evenly over the surface.
+        const y = 1 - (2 * (index + 0.5)) / count;
+
+        latSin[index] = y;
+        latCos[index] = Math.sqrt(Math.max(0, 1 - y * y));
+        lon[index] = index * goldenAngle;
+        radii[index] = 0.97 + random() * 0.06;
+        sizes[index] = 0.85 + random() * 0.6;
+    }
+
+    return { count, latSin, latCos, lon, radii, sizes };
+}
 
 export function computeSafeZoom(
     projected: ProjectedVertex[],

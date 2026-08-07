@@ -117,10 +117,10 @@ export function HeroSection({ value }: HeroSectionProps) {
                                 "font-medium",
                                 "text-zinc-500",
                                 "transition-colors",
-                                "hover:text-zinc-700",
+                                "hover:text-journal-accent",
                                 "dark:border-zinc-300",
                                 "dark:text-zinc-400",
-                                "dark:hover:text-zinc-200",
+                                "dark:hover:text-journal-accent",
                             )}
                         >
                             Browse experiments

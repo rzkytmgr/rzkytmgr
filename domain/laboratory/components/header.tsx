@@ -1,3 +1,4 @@
+import { InteractiveGrid } from "@/components/structured/interactive-grid";
 import { Shape3D } from "@/components/structured/shape-3d";
 import { Typography } from "@/components/ui/typography";
 import { cn } from "@/utils";
@@ -7,7 +8,6 @@ type LaboratoryHeaderProps = Readonly<{
     description: string;
     date: string;
     stack: string[];
-    is_archive: boolean;
     readingTime?: string;
 
     slug: string;
@@ -18,7 +18,6 @@ export function LaboratoryHeader({
     description,
     date,
     stack,
-    is_archive,
     readingTime,
     slug,
 }: LaboratoryHeaderProps) {
@@ -33,18 +32,22 @@ export function LaboratoryHeader({
                 "overflow-hidden",
             )}
         >
+            <InteractiveGrid className="lg:hidden" />
+
             <Shape3D
                 seed={slug}
-                variant="flask"
+                variant="globe"
                 className={cn(
                     "pointer-events-none",
                     "absolute",
+                    "hidden",
                     "inset-y-0",
                     "right-0",
                     "z-0",
                     "mr-6",
                     "w-[min(34vw,440px)]",
 
+                    "lg:block",
                     "lg:pointer-events-auto",
                 )}
             />
@@ -67,30 +70,6 @@ export function LaboratoryHeader({
                     {date}
                     {readingTime && ` · ${readingTime}`}
                 </Typography>
-
-                {is_archive && (
-                    <Typography
-                        as="span"
-                        size="xs"
-                        className={cn(
-                            "ml-2",
-                            "inline-block",
-                            "rounded-full",
-                            "border",
-                            "border-yellow-700",
-                            "bg-orange-50",
-                            "px-2",
-                            "py-1",
-                            "font-mono",
-                            "text-yellow-700",
-                            "dark:border-yellow-500",
-                            "dark:bg-yellow-500/10",
-                            "dark:text-yellow-400",
-                        )}
-                    >
-                        Archived
-                    </Typography>
-                )}
             </div>
 
             <Typography

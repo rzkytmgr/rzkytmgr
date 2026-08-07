@@ -24,7 +24,7 @@ export function ShowcaseCard({
                 "border-smooth-border/70",
                 "bg-background",
                 "p-6",
-                hideOnMobile && "block lg:hidden",
+                hideOnMobile && "hidden lg:block",
             )}
         >
             <div className={cn("flex", "flex-col", "gap-3")}>
@@ -205,9 +205,9 @@ export function ShowcaseCard({
                             "text-zinc-500",
                             "underline",
                             "transition-colors",
-                            "hover:text-zinc-700",
+                            "hover:text-journal-accent",
                             "dark:text-zinc-400",
-                            "dark:hover:text-zinc-200",
+                            "dark:hover:text-journal-accent",
                         )}
                     >
                         Read more
