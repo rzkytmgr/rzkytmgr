@@ -241,7 +241,6 @@ export function Shape3D({
             }
 
             if (variant === "globe" && globe) {
-                // The dot globe animates continuously; redraw every frame.
                 dirtyRef.current = true;
 
                 if (visibleRef.current) {
@@ -497,7 +496,6 @@ function drawDotGlobe(
     for (let index = 0; index < count; index += 1) {
         const currentLon = lon[index] + angle;
 
-        // Unit position on the sphere, then tilted by the user's drag.
         const ux = latCos[index] * Math.sin(currentLon);
         const uy = latSin[index];
         const uz = latCos[index] * Math.cos(currentLon);
@@ -507,8 +505,6 @@ function drawDotGlobe(
         const py = uy * cosTiltX - pz1 * sinTiltX;
         const pz = uy * sinTiltX + pz1 * cosTiltX;
 
-        // Dots on the back hemisphere are hidden; the visible ones sweep from
-        // the left edge to the right edge, reading as the globe spinning.
         if (pz <= 0) {
             continue;
         }

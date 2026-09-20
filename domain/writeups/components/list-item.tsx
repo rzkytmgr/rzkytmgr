@@ -1,37 +1,84 @@
 import Link from "next/link";
 import { Typography } from "@/components/ui/typography";
 import type { WriteupsCardType } from "@/types/global";
-import { cn } from "@/utils";
+import { cn, parsePublishDate } from "@/utils";
 
 type WriteupsListItemProps = Readonly<{
     data: WriteupsCardType;
 }>;
 
 export function WriteupsListItem({ data }: WriteupsListItemProps) {
+    const published = parsePublishDate(data.date);
+
     return (
         <article
             className={cn(
+                "group",
+                "relative",
                 "grid",
                 "grid-cols-1",
                 "gap-3",
                 "border-b",
-                "border-smooth-border/70",
+                "border-smooth-border",
                 "py-8",
                 "md:grid-cols-12",
             )}
         >
-            <div className={cn("col-span-1", "hidden", "lg:flex")}>
-                <Typography
-                    as="span"
-                    size="xs"
-                    className={cn("font-mono", "text-neutral-500")}
+            <div
+                aria-hidden="true"
+                className={cn(
+                    "pointer-events-none",
+                    "absolute",
+                    "inset-0",
+                    "z-0",
+                    "overflow-hidden",
+                )}
+            >
+                <div
+                    className={cn(
+                        "absolute",
+                        "-right-12",
+                        "-top-12",
+                        "size-40",
+                        "rounded-full",
+                        "opacity-0",
+                        "transition-opacity",
+                        "duration-150",
+                        "group-hover:opacity-70",
+                        "motion-reduce:transition-none",
+                        "bg-[radial-gradient(closest-side,color-mix(in_oklab,var(--journal-accent)_30%,transparent),transparent)]",
+                        "blur-2xl",
+                    )}
+                />
+            </div>
+
+            <div className={cn("relative", "col-span-1", "hidden", "lg:block")}>
+                <div
+                    className={cn(
+                        "flex",
+                        "items-center",
+                        "font-mono",
+                        "text-xs",
+                        "text-neutral-500",
+                    )}
                 >
-                    [{data.id}]
-                </Typography>
+                    <Typography
+                        as="span"
+                        size="xs"
+                        className={cn(
+                            "whitespace-nowrap",
+                            "text-zinc-950/60",
+                            "dark:text-zinc-50/55",
+                        )}
+                    >
+                        {published.day} {published.month}
+                    </Typography>
+                </div>
             </div>
 
             <div
                 className={cn(
+                    "relative",
                     "col-span-11",
                     "flex",
                     "flex-col",
@@ -53,13 +100,16 @@ export function WriteupsListItem({ data }: WriteupsListItemProps) {
                         size="xs"
                         className={cn("mr-2", "shrink-0", "lg:hidden")}
                     >
-                        [{data.id}]
+                        {published.label}
                     </Typography>
 
                     <Typography
                         as="span"
                         size="xs"
-                        className={cn("line-clamp-1")}
+                        className={cn(
+                            "line-clamp-1",
+                            "text-journal-accent-text",
+                        )}
                     >
                         {data.tag}
                     </Typography>
@@ -73,7 +123,14 @@ export function WriteupsListItem({ data }: WriteupsListItemProps) {
                 >
                     <Link
                         href={`/blog/${data.slug}`}
-                        className={cn("transition-colors", "hover:underline")}
+                        className={cn(
+                            "transition-colors",
+                            "duration-100",
+                            "hover:text-journal-accent-text",
+                            "focus-visible:outline-2",
+                            "focus-visible:outline-offset-4",
+                            "focus-visible:outline-journal-accent",
+                        )}
                     >
                         {data.title}
                     </Link>
@@ -81,39 +138,54 @@ export function WriteupsListItem({ data }: WriteupsListItemProps) {
 
                 <Typography
                     as="p"
-                    className={cn("max-w-3xl", "line-clamp-2", "text-gray-500")}
+                    className={cn(
+                        "max-w-3xl",
+                        "line-clamp-2",
+                        "text-neutral-500",
+                    )}
                 >
                     {data.description}
                 </Typography>
 
-                <div className={cn("mt-2", "flex", "justify-between")}>
+                <div
+                    className={cn(
+                        "mt-2",
+                        "flex",
+                        "items-center",
+                        "justify-between",
+                        "gap-3",
+                    )}
+                >
                     <Typography
                         as="span"
                         size="xs"
                         className={cn("font-mono", "text-neutral-500")}
                     >
-                        {data.date}
-                        {" · "}
                         {data.readingTime}
                     </Typography>
 
                     <Link
                         href={`/blog/${data.slug}`}
                         className={cn(
-                            "group",
                             "inline-flex",
                             "items-center",
-                            "gap-2",
                             "font-mono",
                             "text-xs",
                             "font-medium",
-                            "text-zinc-500",
+                            "text-neutral-600",
                             "underline",
-                            "transition-colors",
-                            "hover:text-journal-accent",
+                            "transition-[color,transform]",
+                            "duration-100",
+                            "hover:text-journal-accent-text",
+                            "group-hover:translate-x-1",
+                            "motion-reduce:group-hover:translate-x-0",
+                            "focus-visible:outline-2",
+                            "focus-visible:outline-offset-4",
+                            "focus-visible:outline-journal-accent",
                         )}
+                        aria-label={`Read more about ${data.title}`}
                     >
-                        Read more
+                        read more
                     </Link>
                 </div>
             </div>

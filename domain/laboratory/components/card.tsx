@@ -1,8 +1,7 @@
-import { FlaskConical } from "lucide-react";
 import Link from "next/link";
 import { Typography } from "@/components/ui/typography";
 import type { LaboratoryCardType } from "@/types/global";
-import { cn } from "@/utils";
+import { cn, parsePublishDate } from "@/utils";
 
 type LaboratoryCardProps = Readonly<{
     data: LaboratoryCardType;
@@ -11,29 +10,140 @@ type LaboratoryCardProps = Readonly<{
 const MAX_STACK_PILLS = 1;
 
 export function LaboratoryCard({ data }: LaboratoryCardProps) {
+    const published = parsePublishDate(data.date);
     const stackPills = data.stack.slice(0, MAX_STACK_PILLS);
     const hiddenStackCount = data.stack.length - stackPills.length;
 
     return (
         <article
             className={cn(
+                "group",
+                "relative",
+                "overflow-visible",
                 "rounded-md",
-                "border",
-                "border-smooth-border/70",
-                "bg-background",
+                data.is_archive ? "border-[1.5px]" : "border",
+                data.is_archive ? "border-warning/60" : "border-smooth-border",
+                "bg-surface",
                 "p-6",
+                "transition-colors",
+                "duration-100",
+                !data.is_archive && "hover:border-journal-accent/60",
             )}
         >
-            <div className={cn("flex", "flex-col", "gap-3")}>
+            <div
+                aria-hidden="true"
+                className={cn(
+                    "pointer-events-none",
+                    "absolute",
+                    "inset-0",
+                    "z-0",
+                    "overflow-hidden",
+                    "rounded-md",
+                )}
+            >
+                <div
+                    className={cn(
+                        "absolute",
+                        "-right-12",
+                        "-top-12",
+                        "size-40",
+                        "rounded-full",
+                        "opacity-0",
+                        "transition-opacity",
+                        "duration-150",
+                        "group-hover:opacity-70",
+                        "motion-reduce:transition-none",
+                        "bg-[radial-gradient(closest-side,color-mix(in_oklab,var(--journal-accent)_35%,transparent),transparent)]",
+                        "blur-2xl",
+                    )}
+                />
+            </div>
+
+            <div
+                className={cn(
+                    "relative",
+                    "flex",
+                    "h-full",
+                    "flex-col",
+                    "gap-3",
+                )}
+            >
                 <div
                     className={cn(
                         "flex",
                         "min-h-7",
+                        "flex-wrap",
                         "items-center",
                         "justify-between",
+                        "gap-x-3",
+                        "gap-y-1",
                         "font-mono",
                         "text-xs",
                         "text-neutral-500",
+                    )}
+                >
+                    <Typography
+                        as="span"
+                        size="xs"
+                        className={cn("min-w-0", "whitespace-nowrap")}
+                    >
+                        {published.full}
+                    </Typography>
+
+                    <Typography
+                        as="span"
+                        size="xs"
+                        className={cn("shrink-0", "whitespace-nowrap")}
+                    >
+                        {data.readingTime}
+                    </Typography>
+                </div>
+
+                <div className={cn("mb-2", "flex", "flex-col", "gap-1.5")}>
+                    <Typography
+                        as="h3"
+                        size="lg"
+                        weight="semibold"
+                        className={cn("line-clamp-1")}
+                    >
+                        <Link
+                            href={`/lab/${data.slug}`}
+                            className={cn(
+                                "transition-colors",
+                                "duration-100",
+                                "hover:text-journal-accent-text",
+                                "focus-visible:outline-2",
+                                "focus-visible:outline-offset-4",
+                                "focus-visible:outline-journal-accent",
+                            )}
+                        >
+                            {data.title}
+                        </Link>
+                    </Typography>
+
+                    <Typography
+                        as="p"
+                        size="sm"
+                        className={cn(
+                            "max-w-3xl",
+                            "line-clamp-3",
+                            "text-neutral-500",
+                        )}
+                    >
+                        {data.description}
+                    </Typography>
+                </div>
+
+                <div
+                    className={cn(
+                        "mt-auto",
+                        "flex",
+                        "items-center",
+                        "justify-between",
+                        "gap-3",
+                        "border-t",
+                        "border-smooth-border",
+                        "pt-4",
                     )}
                 >
                     <div
@@ -41,171 +151,94 @@ export function LaboratoryCard({ data }: LaboratoryCardProps) {
                             "flex",
                             "min-w-0",
                             "items-center",
-                            "gap-2",
-                        )}
-                    >
-                        <Typography as="span" size="xs">
-                            {data.id}
-                        </Typography>
-
-                        {data.is_archive && (
-                            <Typography
-                                as="span"
-                                size="xs"
-                                className={cn(
-                                    "inline-block",
-                                    "rounded-full",
-                                    "border",
-                                    "border-yellow-700",
-                                    "bg-orange-50",
-                                    "px-2",
-                                    "py-1",
-                                    "font-mono",
-                                    "text-yellow-700",
-                                    "dark:border-yellow-500",
-                                    "dark:bg-yellow-500/10",
-                                    "dark:text-yellow-400",
-                                )}
-                            >
-                                Archived
-                            </Typography>
-                        )}
-                    </div>
-
-                    <div
-                        className={cn(
-                            "flex",
-                            "shrink-0",
-                            "items-center",
                             "gap-3",
                         )}
                     >
-                        <Typography
-                            as="span"
-                            size="xs"
-                            className={cn("font-mono", "text-neutral-500")}
-                        >
-                            {data.date}
-                        </Typography>
+                        {stackPills.length > 0 && (
+                            <div
+                                className={cn(
+                                    "flex",
+                                    "flex-wrap",
+                                    "items-center",
+                                    "gap-1.5",
+                                )}
+                            >
+                                {stackPills.map((item) => (
+                                    <span
+                                        key={item}
+                                        className={cn(
+                                            "font-mono",
+                                            "text-xs",
+                                            "text-journal-accent-text",
+                                        )}
+                                    >
+                                        {item}
+                                    </span>
+                                ))}
 
-                        <FlaskConical
-                            aria-hidden="true"
-                            className={cn(
-                                "size-4",
-                                "shrink-0",
-                                "text-neutral-400",
-                                "dark:text-neutral-500",
-                            )}
-                        />
-                    </div>
-                </div>
-
-                <Typography
-                    as="h3"
-                    size="lg"
-                    weight="semibold"
-                    className={cn("mt-1")}
-                >
-                    <Link
-                        href={`/lab/${data.slug}`}
-                        className={cn(
-                            "inline-flex",
-                            "items-center",
-                            "underline-offset-4",
-                            "decoration-current",
-                            "hover:underline",
-                            "line-clamp-1",
+                                {hiddenStackCount > 0 && (
+                                    <span
+                                        className={cn(
+                                            "font-mono",
+                                            "text-xs",
+                                            "text-neutral-500",
+                                        )}
+                                    >
+                                        +{hiddenStackCount}
+                                    </span>
+                                )}
+                            </div>
                         )}
-                    >
-                        {data.title}
-                    </Link>
-                </Typography>
-
-                <Typography
-                    as="p"
-                    size="sm"
-                    className={cn("max-w-3xl", "line-clamp-3", "text-gray-500")}
-                >
-                    {data.description}
-                </Typography>
-
-                <div
-                    className={cn(
-                        "mt-3",
-                        "flex",
-                        "items-center",
-                        "justify-between",
-                        "gap-3",
-                    )}
-                >
-                    {stackPills.length > 0 && (
-                        <div
-                            className={cn(
-                                "flex",
-                                "flex-wrap",
-                                "items-center",
-                                "gap-1.5",
-                            )}
-                        >
-                            {stackPills.map((item) => (
-                                <span
-                                    key={item}
-                                    className={cn(
-                                        "rounded-full",
-                                        "border",
-                                        "border-smooth-border/70",
-                                        "bg-neutral-100/60",
-                                        "px-2",
-                                        "py-0.5",
-                                        "font-mono",
-                                        "text-xs",
-                                        "text-neutral-500",
-                                    )}
-                                >
-                                    {item}
-                                </span>
-                            ))}
-
-                            {hiddenStackCount > 0 && (
-                                <span
-                                    className={cn(
-                                        "rounded-full",
-                                        "px-2",
-                                        "py-0.5",
-                                        "font-mono",
-                                        "text-xs",
-                                        "text-neutral-400",
-                                    )}
-                                >
-                                    +{hiddenStackCount}
-                                </span>
-                            )}
-                        </div>
-                    )}
+                    </div>
 
                     <Link
                         href={`/lab/${data.slug}`}
                         className={cn(
-                            "ml-auto",
                             "inline-flex",
                             "shrink-0",
                             "items-center",
-                            "gap-2",
+                            "gap-1",
                             "font-mono",
                             "text-xs",
                             "font-medium",
-                            "text-zinc-500",
+                            "text-neutral-600",
                             "underline",
-                            "transition-colors",
-                            "hover:text-journal-accent",
-                            "dark:text-zinc-400",
-                            "dark:hover:text-journal-accent",
+                            "transition-[color,transform]",
+                            "duration-100",
+                            "group-hover:translate-x-1",
+                            "motion-reduce:group-hover:translate-x-0",
+                            "hover:text-journal-accent-text",
+                            "focus-visible:outline-2",
+                            "focus-visible:outline-offset-4",
+                            "focus-visible:outline-journal-accent",
                         )}
+                        aria-label={`Read more about ${data.title}`}
                     >
-                        Read more
+                        read more
                     </Link>
                 </div>
             </div>
+
+            {data.is_archive && (
+                <span
+                    className={cn(
+                        "absolute",
+                        "-top-3",
+                        "right-4",
+                        "rounded-full",
+                        "border",
+                        "border-warning-border",
+                        "bg-warning-bg",
+                        "px-2.5",
+                        "py-0.5",
+                        "font-mono",
+                        "text-xs",
+                        "text-warning-text",
+                    )}
+                >
+                    archived
+                </span>
+            )}
         </article>
     );
 }

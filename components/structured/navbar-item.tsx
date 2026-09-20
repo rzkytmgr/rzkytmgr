@@ -21,19 +21,27 @@ export function NavbarItem({
         <Link
             href={href}
             className={cn(
-                "border-journal-accent",
-                "pb-1",
+                "group/item",
+                "inline-flex",
+                "items-center",
+                "px-2.5",
+                "py-1.5",
                 "text-sm",
-                "text-foreground",
-                "transition-colors",
-                "hover:text-journal-accent",
-                active && "font-medium text-journal-accent",
                 className,
             )}
             aria-current={active ? "page" : undefined}
             {...props}
         >
-            {children}
+            <span
+                className={cn(
+                    "transition-colors",
+                    "duration-100",
+                    "group-hover/item:text-journal-accent-text",
+                    active && "font-medium text-journal-accent-text",
+                )}
+            >
+                {children}
+            </span>
         </Link>
     );
 }

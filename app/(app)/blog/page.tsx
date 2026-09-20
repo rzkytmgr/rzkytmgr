@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { PageHeader } from "@/components/structured/page-header";
+import { Typography } from "@/components/ui/typography";
 import { WriteupsComponent } from "@/domain/writeups/components";
 import { getAllWriteups } from "@/domain/writeups/service";
 import { config } from "@/lib/config";
@@ -23,18 +23,16 @@ export default async function WriteupsPage() {
                 "m-auto",
                 "px-5",
                 "sm:px-6",
-                "py-20",
-                "md:py-32",
+                "pt-0",
+                "pb-16",
+                "md:pb-24",
             )}
         >
-            <PageHeader
-                title={config.ui.pages.writeups.heading}
-                description={config.ui.pages.writeups.description}
-            />
+            <Typography as="h1" className={cn("sr-only")}>
+                {config.ui.pages.writeups.heading}
+            </Typography>
 
-            <div className={cn("mt-14")}>
-                <WriteupsComponent.FilterGrid items={items} />
-            </div>
+            <WriteupsComponent.FilterGrid items={items} rssHref={config.rss} />
         </main>
     );
 }

@@ -47,8 +47,8 @@ export function HeroTypeMark({ className }: HeroTypeMarkProps) {
                     "text-[clamp(11rem,25vw,23rem)]",
                     "leading-none",
                     "tracking-[-0.03em]",
-                    "text-zinc-950/[0.045]",
-                    "dark:text-zinc-50/[0.06]",
+                    "text-zinc-950/[0.15]",
+                    "dark:text-zinc-50/[0.12]",
                 )}
             >
                 Aa

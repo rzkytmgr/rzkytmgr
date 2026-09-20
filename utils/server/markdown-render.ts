@@ -200,6 +200,26 @@ function rehypeExternalLinks() {
     };
 }
 
+function collectElementText(node: Element): string {
+    let text = "";
+
+    const walk = (current: Element): void => {
+        (current.children ?? []).forEach((child) => {
+            const typed = child as { type?: string; value?: string };
+
+            if (typed.type === "text") {
+                text += typed.value ?? "";
+            } else if (typed.type === "element") {
+                walk(child as Element);
+            }
+        });
+    };
+
+    walk(node);
+
+    return text;
+}
+
 function rehypeCodeBlockLabels() {
     return (tree: Root) => {
         const walk = (node: Element): void => {
@@ -224,7 +244,32 @@ function rehypeCodeBlockLabels() {
                         : undefined;
                 const meta = getCodeLanguage(rawLanguage);
 
-                if (meta.name) {
+                const figureChildren = node.children ?? [];
+                const figcaptionIndex = figureChildren.findIndex(
+                    (child): child is Element =>
+                        (child as { type?: string }).type === "element" &&
+                        (child as Element).tagName === "figcaption" &&
+                        "data-rehype-pretty-code-title" in
+                            ((child as Element).properties ?? {}),
+                );
+
+                let labelName = meta.name;
+
+                if (figcaptionIndex >= 0) {
+                    const title = collectElementText(
+                        figureChildren[figcaptionIndex] as Element,
+                    ).trim();
+
+                    if (title.length > 0) {
+                        labelName = title;
+                    }
+
+                    node.children = figureChildren.filter(
+                        (_, index) => index !== figcaptionIndex,
+                    );
+                }
+
+                if (labelName) {
                     const children: Element[] = [];
 
                     if (meta.icon) {
@@ -253,7 +298,7 @@ function rehypeCodeBlockLabels() {
                         type: "element",
                         tagName: "span",
                         properties: { className: ["code-block-label__name"] },
-                        children: [{ type: "text", value: meta.name }],
+                        children: [{ type: "text", value: labelName }],
                     });
 
                     children.push({

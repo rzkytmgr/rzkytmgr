@@ -70,16 +70,10 @@ export default function RootLayout({ children }: RootLayoutProps) {
                     "antialiased",
                     "transition-colors",
                     "duration-200",
-                    "selection:bg-neutral-200",
+                    "selection:bg-journal-accent/25",
                 )}
             >
-                <ThemeProvider
-                    attribute="class"
-                    defaultTheme="light"
-                    enableSystem={false}
-                >
-                    {children}
-                </ThemeProvider>
+                <ThemeProvider enableSystem={false}>{children}</ThemeProvider>
             </body>
         </html>
     );

@@ -1,5 +1,3 @@
-import { MoveRight } from "lucide-react";
-import Link from "next/link";
 import { FadeUp } from "@/components/structured/fade-up";
 import { HeroTypeMark } from "@/components/structured/hero-type-mark";
 import { Typography } from "@/components/ui/typography";
@@ -63,80 +61,6 @@ export function HeroSection({ value }: HeroSectionProps) {
                 </FadeUp>
 
                 <FadeUp delay={0.3}>
-                    <div
-                        className={cn(
-                            "flex",
-                            "flex-wrap",
-                            "items-center",
-                            "gap-x-8",
-                            "gap-y-3",
-                            "pt-2",
-                        )}
-                    >
-                        <Link
-                            href="#writeups"
-                            className={cn(
-                                "group",
-                                "inline-flex",
-                                "items-center",
-                                "gap-2",
-                                "border-b",
-                                "border-dashed",
-                                "border-zinc-700",
-                                "py-1",
-                                "text-sm",
-                                "font-medium",
-                                "text-zinc-700",
-                                "dark:border-zinc-300",
-                                "dark:text-zinc-300",
-                            )}
-                        >
-                            Start reading
-                            <MoveRight
-                                aria-hidden="true"
-                                className={cn(
-                                    "size-3",
-                                    "transition-transform",
-                                    "group-hover:translate-x-1",
-                                )}
-                            />
-                        </Link>
-
-                        <Link
-                            href="#laboratory"
-                            className={cn(
-                                "group",
-                                "inline-flex",
-                                "items-center",
-                                "gap-2",
-                                "border-b",
-                                "border-dashed",
-                                "border-zinc-700",
-                                "py-1",
-                                "text-sm",
-                                "font-medium",
-                                "text-zinc-500",
-                                "transition-colors",
-                                "hover:text-journal-accent",
-                                "dark:border-zinc-300",
-                                "dark:text-zinc-400",
-                                "dark:hover:text-journal-accent",
-                            )}
-                        >
-                            Browse experiments
-                            <MoveRight
-                                aria-hidden="true"
-                                className={cn(
-                                    "size-3",
-                                    "transition-transform",
-                                    "group-hover:translate-x-1",
-                                )}
-                            />
-                        </Link>
-                    </div>
-                </FadeUp>
-
-                <FadeUp delay={0.4}>
                     <Typography
                         as="p"
                         size="xs"
@@ -146,7 +70,10 @@ export function HeroSection({ value }: HeroSectionProps) {
                             "text-neutral-500",
                         )}
                     >
-                        Written by {value.author.name}
+                        Written by{" "}
+                        <span className={cn("text-journal-accent-text")}>
+                            {value.author.name}
+                        </span>
                         <span className={cn("hidden", "md:inline")}>
                             {" · "}
                             {value.author.title}

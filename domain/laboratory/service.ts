@@ -10,37 +10,31 @@ export const getAllExperimentSlug = () => {
     return filenames.map((filename) => parseSlug(filename));
 };
 
+const byNewest = (
+    a: [string, LaboratoryCardType],
+    b: [string, LaboratoryCardType],
+) => Date.parse(b[1].date) - Date.parse(a[1].date);
+
 export const getAllExperiments = async () => {
     return new Map(
-        await loadCollectionEntries<LaboratoryCardType>(
-            filenames,
-            "laboratory",
-        ),
+        (
+            await loadCollectionEntries<LaboratoryCardType>(
+                filenames,
+                "laboratory",
+            )
+        ).sort(byNewest),
     );
 };
 
 export const getLatestExperiments = async (total = 4) => {
-    return new Map(
-        await loadCollectionEntries<LaboratoryCardType>(
-            filenames.slice(filenames.length - total),
-            "laboratory",
-        ),
-    );
-};
-
-export const getAllExperimentContents = async () => {
-    return new Map(await loadCollectionEntries(filenames, "laboratory", true));
-};
-
-export const getExperimentBySlug = async (slug: string) => {
-    const experiments = await getAllExperiments();
-    return experiments.get(slug);
+    const all = await getAllExperiments();
+    return new Map([...all].slice(0, total));
 };
 
 export const getExperimentContentBySlug = async (slug: string) => {
-    return (await getAllExperimentContents()).get(
-        slug,
-    ) as GrayMatterFile<string>;
+    return new Map(
+        await loadCollectionEntries(filenames, "laboratory", true),
+    ).get(slug) as GrayMatterFile<string>;
 };
 
 export const getAdjacentExperiment = async (

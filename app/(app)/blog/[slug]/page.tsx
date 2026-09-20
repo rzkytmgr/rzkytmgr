@@ -53,47 +53,97 @@ export default async function BlogPage({ params }: BlogPageProps) {
         <main
             id="main-content"
             className={cn(
-                "max-w-6xl w-full m-auto px-5 sm:px-6 py-20",
-                "md:py-32",
+                "max-w-7xl w-full m-auto px-6 pt-6 pb-20",
+                "md:pt-8 md:pb-32",
             )}
         >
             <ReadingProgress />
 
-            <FadeUp>
-                <WriteupsComponent.Header
-                    date={metadata.date}
-                    description={metadata.description}
-                    readingTime={metadata.readingTime}
-                    tag={metadata.tag}
-                    title={metadata.title}
-                />
-            </FadeUp>
-
-            <hr className={cn("border-smooth-border/70")} />
-
+            {}
             <div
                 className={cn(
+                    "mx-auto",
                     "grid",
+                    "w-full",
                     "grid-cols-1",
-                    "gap-12",
-                    "pt-12",
-                    "lg:grid-cols-3",
+                    "gap-y-12",
+                    "xl:grid-cols-[minmax(0,1fr)_680px_minmax(0,1fr)]",
+                    "xl:gap-x-10",
                 )}
             >
-                <div className="lg:col-span-2">
-                    <Markdown html={contentHtml} className="font-serif" />
-
-                    <GiscusComments config={config.giscus} />
-
-                    <ArticlePager
-                        previous={adjacent.previous}
-                        next={adjacent.next}
+                <FadeUp
+                    className={cn(
+                        "mx-auto",
+                        "w-full",
+                        "max-w-[680px]",
+                        "xl:col-start-2",
+                        "xl:row-start-1",
+                        "xl:max-w-none",
+                    )}
+                >
+                    <WriteupsComponent.Header
+                        date={metadata.date}
+                        description={metadata.description}
+                        readingTime={metadata.readingTime}
+                        tag={metadata.tag}
+                        title={metadata.title}
+                        thumbnail={metadata.thumbnail}
                     />
+                </FadeUp>
+
+                <div
+                    className={cn(
+                        "mx-auto",
+                        "w-full",
+                        "max-w-[680px]",
+                        "xl:col-start-2",
+                        "xl:row-start-2",
+                        "xl:max-w-none",
+                    )}
+                >
+                    <FadeUp delay={0.15}>
+                        <Markdown html={contentHtml} className="font-serif" />
+
+                        <GiscusComments config={config.giscus} />
+
+                        <ArticlePager
+                            previous={adjacent.previous}
+                            next={adjacent.next}
+                        />
+                    </FadeUp>
                 </div>
 
                 {headings.length > 0 && (
-                    <aside className="hidden lg:block lg:sticky lg:top-24 lg:self-start lg:pl-6">
-                        <TableOfContents headings={headings} />
+                    <aside
+                        className={cn(
+                            "hidden",
+                            "xl:col-start-3",
+                            "xl:row-start-1",
+                            "xl:row-span-2",
+                            "xl:block",
+                        )}
+                    >
+                        {}
+                        <div
+                            className={cn(
+                                "xl:sticky",
+                                "xl:flex",
+                                "xl:flex-col",
+                                "xl:top-24",
+                                "xl:max-h-[calc(100vh_-_8rem)]",
+                            )}
+                        >
+                            <FadeUp
+                                delay={0.2}
+                                className={cn(
+                                    "xl:flex",
+                                    "xl:flex-col",
+                                    "xl:min-h-0",
+                                )}
+                            >
+                                <TableOfContents headings={headings} />
+                            </FadeUp>
+                        </div>
                     </aside>
                 )}
             </div>

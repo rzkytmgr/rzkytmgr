@@ -24,6 +24,7 @@ export type WriteupsCardType = {
     slug: string;
     title: string;
     description: string;
+    thumbnail: string;
     date: string;
     readingTime: string;
 };
@@ -37,8 +38,10 @@ export type ShowcaseCardType = {
     };
     title: string;
     description: string;
+    thumbnail: string;
     techstack: string[];
     date: string;
+    readingTime: string;
     slug: string;
     is_archive: boolean;
 };
@@ -56,7 +59,9 @@ export type LaboratoryCardType = {
     slug: string;
     title: string;
     description: string;
+    thumbnail: string;
     is_archive: boolean;
     stack: string[];
     date: string;
+    readingTime: string;
 };

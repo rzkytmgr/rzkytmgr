@@ -11,7 +11,8 @@ type HomeSectionProps = Readonly<
         children: ReactNode;
         className?: string;
 
-        seeAllHref?: string;
+        linkHref?: string;
+        linkLabel?: string;
         animationDelay?: number;
     } & HTMLAttributes<HTMLElement>
 >;
@@ -21,7 +22,8 @@ export function HomeSection({
     title,
     children,
     className,
-    seeAllHref,
+    linkHref,
+    linkLabel = "view more",
     animationDelay = 0,
     ...props
 }: HomeSectionProps) {
@@ -33,9 +35,8 @@ export function HomeSection({
                         "flex",
                         "items-center",
                         "justify-between",
-                        "mb-3",
                         "border-b",
-                        "border-smooth-border/70",
+                        "border-smooth-border",
                         "pb-3",
                     )}
                 >
@@ -52,9 +53,9 @@ export function HomeSection({
                         {title}
                     </Typography>
 
-                    {seeAllHref && (
+                    {linkHref && (
                         <Link
-                            href={seeAllHref}
+                            href={linkHref}
                             className={cn(
                                 "inline-flex",
                                 "items-center",
@@ -65,14 +66,16 @@ export function HomeSection({
                                 "text-neutral-500",
                                 "transition-colors",
                                 "duration-200",
-                                "hover:text-journal-accent",
+                                "hover:text-journal-accent-text",
                                 "hover:underline",
                                 "underline-offset-4",
                                 "decoration-1",
-                                "dark:hover:text-journal-accent",
+                                "focus-visible:outline-2",
+                                "focus-visible:outline-offset-4",
+                                "focus-visible:outline-journal-accent",
                             )}
                         >
-                            See all
+                            {linkLabel}
                         </Link>
                     )}
                 </div>

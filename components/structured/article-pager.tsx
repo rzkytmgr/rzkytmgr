@@ -86,7 +86,7 @@ export function ArticlePager({ previous, next }: ArticlePagerProps) {
                             "line-clamp-2",
                             "text-zinc-900",
                             "transition-colors",
-                            "group-hover:text-journal-accent",
+                            "group-hover:text-journal-accent-text",
                             "dark:text-zinc-100",
                         )}
                     >
@@ -140,7 +140,7 @@ export function ArticlePager({ previous, next }: ArticlePagerProps) {
                             "line-clamp-2",
                             "text-zinc-900",
                             "transition-colors",
-                            "group-hover:text-journal-accent",
+                            "group-hover:text-journal-accent-text",
                             "dark:text-zinc-100",
                         )}
                     >

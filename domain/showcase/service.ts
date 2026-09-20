@@ -23,22 +23,15 @@ export const getAllShowcases = async () => {
     );
 };
 
-export const getLatestShowcases = async (total = 4) => {
+export const getLatestShowcases = async (total = 6) => {
     const all = await getAllShowcases();
     return new Map([...all].slice(0, total));
 };
 
-export const getAllShowcaseContents = async () => {
-    return new Map(await loadCollectionEntries(filenames, "showcase", true));
-};
-
-export const getShowcaseBySlug = async (slug: string) => {
-    const showcases = await getAllShowcases();
-    return showcases.get(slug);
-};
-
 export const getShowcaseContentBySlug = async (slug: string) => {
-    return (await getAllShowcaseContents()).get(slug) as GrayMatterFile<string>;
+    return new Map(
+        await loadCollectionEntries(filenames, "showcase", true),
+    ).get(slug) as GrayMatterFile<string>;
 };
 
 export const getAdjacentShowcase = async (

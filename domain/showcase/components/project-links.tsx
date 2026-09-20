@@ -1,7 +1,8 @@
-import { ExternalLink, FolderGit2 } from "lucide-react";
+import { GlobeCode } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { cn } from "@/utils";
+import { SocialIcon } from "@/components/structured/social-icon";
 
 type ProjectLinksProps = Readonly<{
     repository?: string;
@@ -54,7 +55,7 @@ function ProjectLinkSlot({
                         "cursor-not-allowed",
                         "border-smooth-border",
                         "bg-neutral-100/60",
-                        "text-neutral-400",
+                        "text-neutral-500",
                         "dark:border-neutral-300",
                         "dark:bg-neutral-100/60",
                         "dark:text-neutral-500",
@@ -68,7 +69,7 @@ function ProjectLinkSlot({
                         "text-center",
                         "text-[11px]",
                         "leading-tight",
-                        "text-neutral-400",
+                        "text-neutral-500",
                         "dark:text-neutral-500",
                     )}
                 >
@@ -90,25 +91,24 @@ function ProjectLinkSlot({
                     ? cn(
                           "border-journal-accent/60",
                           "bg-journal-accent/5",
-                          "text-journal-accent",
+                          "text-journal-accent-text",
                           "hover:bg-journal-accent/10",
                           "dark:border-journal-accent/50",
                           "dark:bg-journal-accent/10",
-                          "dark:text-journal-accent",
                           "dark:hover:bg-journal-accent/20",
                       )
                     : cn(
                           "border-smooth-border",
                           "bg-transparent",
                           "text-zinc-700",
-                          "hover:border-journal-accent/60",
-                          "hover:bg-journal-accent/10",
-                          "hover:text-journal-accent",
+                          "hover:border-neutral-300",
+                          "hover:bg-neutral-100",
+                          "hover:text-zinc-950",
                           "dark:border-neutral-300",
                           "dark:text-zinc-300",
-                          "dark:hover:border-journal-accent/50",
-                          "dark:hover:bg-journal-accent/20",
-                          "dark:hover:text-journal-accent",
+                          "dark:hover:border-neutral-400",
+                          "dark:hover:bg-neutral-100",
+                          "dark:hover:text-zinc-50",
                       ),
             )}
         >
@@ -128,18 +128,14 @@ export function ProjectLinks({
             <ProjectLinkSlot
                 href={preview}
                 label="Live preview"
-                icon={
-                    <ExternalLink aria-hidden="true" className={cn("size-4")} />
-                }
+                icon={<GlobeCode aria-hidden="true" className={cn("size-4")} />}
                 missingNote="This project has no live preview."
                 primary
             />
             <ProjectLinkSlot
                 href={repository}
                 label="Repository"
-                icon={
-                    <FolderGit2 aria-hidden="true" className={cn("size-4")} />
-                }
+                icon={<SocialIcon name="Github" className={cn("size-4")} />}
                 missingNote="This project has no repository."
             />
         </div>

@@ -19,7 +19,7 @@ body:
       attributes:
           label: Affected page / URL
           description: Which page or article is affected?
-          placeholder: e.g. https://example.com/writeups/...
+          placeholder: e.g. https://example.com/blog/...
       validations:
           required: true
     - type: textarea

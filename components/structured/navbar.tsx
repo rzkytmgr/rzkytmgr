@@ -1,15 +1,16 @@
 "use client";
 
-import { Moon, PanelLeft, Sun } from "lucide-react";
+import { Ghost, PaintbrushVertical, PanelLeft } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useTheme } from "next-themes";
-import type { MouseEventHandler } from "react";
+import { useState, type MouseEventHandler } from "react";
 import { montserrat } from "@/lib/fonts";
+import { isNavItemActive } from "@/lib/navigation";
 import { useSidebarStore } from "@/store/sidebar-store";
 import type { NavbarItemType } from "@/types/global";
 import { cn } from "@/utils";
 import { NavbarItem } from "./navbar-item";
+import { ThemeModal } from "./theme-modal";
 
 type NavbarProps = Readonly<{
     value: {
@@ -23,20 +24,10 @@ export function Navbar({ value }: NavbarProps) {
 
     const sidebarState = useSidebarStore((state) => state.open);
 
-    const { resolvedTheme, setTheme } = useTheme();
     const pathname = usePathname();
+    const [themeModalOpen, setThemeModalOpen] = useState(false);
 
-    const handleToggleTheme = () => {
-        setTheme(resolvedTheme === "dark" ? "light" : "dark");
-    };
-
-    const isActive = (href: string) => {
-        if (href === "/") {
-            return pathname === "/";
-        }
-
-        return pathname === href || pathname.startsWith(`${href}/`);
-    };
+    const isActive = (href: string) => isNavItemActive(pathname, href);
 
     const handleOpenSidebar: MouseEventHandler<HTMLButtonElement> = (event) => {
         event.stopPropagation();
@@ -46,16 +37,28 @@ export function Navbar({ value }: NavbarProps) {
     return (
         <header
             className={cn(
+                "group/nav",
                 "sticky",
                 "top-0",
                 "z-50",
                 "w-full",
-                "border-b",
-                "border-smooth-border/70",
                 "bg-background/80",
                 "backdrop-blur-md",
             )}
         >
+            <div
+                aria-hidden="true"
+                className={cn(
+                    "absolute",
+                    "inset-x-0",
+                    "bottom-0",
+                    "h-px",
+                    "bg-gradient-to-r",
+                    "from-transparent",
+                    "via-smooth-border",
+                    "to-transparent",
+                )}
+            />
             <div
                 className={cn(
                     "mx-auto",
@@ -66,7 +69,7 @@ export function Navbar({ value }: NavbarProps) {
                     "items-center",
                     "justify-between",
                     "px-5",
-                    "md:px-6",
+                    "sm:px-6",
                 )}
             >
                 <div
@@ -74,13 +77,15 @@ export function Navbar({ value }: NavbarProps) {
                         "flex",
                         "flex-1",
                         "justify-start",
-                        "lg:hidden",
+                        "md:hidden",
                     )}
                 >
                     <button
                         id="sidebar-toggle"
                         type="button"
-                        aria-label="Open sidebar"
+                        aria-label={
+                            sidebarState ? "Close sidebar" : "Open sidebar"
+                        }
                         aria-expanded={sidebarState}
                         aria-controls="sidebar"
                         onClick={handleOpenSidebar}
@@ -99,7 +104,7 @@ export function Navbar({ value }: NavbarProps) {
                     >
                         <PanelLeft
                             aria-hidden="true"
-                            className={cn("size-5")}
+                            className={cn("size-4")}
                         />
                     </button>
                 </div>
@@ -118,10 +123,11 @@ export function Navbar({ value }: NavbarProps) {
                         "font-bold",
                         "tracking-tight",
                         "transition-colors",
-                        "hover:text-journal-accent",
+                        "hover:text-journal-accent-text",
                         montserrat.className,
                     )}
                 >
+                    <Ghost aria-hidden="true" className={cn("size-4")} />
                     {value.title}
                 </Link>
 
@@ -134,8 +140,8 @@ export function Navbar({ value }: NavbarProps) {
                         "grow-0",
                         "items-center",
                         "justify-center",
-                        "gap-7",
-                        "lg:flex",
+                        "gap-1",
+                        "md:flex",
                     )}
                 >
                     {value.items.map(({ href, label }) => (
@@ -153,38 +159,51 @@ export function Navbar({ value }: NavbarProps) {
                     className={cn(
                         "flex",
                         "flex-1",
+                        "items-center",
                         "justify-end",
-                        "lg:flex-none",
+                        "gap-3",
+                        "md:flex-none",
                     )}
                 >
                     <button
                         id="theme-toggle"
                         type="button"
-                        aria-label="Toggle interface theme"
-                        onClick={handleToggleTheme}
+                        suppressHydrationWarning
+                        aria-label="Choose theme"
+                        aria-haspopup="dialog"
+                        aria-expanded={themeModalOpen}
+                        onClick={() => setThemeModalOpen(true)}
                         className={cn(
                             "cursor-pointer",
                             "rounded-md",
                             "p-2",
                             "text-journal-light-muted",
                             "transition-colors",
+                            "duration-100",
                             "hover:bg-journal-accent/10",
+                            "hover:text-journal-accent-text",
                             "dark:text-journal-dark-muted",
                             "dark:hover:bg-journal-accent/20",
+                            themeModalOpen && "bg-journal-accent/10",
                         )}
                     >
-                        <Sun
+                        <PaintbrushVertical
                             aria-hidden="true"
-                            className={cn("hidden", "size-5", "dark:block")}
-                        />
-
-                        <Moon
-                            aria-hidden="true"
-                            className={cn("block", "size-5", "dark:hidden")}
+                            className={cn(
+                                "size-4",
+                                "transition-transform",
+                                "duration-300",
+                                "group-hover/nav:rotate-12",
+                            )}
                         />
                     </button>
                 </div>
             </div>
+
+            <ThemeModal
+                open={themeModalOpen}
+                onClose={() => setThemeModalOpen(false)}
+            />
         </header>
     );
 }

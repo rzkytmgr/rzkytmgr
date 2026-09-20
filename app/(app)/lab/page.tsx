@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { PageHeader } from "@/components/structured/page-header";
+import { Typography } from "@/components/ui/typography";
 import { LaboratoryComponents } from "@/domain/laboratory/components";
 import { getAllExperiments } from "@/domain/laboratory/service";
 import { config } from "@/lib/config";
@@ -23,14 +23,14 @@ export default async function LaboratoryPage() {
                 "m-auto",
                 "px-5",
                 "sm:px-6",
-                "py-20",
-                "md:py-32",
+                "pt-0",
+                "pb-16",
+                "md:pb-24",
             )}
         >
-            <PageHeader
-                title={config.ui.pages.laboratory.heading}
-                description={config.ui.pages.laboratory.description}
-            />
+            <Typography as="h1" className={cn("sr-only")}>
+                {config.ui.pages.laboratory.heading}
+            </Typography>
 
             <LaboratoryComponents.Grid items={items} />
         </main>

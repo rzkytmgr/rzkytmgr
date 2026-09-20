@@ -1,0 +1,5 @@
+pub   rsa4096 2026-09-18 [SC]
+      255E D489 21D9 3349 99DE  5030 8F7E DC23 FE12 0035
+uid           [ultimate] Rizky Aulia Tumangger <rzkytmgr@gmail.com>
+sub   rsa4096 2026-09-18 [E]
+

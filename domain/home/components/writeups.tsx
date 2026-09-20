@@ -1,3 +1,4 @@
+import { FadeUp } from "@/components/structured/fade-up";
 import { HomeSection } from "@/components/structured/home-section";
 import { WriteupsListItem } from "@/domain/writeups/components/list-item";
 import type { WriteupsCardType } from "@/types/global";
@@ -19,13 +20,18 @@ export function WriteupsHomeSection({
         <HomeSection
             id="writeups"
             title={value.title}
-            seeAllHref="/writeups"
+            linkHref="/blog"
             className={cn("mb-8")}
             animationDelay={animationDelay}
         >
             <div>
-                {value.writeups.map((data) => (
-                    <WriteupsListItem key={data.id} data={data} />
+                {value.writeups.map((data, index) => (
+                    <FadeUp
+                        key={data.id}
+                        delay={(animationDelay ?? 0) + 0.1 + 0.08 * index}
+                    >
+                        <WriteupsListItem data={data} />{" "}
+                    </FadeUp>
                 ))}
             </div>
         </HomeSection>

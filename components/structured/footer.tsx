@@ -1,6 +1,8 @@
+import { Fingerprint, Ghost, KeyRound } from "lucide-react";
 import Link from "next/link";
-import type { NavbarItemType, SocialType } from "@/types/global";
+import type { SocialType } from "@/types/global";
 import { cn } from "@/utils";
+import { SocialIcon } from "./social-icon";
 import { Typography } from "../ui/typography";
 
 type FooterProps = Readonly<{
@@ -11,14 +13,28 @@ type FooterProps = Readonly<{
             description: string;
             copyright: string;
         };
-        items: NavbarItemType[];
     };
 }>;
+
+const socialIconButtonClass = cn(
+    "inline-flex",
+    "size-8",
+    "items-center",
+    "justify-center",
+    "text-neutral-500",
+    "transition-colors",
+    "duration-150",
+    "hover:text-journal-accent-text",
+    "motion-reduce:transition-none",
+    "focus-visible:outline-2",
+    "focus-visible:outline-offset-2",
+    "focus-visible:outline-journal-accent",
+);
 
 export function Footer({ value }: FooterProps) {
     return (
         <>
-            <hr className={cn("border-smooth-border/70")} />
+            <hr className={cn("border-smooth-border")} />
 
             <footer
                 className={cn(
@@ -26,31 +42,43 @@ export function Footer({ value }: FooterProps) {
                     "w-full",
                     "max-w-6xl",
                     "space-y-16",
-                    "px-6",
+                    "px-5",
+                    "sm:px-6",
                     "pt-16",
                 )}
             >
                 <section
                     className={cn(
-                        "grid",
-                        "grid-cols-1",
-                        "gap-12",
-                        "md:grid-cols-[3fr_1fr_1fr]",
+                        "flex",
+                        "flex-col",
+                        "gap-8",
+                        "md:flex-row",
+                        "md:items-center",
+                        "md:justify-between",
+                        "md:gap-12",
                     )}
                 >
                     <div className={cn("flex", "flex-col")}>
                         <Link
                             href="/"
                             className={cn(
+                                "flex",
+                                "w-fit",
+                                "items-center",
+                                "gap-1.5",
                                 "font-sans",
                                 "text-sm",
                                 "font-bold",
                                 "tracking-tight",
                                 "transition-colors",
-                                "hover:text-journal-accent",
-                                "focus-visible:text-journal-accent",
+                                "hover:text-journal-accent-text",
+                                "focus-visible:text-journal-accent-text",
                             )}
                         >
+                            <Ghost
+                                aria-hidden="true"
+                                className={cn("size-4")}
+                            />
                             {value.title}
                         </Link>
 
@@ -60,104 +88,139 @@ export function Footer({ value }: FooterProps) {
                             className={cn(
                                 "mt-3",
                                 "max-w-xs",
-                                "text-gray-500",
-                                "dark:text-neutral-500",
+                                "text-neutral-500",
                             )}
                         >
                             {value.static.description}
                         </Typography>
-                    </div>
-
-                    <div className={cn("space-y-4")}>
-                        <Typography
-                            as="h2"
-                            size="xs"
-                            className={cn(
-                                "font-mono",
-                                "uppercase",
-                                "text-neutral-500",
-                            )}
-                        >
-                            Navigate
-                        </Typography>{" "}
-                        <ul
-                            className={cn(
-                                "space-y-3",
-                                "text-sm",
-                                "text-gray-700",
-                                "dark:text-neutral-300",
-                            )}
-                        >
-                            {value.items.map(({ label, href }) => (
-                                <li key={label}>
-                                    <Link
-                                        href={href}
-                                        className={cn(
-                                            "transition-colors",
-                                            "hover:text-journal-accent",
-                                            "focus-visible:text-journal-accent",
-                                        )}
-                                    >
-                                        {label}
-                                    </Link>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-
-                    <div className={cn("space-y-4")}>
-                        <Typography
-                            as="h2"
-                            size="xs"
-                            className={cn(
-                                "font-mono",
-                                "uppercase",
-                                "text-neutral-500",
-                            )}
-                        >
-                            Elsewhere
-                        </Typography>
 
                         <ul
                             className={cn(
-                                "space-y-3",
-                                "text-sm",
-                                "text-gray-700",
-                                "dark:text-neutral-300",
+                                "mt-5",
+                                "flex",
+                                "items-center",
+                                "gap-2.5",
                             )}
                         >
                             {value.social.map(({ name, href }) => (
                                 <li key={name}>
                                     <Link
                                         href={href}
-                                        className={cn(
-                                            "transition-colors",
-                                            "hover:text-journal-accent",
-                                            "focus-visible:text-journal-accent",
-                                        )}
+                                        aria-label={name}
+                                        title={name}
+                                        target={
+                                            href.startsWith("http")
+                                                ? "_blank"
+                                                : undefined
+                                        }
+                                        rel={
+                                            href.startsWith("http")
+                                                ? "noopener noreferrer"
+                                                : undefined
+                                        }
+                                        className={socialIconButtonClass}
                                     >
-                                        {name}
+                                        <SocialIcon
+                                            name={name}
+                                            className={cn("size-4")}
+                                        />
                                     </Link>
                                 </li>
                             ))}
                         </ul>
                     </div>
+
+                    <div className={cn("flex", "items-center", "gap-3")}>
+                        <a
+                            href="/public.asc.txt"
+                            className={cn(
+                                "inline-flex",
+                                "items-center",
+                                "gap-1.5",
+                                "rounded-md",
+                                "border",
+                                "border-smooth-border",
+                                "px-3.5",
+                                "py-2",
+                                "font-mono",
+                                "text-xs",
+                                "text-neutral-600",
+                                "transition-colors",
+                                "duration-150",
+                                "hover:border-journal-accent/50",
+                                "hover:bg-journal-accent/10",
+                                "hover:text-journal-accent-text",
+                                "focus-visible:outline-2",
+                                "focus-visible:outline-offset-2",
+                                "focus-visible:outline-journal-accent",
+                                "motion-reduce:transition-none",
+                                "dark:text-neutral-400",
+                            )}
+                        >
+                            <KeyRound
+                                aria-hidden="true"
+                                className={cn("size-3.5")}
+                            />
+                            GPG Key
+                        </a>
+
+                        <a
+                            href="/fingerprint.txt"
+                            className={cn(
+                                "inline-flex",
+                                "items-center",
+                                "gap-1.5",
+                                "rounded-md",
+                                "border",
+                                "border-smooth-border",
+                                "px-3.5",
+                                "py-2",
+                                "font-mono",
+                                "text-xs",
+                                "text-neutral-600",
+                                "transition-colors",
+                                "duration-150",
+                                "hover:border-journal-accent/50",
+                                "hover:bg-journal-accent/10",
+                                "hover:text-journal-accent-text",
+                                "focus-visible:outline-2",
+                                "focus-visible:outline-offset-2",
+                                "focus-visible:outline-journal-accent",
+                                "motion-reduce:transition-none",
+                                "dark:text-neutral-400",
+                            )}
+                        >
+                            <Fingerprint
+                                aria-hidden="true"
+                                className={cn("size-3.5")}
+                            />
+                            Fingerprint
+                        </a>
+                    </div>
                 </section>
 
                 <section
                     className={cn(
+                        "flex",
+                        "flex-col",
+                        "gap-4",
                         "border-t",
-                        "border-smooth-border/70",
+                        "border-smooth-border",
                         "py-8",
                         "font-mono",
-                        "text-center",
                         "text-xs",
                         "text-neutral-500",
-                        "lg:text-left",
+                        "sm:flex-row",
+                        "sm:items-center",
+                        "sm:justify-between",
                     )}
                 >
                     <Typography as="span" size="xs">
                         © {new Date().getFullYear()} {value.static.copyright}
+                    </Typography>
+
+                    <Typography as="span" size="xs">
+                        Made in Indonesia
                     </Typography>
                 </section>
             </footer>

@@ -1,3 +1,4 @@
+import { FadeUp } from "@/components/structured/fade-up";
 import { HomeSection } from "@/components/structured/home-section";
 import { ShowcaseCard } from "@/domain/showcase/components/card";
 import type { ShowcaseCardType } from "@/types/global";
@@ -19,13 +20,13 @@ export function ShowcaseHomeSection({
         <HomeSection
             id="showcase"
             title={value.title}
-            seeAllHref="/showcase"
+            linkHref="/showcase"
             className={cn("mb-8")}
             animationDelay={animationDelay}
         >
             <div
                 className={cn(
-                    "mt-10",
+                    "mt-8",
                     "grid",
                     "grid-cols-1",
                     "gap-6",
@@ -34,11 +35,12 @@ export function ShowcaseHomeSection({
                 )}
             >
                 {value.showcases.map((data, index) => (
-                    <ShowcaseCard
+                    <FadeUp
                         key={data.id}
-                        data={data}
-                        hideOnMobile={index > 2}
-                    />
+                        delay={(animationDelay ?? 0) + 0.1 + 0.08 * index}
+                    >
+                        <ShowcaseCard data={data} showShape={false} />
+                    </FadeUp>
                 ))}
             </div>
         </HomeSection>

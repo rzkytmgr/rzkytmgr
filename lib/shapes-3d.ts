@@ -400,8 +400,6 @@ function flask(prng: () => number): Mesh3D {
     const segments = 14;
     const scale = 0.95 + prng() * 0.15;
 
-    // Erlenmeyer profile: a narrow open neck at the top flaring into a wide
-    // conical body that ends in a flat base. Each entry is [y, radius].
     const profile: Array<[number, number]> = [
         [-1.0, 0.24],
         [-0.86, 0.19],
@@ -440,7 +438,6 @@ function flask(prng: () => number): Mesh3D {
         }
     }
 
-    // Flat base disc (the flask stands on this).
     const baseCenter = vertices.length;
     vertices.push({ x: 0, y: profile[profile.length - 1][0] * scale, z: 0 });
 
@@ -547,8 +544,6 @@ export function generateShapeScene(seed: string): ShapeScene {
 export function generateFlaskScene(seed: string): ShapeScene {
     const prng = mulberry32(hashString(seed));
 
-    // Static on purpose: the flask should not auto-rotate, but it stays
-    // interactive (drag to rotate, scroll to zoom) via the Shape3D component.
     return {
         mesh: flask(prng),
         rx: 0.12,
@@ -642,7 +637,6 @@ export function buildDotGlobe(count: number, seed: string): DotGlobe {
     const sizes = new Float32Array(count);
 
     for (let index = 0; index < count; index += 1) {
-        // Fibonacci-sphere sampling spreads the dots evenly over the surface.
         const y = 1 - (2 * (index + 0.5)) / count;
 
         latSin[index] = y;

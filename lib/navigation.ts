@@ -6,23 +6,31 @@ export const NAV_ITEMS: NavbarItemType[] = [
         label: "Home",
     },
     {
-        href: "/showcase",
-        label: "Showcase",
+        href: "/about",
+        label: "About",
     },
     {
-        href: "/writeups",
+        href: "/blog",
         label: "Writeups",
+    },
+    {
+        href: "/showcase",
+        label: "Showcase",
     },
     {
         href: "/lab",
         label: "Laboratory",
     },
-    {
-        href: "/about",
-        label: "About",
-    },
-    {
-        href: "/contact",
-        label: "Contact",
-    },
 ];
+
+export function isNavItemActive(pathname: string, href: string): boolean {
+    if (href === "/") {
+        return pathname === "/";
+    }
+
+    if (href === "/blog") {
+        return pathname === "/blog" || pathname.startsWith("/blog/");
+    }
+
+    return pathname === href || pathname.startsWith(`${href}/`);
+}

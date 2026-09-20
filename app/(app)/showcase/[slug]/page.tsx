@@ -63,80 +63,135 @@ export default async function ShowcaseDetailPage({
     const contentHtml = await renderMarkdown(post.content);
 
     return (
-        <main
-            id="main-content"
-            className={cn(
-                "max-w-6xl",
-                "w-full",
-                "m-auto",
-                "px-5",
-                "sm:px-6",
-                "py-20",
-                "md:py-32",
+        <>
+            {data.is_archive && (
+                <ArchiveNotice message="This project is no longer maintained. Some information or links may be outdated." />
             )}
-        >
-            <ReadingProgress />
 
-            <FadeUp>
-                <ShowcaseComponents.Header
-                    title={data.title}
-                    description={data.description}
-                    date={data.date}
-                    techstack={data.techstack}
-                    readingTime={readingTime}
-                    slug={data.slug}
-                />
-            </FadeUp>
-
-            <hr className={cn("border-smooth-border/70")} />
-
-            <div
+            <main
+                id="main-content"
                 className={cn(
-                    "grid",
-                    "grid-cols-1",
-                    "gap-12",
-                    "pt-12",
-                    "lg:grid-cols-3",
+                    "max-w-7xl",
+                    "w-full",
+                    "m-auto",
+                    "px-6",
+                    "pt-6",
+                    "pb-20",
+                    "md:pt-8",
+                    "md:pb-32",
                 )}
             >
-                <div className="lg:col-span-2">
-                    {data.is_archive && (
-                        <ArchiveNotice
-                            message="This project is no longer maintained. Some information or links may be outdated."
-                            className="mb-10"
+                <ReadingProgress />
+
+                {}
+                <div
+                    className={cn(
+                        "mx-auto",
+                        "grid",
+                        "w-full",
+                        "grid-cols-1",
+                        "gap-y-12",
+                        "xl:grid-cols-[minmax(0,1fr)_680px_minmax(0,1fr)]",
+                        "xl:gap-x-10",
+                    )}
+                >
+                    <FadeUp
+                        className={cn(
+                            "mx-auto",
+                            "w-full",
+                            "max-w-[680px]",
+                            "xl:col-start-2",
+                            "xl:row-start-1",
+                            "xl:max-w-none",
+                        )}
+                    >
+                        <ShowcaseComponents.Header
+                            title={data.title}
+                            description={data.description}
+                            date={data.date}
+                            techstack={data.techstack}
+                            readingTime={readingTime}
+                            slug={data.slug}
+                            thumbnail={data.thumbnail}
                         />
-                    )}
+                    </FadeUp>
 
-                    {}
-                    <ShowcaseComponents.ProjectLinks
-                        repository={data.link.repository}
-                        preview={data.link.preview}
-                        className="mb-10 lg:hidden"
-                    />
+                    <div
+                        className={cn(
+                            "mx-auto",
+                            "w-full",
+                            "max-w-[680px]",
+                            "xl:col-start-2",
+                            "xl:row-start-2",
+                            "xl:max-w-none",
+                        )}
+                    >
+                        <FadeUp delay={0.15}>
+                            <ShowcaseComponents.ProjectLinks
+                                repository={data.link.repository}
+                                preview={data.link.preview}
+                                className="mb-10 xl:hidden"
+                            />
 
-                    <Markdown html={contentHtml} className="font-serif" />
+                            <Markdown
+                                html={contentHtml}
+                                className="font-serif"
+                            />
 
-                    <GiscusComments config={config.giscus} />
+                            <GiscusComments config={config.giscus} />
 
-                    <ArticlePager
-                        previous={adjacent.previous}
-                        next={adjacent.next}
-                    />
+                            <ArticlePager
+                                previous={adjacent.previous}
+                                next={adjacent.next}
+                            />
+                        </FadeUp>
+                    </div>
+
+                    <aside
+                        className={cn(
+                            "hidden",
+                            "xl:col-start-3",
+                            "xl:row-start-1",
+                            "xl:row-span-2",
+                            "xl:flex",
+                            "xl:flex-col",
+                        )}
+                    >
+                        {}
+                        {}
+                        <div
+                            className={cn(
+                                "xl:sticky",
+                                "xl:flex",
+                                "xl:flex-col",
+                                data.is_archive ? "xl:top-28" : "xl:top-24",
+                                data.is_archive
+                                    ? "xl:max-h-[calc(100vh_-_9rem)]"
+                                    : "xl:max-h-[calc(100vh_-_8rem)]",
+                            )}
+                        >
+                            <FadeUp
+                                delay={0.2}
+                                className={cn(
+                                    "xl:flex",
+                                    "xl:flex-col",
+                                    "xl:min-h-0",
+                                )}
+                            >
+                                <ShowcaseComponents.ProjectLinks
+                                    repository={data.link.repository}
+                                    preview={data.link.preview}
+                                    className="mb-10"
+                                />
+
+                                {headings.length > 0 && (
+                                    <TableOfContents headings={headings} />
+                                )}
+                            </FadeUp>
+                        </div>
+                    </aside>
                 </div>
-
-                <aside className="hidden lg:flex lg:flex-col lg:sticky lg:top-24 lg:self-start lg:max-h-[calc(100vh-6rem)] lg:pl-6">
-                    {}
-                    <ShowcaseComponents.ProjectLinks
-                        repository={data.link.repository}
-                        preview={data.link.preview}
-                        className="mb-10"
-                    />
-
-                    {headings.length > 0 && (
-                        <TableOfContents headings={headings} />
-                    )}
-                </aside>
-            </div>
-        </main>
+            </main>
+        </>
     );
 }

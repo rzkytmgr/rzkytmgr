@@ -1,6 +1,7 @@
 import { MoveRight } from "lucide-react";
 import Link from "next/link";
 import { Typography } from "../ui/typography";
+import { FadeUp } from "./fade-up";
 import { cn } from "@/utils";
 
 export function NotFoundContent() {
@@ -38,80 +39,82 @@ export function NotFoundContent() {
                 404
             </div>
 
-            <div className={cn("relative", "z-10", "space-y-5")}>
-                <Typography
-                    as="p"
-                    size="xs"
-                    className={cn(
-                        "font-mono",
-                        "uppercase",
-                        "tracking-wider",
-                        "text-neutral-500",
-                    )}
-                >
-                    Error 404
-                </Typography>
-
-                <Typography
-                    as="h1"
-                    weight="bold"
-                    className={cn(
-                        "text-4xl",
-                        "tracking-tight",
-                        "text-zinc-950",
-                        "md:text-5xl",
-                        "dark:text-zinc-50",
-                    )}
-                >
-                    This page could not be found
-                </Typography>
-
-                <Typography
-                    as="p"
-                    className={cn(
-                        "mx-auto",
-                        "max-w-md",
-                        "text-zinc-600",
-                        "dark:text-zinc-400",
-                    )}
-                >
-                    The page you are looking for might have been moved, renamed,
-                    or does not exist.
-                </Typography>
-
-                <div className={cn("pt-2")}>
-                    <Link
-                        href="/"
+            <FadeUp className={cn("relative", "z-10")}>
+                <div className={cn("space-y-5")}>
+                    <Typography
+                        as="p"
+                        size="xs"
                         className={cn(
-                            "group",
-                            "inline-flex",
-                            "items-center",
-                            "gap-2",
-                            "border-b",
-                            "border-dashed",
-                            "border-zinc-700",
-                            "py-1",
-                            "text-sm",
-                            "font-medium",
-                            "text-zinc-700",
-                            "transition-colors",
-                            "hover:text-journal-accent",
-                            "dark:border-zinc-300",
-                            "dark:text-zinc-300",
+                            "font-mono",
+                            "uppercase",
+                            "tracking-wider",
+                            "text-neutral-500",
                         )}
                     >
-                        Back to home
-                        <MoveRight
-                            aria-hidden="true"
+                        Error 404
+                    </Typography>
+
+                    <Typography
+                        as="h1"
+                        weight="bold"
+                        className={cn(
+                            "text-4xl",
+                            "tracking-tight",
+                            "text-zinc-950",
+                            "md:text-5xl",
+                            "dark:text-zinc-50",
+                        )}
+                    >
+                        This page could not be found
+                    </Typography>
+
+                    <Typography
+                        as="p"
+                        className={cn(
+                            "mx-auto",
+                            "max-w-md",
+                            "text-zinc-600",
+                            "dark:text-zinc-400",
+                        )}
+                    >
+                        The page you are looking for might have been moved,
+                        renamed, or does not exist.
+                    </Typography>
+
+                    <div className={cn("pt-2")}>
+                        <Link
+                            href="/"
                             className={cn(
-                                "size-3",
-                                "transition-transform",
-                                "group-hover:translate-x-1",
+                                "group",
+                                "inline-flex",
+                                "items-center",
+                                "gap-2",
+                                "border-b",
+                                "border-dashed",
+                                "border-zinc-700",
+                                "py-1",
+                                "text-sm",
+                                "font-medium",
+                                "text-zinc-700",
+                                "transition-colors",
+                                "hover:text-journal-accent-text",
+                                "dark:border-zinc-300",
+                                "dark:text-zinc-300",
                             )}
-                        />
-                    </Link>
+                        >
+                            Back to home
+                            <MoveRight
+                                aria-hidden="true"
+                                className={cn(
+                                    "size-3",
+                                    "transition-transform",
+                                    "group-hover:translate-x-1",
+                                )}
+                            />
+                        </Link>
+                    </div>
                 </div>
-            </div>
+            </FadeUp>
         </div>
     );
 }

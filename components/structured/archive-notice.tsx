@@ -11,40 +11,45 @@ export function ArchiveNotice({ message, className }: ArchiveNoticeProps) {
         <div
             role="alert"
             className={cn(
-                "flex",
-                "items-start",
-                "gap-3",
-                "rounded-md",
-                "border",
-                "border-yellow-700/40",
-                "bg-orange-50",
-                "px-4",
-                "py-3",
-                "dark:border-yellow-500/40",
-                "dark:bg-yellow-500/10",
+                "sticky",
+                "top-16",
+                "z-40",
+                "w-full",
+                "border-b",
+                "border-warning-border",
+                "bg-warning-bg",
                 className,
             )}
         >
-            <TriangleAlert
-                aria-hidden="true"
+            <div
                 className={cn(
-                    "mt-0.5",
-                    "size-4",
-                    "flex-none",
-                    "text-yellow-700",
-                    "dark:text-yellow-400",
-                )}
-            />
-            <p
-                className={cn(
-                    "text-sm",
-                    "leading-relaxed",
-                    "text-yellow-800",
-                    "dark:text-yellow-200",
+                    "mx-auto",
+                    "flex",
+                    "w-full",
+                    "max-w-6xl",
+                    "items-center",
+                    "justify-center",
+                    "gap-2",
+                    "px-5",
+                    "py-2",
+                    "sm:px-6",
                 )}
             >
-                {message}
-            </p>
+                <TriangleAlert
+                    aria-hidden="true"
+                    className={cn("size-3.5", "flex-none", "text-warning")}
+                />
+                <p
+                    className={cn(
+                        "text-center",
+                        "text-xs",
+                        "leading-snug",
+                        "text-warning-text",
+                    )}
+                >
+                    {message}
+                </p>
+            </div>
         </div>
     );
 }

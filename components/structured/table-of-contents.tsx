@@ -67,14 +67,7 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
     return (
         <nav
             aria-label="Table of contents"
-            className={cn(
-                "flex",
-                "min-h-0",
-                "flex-1",
-                "max-h-[calc(100vh-7rem)]",
-                "flex-col",
-                "gap-4",
-            )}
+            className={cn("flex", "min-h-0", "grow", "flex-col", "gap-4")}
         >
             <Typography
                 as="h2"
@@ -121,14 +114,15 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
                                     "block",
                                     "text-sm",
                                     "leading-snug",
-                                    "text-zinc-600",
                                     "transition-colors",
-                                    "hover:text-journal-accent",
-                                    "dark:text-zinc-400",
+                                    "motion-reduce:transition-none",
+                                    "hover:text-journal-accent-text",
+                                    "dark:hover:text-journal-accent-text",
                                     heading.level === 3 && "pl-4",
                                     heading.level === 4 && "pl-8",
-                                    isActive &&
-                                        "text-journal-accent dark:text-journal-accent",
+                                    isActive
+                                        ? "text-journal-accent-text dark:text-journal-accent-text"
+                                        : "text-zinc-600 dark:text-zinc-400",
                                 )}
                             >
                                 <span

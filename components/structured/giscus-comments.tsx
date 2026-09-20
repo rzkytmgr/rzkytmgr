@@ -1,8 +1,9 @@
 "use client";
 
 import { useTheme } from "next-themes";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { Typography } from "../ui/typography";
+import type { SiteTheme } from "@/providers/theme-provider";
 import { cn } from "@/utils";
 
 type GiscusCommentsProps = Readonly<{
@@ -22,14 +23,30 @@ type GiscusCommentsProps = Readonly<{
 const GISCUS_SCRIPT_SRC = "https://giscus.app/client.js";
 const GISCUS_ORIGIN = "https://giscus.app";
 
+type GiscusTheme = "light" | "dark" | "dark_dimmed";
+
+const GISCUS_THEME_BY_SITE_THEME: Record<SiteTheme, GiscusTheme> = {
+    "clean-light": "light",
+    charcoal: "dark_dimmed",
+    kindle: "light",
+    reader: "dark",
+};
+
+const DEFAULT_GISCUS_THEME: GiscusTheme = "light";
+
+function resolveGiscusTheme(siteTheme: string | undefined): GiscusTheme {
+    if (siteTheme && siteTheme in GISCUS_THEME_BY_SITE_THEME) {
+        return GISCUS_THEME_BY_SITE_THEME[siteTheme as SiteTheme];
+    }
+
+    return DEFAULT_GISCUS_THEME;
+}
+
 export function GiscusComments({ config, className }: GiscusCommentsProps) {
     const { resolvedTheme } = useTheme();
     const containerRef = useRef<HTMLDivElement>(null);
 
-    const [commentCount, setCommentCount] = useState<number | null>(null);
-    const themeRef = useRef<"light" | "dark">(
-        resolvedTheme === "dark" ? "dark" : "light",
-    );
+    const themeRef = useRef<GiscusTheme>(DEFAULT_GISCUS_THEME);
 
     const enabled =
         Boolean(config?.repo) &&
@@ -49,7 +66,7 @@ export function GiscusComments({ config, className }: GiscusCommentsProps) {
     }, []);
 
     useEffect(() => {
-        const theme = resolvedTheme === "dark" ? "dark" : "light";
+        const theme = resolveGiscusTheme(resolvedTheme);
         themeRef.current = theme;
 
         const script = document.querySelector<HTMLScriptElement>(
@@ -72,22 +89,11 @@ export function GiscusComments({ config, className }: GiscusCommentsProps) {
             const data = event.data as {
                 giscus?: {
                     loaded?: boolean;
-                    error?: string;
-                    discussion?: { totalCommentCount?: number };
                 };
             };
 
             if (data?.giscus?.loaded === true) {
                 pushTheme();
-            }
-
-            if (data?.giscus?.discussion) {
-                setCommentCount(data.giscus.discussion.totalCommentCount ?? 0);
-            } else if (
-                typeof data?.giscus?.error === "string" &&
-                data.giscus.error.includes("Discussion not found")
-            ) {
-                setCommentCount(0);
             }
         };
 
@@ -111,8 +117,6 @@ export function GiscusComments({ config, className }: GiscusCommentsProps) {
             .querySelectorAll('script[data-giscus-script="true"]')
             .forEach((node) => node.remove());
         container.replaceChildren();
-
-        setCommentCount(null);
 
         const script = document.createElement("script");
         script.async = true;
@@ -153,54 +157,31 @@ export function GiscusComments({ config, className }: GiscusCommentsProps) {
 
     return (
         <section
+            id="comments"
             aria-label="Comments"
             className={cn(
                 "mt-16",
                 "w-full",
+                "scroll-mt-24",
                 "border-t",
-                "border-smooth-border/70",
+                "border-smooth-border",
                 "pt-8",
                 className,
             )}
         >
-            <div
+            <Typography
+                as="h2"
+                size="xs"
                 className={cn(
                     "mb-5",
-                    "flex",
-                    "items-baseline",
-                    "justify-between",
-                    "gap-4",
+                    "font-mono",
+                    "uppercase",
+                    "tracking-wider",
+                    "text-neutral-500",
                 )}
             >
-                <Typography
-                    as="h2"
-                    size="xs"
-                    className={cn(
-                        "font-mono",
-                        "uppercase",
-                        "tracking-wider",
-                        "text-neutral-500",
-                    )}
-                >
-                    Comments
-                </Typography>
-
-                {commentCount !== null && (
-                    <Typography
-                        as="span"
-                        size="xs"
-                        aria-live="polite"
-                        className={cn(
-                            "font-mono",
-                            "text-neutral-400",
-                            "dark:text-neutral-500",
-                        )}
-                    >
-                        {commentCount}{" "}
-                        {commentCount === 1 ? "comment" : "comments"}
-                    </Typography>
-                )}
-            </div>
+                Comments
+            </Typography>
 
             <div ref={containerRef} className="giscus" />
         </section>

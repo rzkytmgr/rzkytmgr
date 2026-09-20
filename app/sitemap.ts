@@ -18,7 +18,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
             priority: 0.8,
         },
         {
-            url: `${baseUrl}/writeups`,
+            url: `${baseUrl}/blog`,
             changeFrequency: "weekly",
             priority: 0.8,
         },
@@ -29,11 +29,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
         },
         {
             url: `${baseUrl}/about`,
-            changeFrequency: "monthly",
-            priority: 0.5,
-        },
-        {
-            url: `${baseUrl}/contact`,
             changeFrequency: "monthly",
             priority: 0.5,
         },

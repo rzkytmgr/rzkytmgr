@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { PageHeader } from "@/components/structured/page-header";
-import { ShowcaseComponents } from "@/domain/showcase/components";
+import { Typography } from "@/components/ui/typography";
+import { ShowcaseIndex } from "@/domain/showcase/components/index-list";
 import { getAllShowcases } from "@/domain/showcase/service";
 import { config } from "@/lib/config";
 import { cn } from "@/utils";
@@ -23,16 +23,16 @@ export default async function ShowcasePage() {
                 "m-auto",
                 "px-5",
                 "sm:px-6",
-                "py-20",
-                "md:py-32",
+                "pt-0",
+                "pb-16",
+                "md:pb-24",
             )}
         >
-            <PageHeader
-                title={config.ui.pages.showcase.heading}
-                description={config.ui.pages.showcase.description}
-            />
+            <Typography as="h1" className={cn("sr-only")}>
+                {config.ui.pages.showcase.heading}
+            </Typography>
 
-            <ShowcaseComponents.Grid items={items} />
+            <ShowcaseIndex items={items} />
         </main>
     );
 }

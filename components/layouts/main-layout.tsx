@@ -16,6 +16,7 @@ type MainLayoutProps = {
 
 export function MainLayout({ config, children }: MainLayoutProps) {
     const closeSidebar = useSidebarStore((state) => state.closeSidebar);
+    const openSidebar = useSidebarStore((state) => state.openSidebar);
     const sidebarState = useSidebarStore((state) => state.open);
     const pathname = usePathname();
     const prevPathname = useRef(pathname);
@@ -25,10 +26,35 @@ export function MainLayout({ config, children }: MainLayoutProps) {
             closeSidebar();
             prevPathname.current = pathname;
         }
-    }, [pathname, closeSidebar]);
+    }, [pathname, closeSidebar, openSidebar]);
 
     return (
         <React.Fragment>
+            <a
+                href="#main-content"
+                className={cn(
+                    "fixed",
+                    "left-4",
+                    "top-4",
+                    "z-[100]",
+                    "-translate-y-20",
+                    "rounded-md",
+                    "border",
+                    "border-smooth-border",
+                    "bg-surface",
+                    "px-4",
+                    "py-2",
+                    "font-mono",
+                    "text-xs",
+                    "text-journal-accent-text",
+                    "shadow-lg",
+                    "transition-transform",
+                    "duration-150",
+                    "focus-visible:translate-y-0",
+                )}
+            >
+                Skip to content
+            </a>
             <Sidebar
                 value={{
                     items: NAV_ITEMS,
@@ -40,7 +66,7 @@ export function MainLayout({ config, children }: MainLayoutProps) {
                 className={cn(
                     "transition-transform duration-300 ease-out",
                     sidebarState
-                        ? "translate-x-[288px] lg:translate-x-[0]"
+                        ? "translate-x-[288px] md:translate-x-[0]"
                         : "",
                 )}
             >
@@ -67,9 +93,8 @@ export function MainLayout({ config, children }: MainLayoutProps) {
                         ],
                         static: {
                             description: config.ui.footer.description,
-                            copyright: `${config.author.name}. ${config.ui.footer.copyright}`,
+                            copyright: config.author.name,
                         },
-                        items: NAV_ITEMS,
                     }}
                 />
             </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/utils";
 
 export type FilterOption = {
@@ -18,34 +19,30 @@ type FilterPillsProps = Readonly<{
     className?: string;
 }>;
 
-const pillBase = cn(
-    "rounded-full",
-    "border",
-    "px-3",
-    "py-1.5",
+const tabBase = cn(
+    "relative",
+    "px-0.5",
+    "py-1",
     "font-mono",
     "text-xs",
     "transition-colors",
+    "duration-100",
     "shrink-0",
+    "cursor-pointer",
+    "focus-visible:outline-2",
+    "focus-visible:outline-offset-4",
+    "focus-visible:outline-journal-accent",
 );
 
-const pillActive = cn(
-    "border-zinc-900",
-    "bg-zinc-900",
-    "text-zinc-50",
-    "dark:border-zinc-100",
-    "dark:bg-zinc-100",
-    "dark:text-zinc-900",
-);
+const tabActive = cn("text-zinc-950", "dark:text-zinc-50");
 
-const pillIdle = cn(
-    "border-smooth-border/70",
-    "bg-transparent",
-    "text-neutral-500",
-    "hover:border-journal-accent/60",
-    "hover:text-journal-accent",
-    "dark:hover:border-journal-accent/50",
-    "dark:hover:text-journal-accent",
+const tabIdle = cn(
+    "text-zinc-700",
+    "dark:text-zinc-300",
+    "hover:text-zinc-950",
+    "dark:hover:text-zinc-50",
+    "focus-visible:text-zinc-950",
+    "dark:focus-visible:text-zinc-50",
 );
 
 export function FilterPills({
@@ -59,17 +56,49 @@ export function FilterPills({
 }: FilterPillsProps) {
     const allTotal =
         total ?? options.reduce((sum, option) => sum + option.count, 0);
-    const allActive = selected.size === 0;
+
+    const activeKey = selected.size === 0 ? "all" : [...selected][0];
+
+    const buttonsRef = useRef<Map<string, HTMLButtonElement>>(new Map());
+    const [indicator, setIndicator] = useState<{
+        x: number;
+        w: number;
+    } | null>(null);
+
+    const measure = useCallback(() => {
+        const btn = buttonsRef.current.get(activeKey);
+        if (!btn) return;
+
+        setIndicator({ x: btn.offsetLeft, w: btn.offsetWidth });
+    }, [activeKey]);
+
+    useEffect(() => {
+        measure();
+    }, [measure]);
+
+    useEffect(() => {
+        const onResize = () => measure();
+
+        window.addEventListener("resize", onResize);
+        document.fonts?.ready?.then(() => measure());
+
+        return () => window.removeEventListener("resize", onResize);
+    }, [measure]);
 
     return (
         <div
             role="group"
             aria-label={ariaLabel}
             className={cn(
+                "relative",
                 "flex",
                 "flex-nowrap",
                 "items-center",
-                "gap-2",
+                "gap-x-6",
+                "gap-y-2",
+                "border-b",
+                "border-smooth-border",
+                "pb-3",
                 "overflow-x-auto",
                 "overscroll-x-contain",
                 "[-ms-overflow-style:none]",
@@ -79,29 +108,59 @@ export function FilterPills({
             )}
         >
             <button
+                ref={(el) => {
+                    if (el) buttonsRef.current.set("all", el);
+                }}
                 type="button"
-                aria-pressed={allActive}
+                aria-pressed={activeKey === "all"}
                 onClick={() => onSelect("all")}
-                className={cn(pillBase, allActive ? pillActive : pillIdle)}
+                className={cn(
+                    tabBase,
+                    activeKey === "all" ? tabActive : tabIdle,
+                )}
             >
-                {allLabel} ({allTotal})
+                {allLabel} <span className={cn("opacity-60")}>{allTotal}</span>
             </button>
 
             {options.map(({ key, label, count }) => {
-                const active = selected.has(key);
+                const active = key === activeKey;
 
                 return (
                     <button
                         key={key}
+                        ref={(el) => {
+                            if (el) buttonsRef.current.set(key, el);
+                        }}
                         type="button"
                         aria-pressed={active}
                         onClick={() => onSelect(key)}
-                        className={cn(pillBase, active ? pillActive : pillIdle)}
+                        className={cn(tabBase, active ? tabActive : tabIdle)}
                     >
-                        {label} ({count})
+                        {label}{" "}
+                        <span className={cn("opacity-60")}>{count}</span>
                     </button>
                 );
             })}
+
+            {indicator && (
+                <span
+                    aria-hidden="true"
+                    className={cn(
+                        "absolute",
+                        "bottom-0",
+                        "h-0.5",
+                        "bg-journal-accent",
+                        "transition-all",
+                        "duration-300",
+                        "ease-out",
+                        "motion-reduce:transition-none",
+                    )}
+                    style={{
+                        transform: `translateX(${indicator.x}px)`,
+                        width: indicator.w,
+                    }}
+                />
+            )}
         </div>
     );
 }

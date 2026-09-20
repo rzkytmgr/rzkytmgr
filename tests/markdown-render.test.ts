@@ -13,6 +13,24 @@ describe("renderMarkdown", () => {
         expect(html).toContain("<button");
     });
 
+    it("uses the title meta as the code block label instead of the language", async () => {
+        const html = await renderMarkdown(
+            '```ts title="app/page.tsx"\nconst x = 1;\n```',
+        );
+
+        expect(html).toContain("app/page.tsx");
+        expect(html).not.toContain("TypeScript");
+        expect(html).not.toContain("figcaption");
+    });
+
+    it("uses the title meta as the label even for unknown languages", async () => {
+        const html = await renderMarkdown(
+            '```text title="notes.txt"\nhello\n```',
+        );
+
+        expect(html).toContain("notes.txt");
+    });
+
     it("renders GitHub-style alerts with the marker stripped", async () => {
         const html = await renderMarkdown(
             "> [!TIP]\n> Use this approach.\n\nSome text.",

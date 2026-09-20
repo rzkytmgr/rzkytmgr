@@ -8,8 +8,27 @@ export type AuthorSocialType = Readonly<{
 export type AuthorType = Readonly<{
     name: string;
     title: string;
+    location?: string;
     email: string;
     social: AuthorSocialType[];
+}>;
+
+export type ResumeEntryType = Readonly<{
+    role: string;
+    company?: string;
+    org?: string;
+    school?: string;
+    degree?: string;
+    period: string;
+    location?: string;
+    points?: readonly string[];
+}>;
+
+export type ResumeConfigType = Readonly<{
+    overview: string;
+    workExperience: ResumeEntryType[];
+    education: ResumeEntryType[];
+    otherExperience: ResumeEntryType[];
 }>;
 
 export type GiscusConfigType = Readonly<{
@@ -32,6 +51,7 @@ export type AppConfigType = Readonly<{
     rss: string;
 
     giscus?: GiscusConfigType;
+    resume?: ResumeConfigType;
     ui: Readonly<{
         home: Readonly<{
             hero: Readonly<{
@@ -63,14 +83,9 @@ export type AppConfigType = Readonly<{
                 description: string;
                 paragraphs: readonly string[];
             }>;
-            contact: Readonly<{
-                heading: string;
-                description: string;
-            }>;
         }>;
         footer: Readonly<{
             description: string;
-            copyright: string;
         }>;
     }>;
 }>;

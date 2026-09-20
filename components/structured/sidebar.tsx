@@ -1,6 +1,9 @@
 "use client";
 
 import type { NavbarItemType } from "@/types/global";
+import { isNavItemActive } from "@/lib/navigation";
+import { usePathname } from "next/navigation";
+import { useEffect } from "react";
 import { useSidebarStore } from "@/store/sidebar-store";
 import { cn } from "@/utils";
 import { Typography } from "../ui/typography";
@@ -15,11 +18,31 @@ type SidebarProps = Readonly<{
 export function Sidebar({ value }: SidebarProps) {
     const sidebarState = useSidebarStore((state) => state.open);
     const closeSidebar = useSidebarStore((state) => state.closeSidebar);
+    const pathname = usePathname();
+
+    useEffect(() => {
+        if (!sidebarState) {
+            return;
+        }
+
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === "Escape") {
+                closeSidebar();
+            }
+        };
+
+        window.addEventListener("keydown", handleKeyDown);
+
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [sidebarState, closeSidebar]);
 
     return (
         <aside
             id="sidebar"
             aria-hidden={!sidebarState}
+            {...(sidebarState ? {} : { inert: true })}
             className={cn(
                 "fixed",
                 "top-0",
@@ -28,13 +51,13 @@ export function Sidebar({ value }: SidebarProps) {
                 "min-h-screen",
                 "w-72",
                 "border-r",
-                "border-smooth-border/70",
+                "border-smooth-border",
                 "bg-background",
                 "shadow-2xl",
                 "transition-transform",
                 "duration-300",
                 "ease-out",
-                "lg:hidden",
+                "md:hidden",
                 sidebarState ? "translate-x-0" : "-translate-x-full",
             )}
         >
@@ -60,6 +83,7 @@ export function Sidebar({ value }: SidebarProps) {
                         <NavbarItem
                             key={label}
                             href={href}
+                            active={isNavItemActive(pathname, href)}
                             onClick={closeSidebar}
                         >
                             {label}
