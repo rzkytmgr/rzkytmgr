@@ -1,0 +1,41 @@
+---
+import { icon } from "./icons";
+
+interface Props {
+    message: string;
+    variant?: "banner" | "inline";
+}
+
+const { message, variant = "banner" } = Astro.props;
+---
+
+{variant === "inline" ? (
+    <div
+        role="alert"
+        class="flex items-center justify-center gap-2 rounded-md border border-warning-border bg-warning-bg px-3 py-2"
+    >
+        <Fragment
+            set:html={icon("triangle-alert", "size-3.5 flex-none text-warning")}
+        />
+        <p class="text-center text-xs leading-snug text-warning-text">
+            {message}
+        </p>
+    </div>
+) : (
+    <div
+        role="alert"
+        class="sticky top-16 z-40 w-full border-b border-warning-border bg-warning-bg"
+    >
+        <div class="mx-auto flex w-full max-w-6xl items-center justify-center gap-2 px-5 py-2 sm:px-6">
+            <Fragment
+                set:html={icon(
+                    "triangle-alert",
+                    "size-3.5 flex-none text-warning",
+                )}
+            />
+            <p class="text-center text-xs leading-snug text-warning-text">
+                {message}
+            </p>
+        </div>
+    </div>
+)}

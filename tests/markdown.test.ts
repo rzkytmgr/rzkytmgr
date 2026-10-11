@@ -3,7 +3,7 @@ import {
     estimateReadingTime,
     extractHeadings,
     type MarkdownHeading,
-} from "@/utils/markdown";
+} from "@/src/utils/markdown";
 
 describe("extractHeadings", () => {
     it("extracts h2-h4 headings and skips h1", () => {
@@ -49,6 +49,29 @@ describe("extractHeadings", () => {
                 text: "Getting started with zustand",
                 id: "getting-started-with-zustand",
             },
+        ]);
+    });
+
+    it("ignores heading-like lines inside fenced code blocks", () => {
+        const markdown = [
+            "## Setup",
+            "",
+            "```bash",
+            "# comment inside a code fence",
+            "## another commented heading",
+            "### pseudo heading in fence",
+            "```",
+            "",
+            "~~~bash",
+            "# tilde fence comment",
+            "~~~",
+            "",
+            "## Usage",
+        ].join("\n");
+
+        expect(extractHeadings(markdown)).toEqual<MarkdownHeading[]>([
+            { level: 2, text: "Setup", id: "setup" },
+            { level: 2, text: "Usage", id: "usage" },
         ]);
     });
 

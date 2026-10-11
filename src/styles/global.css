@@ -1,0 +1,501 @@
+/* Mona Sans variable font (official build from github/mona-sans, includes
+   stylistic sets ss01-ss10; the Fontsource build has them stripped). */
+@font-face {
+    font-family: "Mona Sans Variable";
+    src: url("/fonts/MonaSansVF.woff2") format("woff2-variations");
+    font-weight: 200 900;
+    font-display: swap;
+}
+@import "@fontsource-variable/source-serif-4/index.css";
+@import "@fontsource-variable/jetbrains-mono/index.css";
+@import "@fontsource/montserrat/600.css";
+@import "@fontsource/montserrat/700.css";
+
+@import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme="charcoal"], [data-theme="charcoal"] *));
+
+:root,
+[data-theme="clean-light"] {
+    --font-mona-sans: "Mona Sans Variable";
+    --font-source-serif-4: "Source Serif 4 Variable";
+    --font-jetbrains-mono: "JetBrains Mono Variable";
+    --font-montserrat: "Montserrat";
+
+    --background: #f8fafc;
+    --foreground: #0f172a;
+
+    --smooth-border: #e2e8f0;
+    --journal-accent: #f38020;
+    --journal-accent-text: #d96e14;
+    --warning-text: #8a6200;
+    --warning: #9a6700;
+    --warning-bg: #f5f1e8;
+    --warning-border: rgba(154, 103, 0, 0.28);
+
+    --code-block-bg: #f1f5f9;
+    --surface: #ffffff;
+
+    --shiki-foreground: #24292e;
+    --shiki-background: transparent;
+    --shiki-token-constant: #6f42c1;
+    --shiki-token-string: #032f62;
+    --shiki-token-comment: #6a737d;
+    --shiki-token-keyword: #d73a49;
+    --shiki-token-function: #005cc5;
+    --shiki-token-punctuation: #24292e;
+    --shiki-token-link: #005cc5;
+    --shiki-token-number: #005cc5;
+    --shiki-token-parameter: #24292e;
+    --shiki-token-operator: #d73a49;
+    --shiki-token-regexp: #032f62;
+    --shiki-token-variable: #e36209;
+    --shiki-token-type: #005cc5;
+
+    --neutral-50: #f8fafc;
+    --neutral-100: #f1f5f9;
+    --neutral-200: #e2e8f0;
+    --neutral-300: #cbd5e1;
+    --neutral-400: #94a3b8;
+    --neutral-500: #64748b;
+    --neutral-600: #475569;
+    --neutral-700: #334155;
+    --neutral-800: #1e293b;
+    --neutral-900: #0f172a;
+    --neutral-950: #020617;
+}
+
+[data-theme="charcoal"] {
+    --background: #181a1b;
+    --foreground: #e8eaed;
+
+    --smooth-border: #33373b;
+    --journal-accent: #f38020;
+    --journal-accent-text: #f38020;
+    --warning-text: #e3b341;
+    --warning: #d29922;
+    --warning-bg: #353023;
+    --warning-border: rgba(187, 128, 9, 0.4);
+
+    --code-block-bg: #1e1e22;
+    --surface: #222527;
+
+    --shiki-foreground: #e1e4e8;
+    --shiki-background: transparent;
+    --shiki-token-constant: #79b8ff;
+    --shiki-token-string: #9ecbff;
+    --shiki-token-comment: #6a737d;
+    --shiki-token-keyword: #f97583;
+    --shiki-token-function: #b392f0;
+    --shiki-token-punctuation: #e1e4e8;
+    --shiki-token-link: #79b8ff;
+    --shiki-token-number: #79b8ff;
+    --shiki-token-parameter: #e1e4e8;
+    --shiki-token-operator: #f97583;
+    --shiki-token-regexp: #9ecbff;
+    --shiki-token-variable: #ffab70;
+    --shiki-token-type: #79b8ff;
+
+    --neutral-50: #222527;
+    --neutral-100: #2a2d30;
+    --neutral-200: #33373b;
+    --neutral-300: #3f444a;
+    --neutral-400: #6b7280;
+    --neutral-500: #9aa0a6;
+    --neutral-600: #b8bec5;
+    --neutral-700: #d5d9dd;
+    --neutral-800: #e8eaed;
+    --neutral-900: #f2f4f6;
+    --neutral-950: #ffffff;
+}
+
+@theme inline {
+    --font-sans: var(--font-mona-sans), ui-sans-serif, system-ui, sans-serif;
+    --font-mono:
+        var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, monospace;
+    --font-serif: var(--font-source-serif-4), ui-serif, Georgia, serif;
+
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-smooth-border: var(--smooth-border);
+    --color-code-block-bg: var(--code-block-bg);
+    --color-surface: var(--surface);
+
+    --color-neutral-50: var(--neutral-50);
+    --color-neutral-100: var(--neutral-100);
+    --color-neutral-200: var(--neutral-200);
+    --color-neutral-300: var(--neutral-300);
+    --color-neutral-400: var(--neutral-400);
+    --color-neutral-500: var(--neutral-500);
+    --color-neutral-600: var(--neutral-600);
+    --color-neutral-700: var(--neutral-700);
+    --color-neutral-800: var(--neutral-800);
+    --color-neutral-900: var(--neutral-900);
+    --color-neutral-950: var(--neutral-950);
+
+    --color-journal-accent: var(--journal-accent);
+    --color-journal-accent-text: var(--journal-accent-text);
+    --color-warning-text: var(--warning-text);
+    --color-warning: var(--warning);
+    --color-warning-bg: var(--warning-bg);
+    --color-warning-border: var(--warning-border);
+    --color-journal-light-muted: #52525b;
+    --color-journal-dark-muted: #8b949e;
+}
+
+html {
+    font-feature-settings: "ss06";
+}
+
+@utility word-spacing-wide {
+    word-spacing: 0.15em;
+}
+
+@utility word-spacing-wider {
+    word-spacing: 0.3em;
+}
+
+.font-logo {
+    font-family: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
+}
+
+#app {
+    transition: transform 300ms ease-out;
+}
+
+html[data-sidebar-open] #app {
+    transform: translateX(288px);
+}
+
+@media (min-width: 768px) {
+    html[data-sidebar-open] #app {
+        transform: none;
+    }
+}
+
+html:not([data-theme="charcoal"]) .theme-toggle__moon {
+    display: none;
+}
+
+html[data-theme="charcoal"] .theme-toggle__sun {
+    display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .theme-toggle__icon {
+        transition: none;
+    }
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 {
+    @apply font-sans;
+}
+
+.markdown-body h1 {
+    @apply mb-6 mt-12 scroll-mt-24 text-3xl font-extrabold tracking-tight text-zinc-950 md:text-4xl dark:text-zinc-50;
+}
+
+.markdown-body h2 {
+    @apply mb-4 mt-12 scroll-mt-24 text-2xl font-extrabold tracking-tight text-zinc-950 dark:text-zinc-50;
+}
+
+.markdown-body h3 {
+    @apply mb-3 mt-10 scroll-mt-24 text-xl font-bold text-zinc-950 dark:text-zinc-50;
+}
+
+.markdown-body h4 {
+    @apply mb-2 mt-8 scroll-mt-24 text-lg font-bold text-zinc-950 dark:text-zinc-50;
+}
+
+.markdown-body h5 {
+    @apply mb-2 mt-6 scroll-mt-24 text-base font-semibold tracking-tight text-zinc-900 dark:text-zinc-100;
+}
+
+.markdown-body h6 {
+    @apply mb-2 mt-6 scroll-mt-24 text-sm font-semibold text-zinc-900 dark:text-zinc-100;
+}
+
+.markdown-body p {
+    @apply my-4 leading-relaxed text-zinc-700 dark:text-zinc-300;
+}
+
+.markdown-body a {
+    @apply font-medium text-zinc-900 underline underline-offset-4 decoration-zinc-400 transition-colors hover:text-journal-accent-text hover:decoration-journal-accent-text dark:text-zinc-200;
+}
+
+.markdown-body strong {
+    @apply font-semibold text-zinc-950 dark:text-zinc-50;
+}
+
+.markdown-body blockquote {
+    @apply my-6 border-l-2 border-zinc-300 py-1 pl-5 text-zinc-600 dark:border-neutral-300 dark:text-zinc-400;
+}
+
+.markdown-body .markdown-alert {
+    @apply my-6 rounded-md border p-4 text-sm;
+    --markdown-alert-accent: #1f6feb;
+    --markdown-alert-bg: rgba(31, 111, 235, 0.06);
+    --markdown-alert-border: rgba(31, 111, 235, 0.22);
+    --markdown-alert-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16' fill='none' stroke='%231f6feb' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='8' cy='8' r='6.5'/%3E%3Cpath d='M8 5v3.5'/%3E%3Ccircle cx='8' cy='11.2' r='0.6' fill='%231f6feb' stroke='none'/%3E%3C/svg%3E");
+    border-left: 3px solid var(--markdown-alert-accent);
+    background: var(--markdown-alert-bg);
+    border-color: var(--markdown-alert-border);
+}
+
+.markdown-body .markdown-alert[data-alert-type="tip"] {
+    --markdown-alert-accent: #1a7f37;
+    --markdown-alert-bg: rgba(26, 127, 55, 0.06);
+    --markdown-alert-border: rgba(26, 127, 55, 0.22);
+    --markdown-alert-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16' fill='none' stroke='%231a7f37' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 1.5l1.7 3.4 3.8.6-2.7 2.7.6 3.8L8 10.2l-3.4 1.8.6-3.8-2.7-2.7 3.8-.6z'/%3E%3C/svg%3E");
+}
+
+.markdown-body .markdown-alert[data-alert-type="important"] {
+    --markdown-alert-accent: #8250df;
+    --markdown-alert-bg: rgba(130, 80, 223, 0.06);
+    --markdown-alert-border: rgba(130, 80, 223, 0.22);
+    --markdown-alert-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16' fill='none' stroke='%238250df' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 1.75L14.5 14h-13z'/%3E%3Cpath d='M8 6.5v3'/%3E%3Ccircle cx='8' cy='12' r='0.6' fill='%238250df' stroke='none'/%3E%3C/svg%3E");
+}
+
+.markdown-body .markdown-alert[data-alert-type="warning"] {
+    --markdown-alert-accent: #9a6700;
+    --markdown-alert-bg: rgba(154, 103, 0, 0.06);
+    --markdown-alert-border: rgba(154, 103, 0, 0.22);
+    --markdown-alert-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16' fill='none' stroke='%239a6700' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 1.5l6.5 11.25H1.5z'/%3E%3Cpath d='M8 6.5v2.75'/%3E%3Ccircle cx='8' cy='11.6' r='0.6' fill='%239a6700' stroke='none'/%3E%3C/svg%3E");
+}
+
+.markdown-body .markdown-alert[data-alert-type="caution"] {
+    --markdown-alert-accent: #cf222e;
+    --markdown-alert-bg: rgba(207, 34, 46, 0.06);
+    --markdown-alert-border: rgba(207, 34, 46, 0.22);
+    --markdown-alert-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='16' height='16' fill='none' stroke='%23cf222e' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.75 13.25L8 2.5l5.25 10.75z'/%3E%3Cpath d='M8 7v3'/%3E%3Ccircle cx='8' cy='12.2' r='0.6' fill='%23cf222e' stroke='none'/%3E%3C/svg%3E");
+}
+
+.markdown-body .markdown-alert-title {
+    @apply mb-1.5 mt-0 flex items-center gap-1.5 font-semibold;
+    color: var(--markdown-alert-accent);
+}
+
+.markdown-body .markdown-alert-icon {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    flex: none;
+    background: var(--markdown-alert-icon) center / contain no-repeat;
+}
+
+.markdown-body .markdown-alert > p:not(.markdown-alert-title) {
+    @apply my-1.5;
+}
+
+.markdown-body .markdown-alert > *:last-child {
+    @apply mb-0;
+}
+
+.markdown-body ul {
+    @apply my-6 ml-1 space-y-3 pl-6;
+    list-style-type: square;
+}
+
+.markdown-body ol {
+    @apply my-6 ml-1 space-y-3 pl-6;
+    list-style-type: decimal;
+}
+
+.markdown-body li {
+    @apply leading-relaxed text-zinc-700 dark:text-zinc-300;
+}
+
+.markdown-body li::marker {
+    color: var(--color-journal-accent-text);
+}
+
+.markdown-body li > ul,
+.markdown-body li > ol {
+    @apply my-3 ml-2;
+}
+
+.markdown-body ul.contains-task-list {
+    @apply list-none pl-1;
+}
+
+.markdown-body li.task-list-item input[type="checkbox"] {
+    @apply mr-2 accent-journal-accent;
+}
+
+.markdown-body .markdown-external-icon {
+    display: inline-block;
+    flex: none;
+    width: 0.8em;
+    height: 0.8em;
+    margin-left: 0.3em;
+    vertical-align: -0.125em;
+}
+
+.markdown-body pre,
+.markdown-body code,
+.markdown-body pre span {
+    color: var(--shiki-foreground);
+}
+
+.markdown-body :not(pre) > code {
+    @apply rounded bg-neutral-100 px-1.5 py-0.5 font-mono text-[0.875em] text-zinc-800 break-words dark:bg-neutral-100 dark:text-zinc-200;
+}
+
+.markdown-body pre:not([data-language]) {
+    @apply my-6 max-w-full overflow-x-auto rounded-md border border-smooth-border/70 bg-code-block-bg p-4 font-mono text-[0.9em] leading-relaxed;
+}
+
+.markdown-body figure[data-rehype-pretty-code-figure] {
+    @apply my-6 overflow-hidden rounded-md border border-smooth-border/70 bg-code-block-bg text-sm;
+}
+
+.markdown-body figure[data-rehype-pretty-code-figure] pre {
+    @apply m-0 overflow-x-auto p-4;
+}
+
+.markdown-body figure[data-rehype-pretty-code-figure] code {
+    @apply font-mono text-[0.9em];
+}
+
+.markdown-body .code-block-label {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    border-bottom: 1px solid
+        color-mix(in oklab, var(--smooth-border) 70%, transparent);
+    background: color-mix(in oklab, var(--neutral-100) 55%, transparent);
+    color: var(--neutral-500);
+    padding: 0.5rem 1rem;
+    font-family:
+        var(--font-mona-sans), ui-monospace, SFMono-Regular, Menlo, Consolas,
+        monospace;
+    font-size: 0.75rem;
+    line-height: 1rem;
+}
+
+.markdown-body .code-block-label__icon {
+    flex: none;
+    color: currentColor;
+    fill: currentColor;
+}
+
+.markdown-body .code-block-label__name {
+    letter-spacing: 0.025em;
+}
+
+.markdown-body .code-block-label__copy {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    flex: none;
+    height: 1.25rem;
+    padding: 0;
+    border: none;
+    border-radius: 0.25rem;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    transition: background-color 150ms ease;
+}
+
+.markdown-body .code-block-label__copy-slot {
+    display: grid;
+    grid-template-areas: "label";
+    justify-items: start;
+}
+
+.markdown-body .code-block-label__copy-text,
+.markdown-body .code-block-label__copied-text {
+    grid-area: label;
+    font-size: 0.75rem;
+    line-height: 1;
+    letter-spacing: 0.025em;
+    user-select: none;
+}
+
+.markdown-body .code-block-label__copied-text {
+    display: none;
+}
+
+.markdown-body
+    .code-block-label__copy[data-copied="true"]
+    .code-block-label__copy-text {
+    display: none;
+}
+
+.markdown-body
+    .code-block-label__copy[data-copied="true"]
+    .code-block-label__copied-text {
+    display: block;
+}
+
+.markdown-body .code-block-label__copy:hover {
+    background: color-mix(in oklab, currentColor 14%, transparent);
+}
+
+.markdown-body .code-block-label__copy:focus-visible {
+    outline: 2px solid var(--color-journal-accent-text);
+    outline-offset: 1px;
+}
+
+.markdown-body .code-block-label__copy svg {
+    width: 0.875rem;
+    height: 0.875rem;
+    flex: none;
+}
+
+.markdown-body .code-block-label__copy .copy-icon {
+    fill: currentColor;
+}
+
+.markdown-body .code-block-label__copy .check-icon {
+    display: none;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.markdown-body .code-block-label__copy[data-copied="true"] .copy-icon {
+    display: none;
+}
+
+.markdown-body .code-block-label__copy[data-copied="true"] .check-icon {
+    display: block;
+}
+
+.markdown-body hr {
+    @apply my-10 border-smooth-border/70;
+}
+
+.markdown-body img {
+    @apply my-6 max-w-full rounded-md border border-smooth-border/70;
+}
+
+.markdown-body .markdown-table-wrapper {
+    @apply my-6 overflow-x-auto rounded-md border border-smooth-border/70;
+}
+
+.markdown-body table {
+    @apply w-full border-collapse text-sm;
+}
+
+.markdown-body thead {
+    @apply bg-neutral-100 dark:bg-neutral-100;
+}
+
+.markdown-body th {
+    @apply border-b border-smooth-border/70 px-3 py-2 text-left font-semibold text-zinc-900 dark:text-zinc-100;
+}
+
+.markdown-body td {
+    @apply border-t border-smooth-border/70 px-3 py-2 align-top text-zinc-700 dark:text-zinc-300;
+}

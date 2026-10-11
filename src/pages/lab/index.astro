@@ -1,0 +1,206 @@
+---
+import { getCollection } from "astro:content";
+import MainLayout from "../../layouts/main-layout.astro";
+import { icon } from "../../components/icons";
+import { config } from "../../config";
+import { parsePublishDate } from "../../utils/date";
+
+const experiments = await getCollection("laboratory");
+
+const byNewest = (
+    a: { data: { date: string } },
+    b: { data: { date: string } },
+) => Date.parse(b.data.date) - Date.parse(a.data.date);
+
+const items = [...experiments].sort(byNewest);
+
+const categories = [...new Set(items.map((item) => item.data.category))].sort(
+    (a, b) => a.localeCompare(b),
+);
+
+const pillClass =
+    "relative shrink-0 cursor-pointer px-0.5 py-1 text-xs word-spacing-wide font-medium transition-colors duration-100 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-journal-accent";
+const pillIdleClass =
+    "text-zinc-700 hover:text-zinc-950 dark:text-zinc-300 dark:hover:text-zinc-50";
+const pillActiveClass = "text-zinc-950 dark:text-zinc-50";
+---
+
+<MainLayout
+    title={config.ui.pages.laboratory.heading}
+    description={config.ui.pages.laboratory.description}
+>
+    <main
+        id="main-content"
+        class="m-auto w-full max-w-6xl px-5 pt-0 pb-16 sm:px-6 md:pb-24"
+    >
+        <h1 class="sr-only">{config.ui.pages.laboratory.heading}</h1>
+
+        <div data-lab-filter class="space-y-8">
+            <div class="sticky top-16 z-40 flex flex-wrap items-center gap-x-6 gap-y-3 border-b border-smooth-border bg-background/80 py-2 backdrop-blur-md">
+                <div
+                    role="group"
+                    aria-label="Filter experiments by category"
+                    class="relative -mb-2 flex min-w-0 flex-1 flex-nowrap items-center gap-x-6 self-stretch overflow-x-auto overscroll-x-contain [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                >
+                    <button
+                        type="button"
+                        data-filter-key="all"
+                        aria-pressed="true"
+                        class:list={[pillClass, pillActiveClass]}
+                    >
+                        All <span class="opacity-60">{items.length}</span>
+                    </button>
+
+                    {categories.map((category) => (
+                        <button
+                            type="button"
+                            data-filter-key={category.toLowerCase()}
+                            aria-pressed="false"
+                            class:list={[pillClass, pillIdleClass]}
+                        >
+                            {category}&nbsp;
+                            <span class="opacity-60">
+                                {
+                                    items.filter(
+                                        (item) =>
+                                            item.data.category === category,
+                                    ).length
+                                }
+                            </span>
+                        </button>
+                    ))}
+
+                    <span
+                        aria-hidden="true"
+                        data-filter-indicator
+                        class="absolute bottom-0 h-0.5 bg-journal-accent transition-all duration-300 ease-out motion-reduce:transition-none"
+                    ></span>
+                </div>
+
+                <div class="flex w-full shrink-0 items-center sm:w-auto">
+                    <div class="w-full sm:w-64">
+                        <div class="flex items-center gap-2 rounded-full border border-smooth-border bg-neutral-100/60 py-1.5 pr-1.5 pl-3 transition-colors duration-150 hover:border-neutral-400/60 focus-within:border-journal-accent/60 motion-reduce:transition-none">
+                            <Fragment
+                                set:html={icon(
+                                    "search",
+                                    "size-3.5 shrink-0 text-neutral-500",
+                                )}
+                            />
+
+                            <input
+                                type="search"
+                                data-lab-search
+                                placeholder="search experiments..."
+                                aria-label="Search experiments"
+                                autocomplete="off"
+                                class="w-full min-w-0 bg-transparent text-xs word-spacing-wide font-medium text-zinc-950 outline-none placeholder:text-neutral-500 [&::-webkit-search-cancel-button]:hidden dark:text-zinc-50"
+                            />
+
+                            <button
+                                type="button"
+                                aria-label="Clear search"
+                                data-clear-search
+                                hidden
+                                class="-my-0.5 shrink-0 cursor-pointer rounded-full p-1 text-neutral-500 transition-colors duration-100 hover:text-zinc-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-journal-accent dark:hover:text-zinc-50"
+                            >
+                                <Fragment set:html={icon("x", "size-3")} />
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-t border-smooth-border" data-lab-rows>
+                {items.map((entry, index) => {
+                    const published = parsePublishDate(entry.data.date);
+
+                    return (
+                        <article
+                            class="group relative border-b border-smooth-border py-5"
+                            data-lab-row
+                            data-filter-tag={entry.data.category.toLowerCase()}
+                            data-search={`${entry.data.title} ${entry.data.description} ${entry.data.category}`.toLowerCase()}
+                        >
+                            <div
+                                aria-hidden="true"
+                                class="pointer-events-none absolute inset-0 z-0 overflow-hidden"
+                            >
+                                <div class="absolute -top-12 -right-12 size-40 rounded-full opacity-0 transition-opacity duration-150 group-hover:opacity-50 motion-reduce:transition-none blur-2xl bg-[radial-gradient(closest-side,color-mix(in_oklab,var(--journal-accent)_30%,transparent),transparent)]" />
+                            </div>
+
+                            <div class="relative z-10 flex items-baseline gap-4 md:grid md:grid-cols-[2.5rem_7.5rem_minmax(0,1fr)_auto] md:gap-x-6">
+                                <span
+                                    aria-hidden="true"
+                                    class="text-xs word-spacing-wide font-medium text-neutral-400 dark:text-neutral-600"
+                                >
+                                    {String(index + 1).padStart(2, "0")}
+                                </span>
+
+                                <span class="hidden text-xs word-spacing-wide font-medium whitespace-nowrap text-neutral-500 md:block">
+                                    {published.full}
+                                </span>
+
+                                <div class="min-w-0 flex-1">
+                                    <h3 class="line-clamp-1 font-semibold md:text-lg">
+                                        <a
+                                            href={`/lab/${entry.data.slug}`}
+                                            class="after:absolute after:inset-0 transition-colors duration-100 hover:text-journal-accent-text focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-journal-accent"
+                                        >
+                                            {entry.data.title}
+                                        </a>
+                                    </h3>
+
+                                    <p class="mt-1 line-clamp-1 text-sm text-neutral-500">
+                                        {entry.data.description}
+                                    </p>
+
+                                    <span class="mt-2 flex flex-wrap items-center gap-x-3 text-xs word-spacing-wide font-medium text-neutral-500 md:hidden">
+                                        <span>{published.full}</span>
+                                        {entry.data.is_archive && (
+                                            <span class="rounded-full border border-warning-border bg-warning-bg px-2.5 py-0.5 text-warning-text">
+                                                archived
+                                            </span>
+                                        )}
+                                        <span class="text-journal-accent-text">
+                                            {entry.data.category}
+                                        </span>
+                                        <span>{entry.data.reading_time}</span>
+                                    </span>
+                                </div>
+
+                                <div class="hidden items-center gap-4 text-xs word-spacing-wide font-medium md:flex">
+                                    {entry.data.is_archive && (
+                                        <span class="shrink-0 rounded-full border border-warning-border bg-warning-bg px-2.5 py-0.5 text-warning-text">
+                                            archived
+                                        </span>
+                                    )}
+
+                                    <span class="whitespace-nowrap text-journal-accent-text">
+                                        {entry.data.category}
+                                    </span>
+
+                                    <span class="whitespace-nowrap text-neutral-500">
+                                        {entry.data.reading_time}
+                                    </span>
+
+                                    <Fragment
+                                        set:html={icon(
+                                            "arrow-up-right",
+                                            "size-4 shrink-0 text-neutral-400 transition-colors duration-100 group-hover:text-journal-accent-text",
+                                        )}
+                                    />
+                                </div>
+                            </div>
+                        </article>
+                    );
+                })}
+            </div>
+
+            <p data-empty-message hidden class="text-sm text-neutral-500">
+                No experiments match your search or filter.
+            </p>
+        </div>
+
+        <script src="../../scripts/lab-filter.ts"></script>
+    </main>
+</MainLayout>

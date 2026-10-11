@@ -4,15 +4,15 @@ node_modules
 .pnp.*
 
 # Build output
-.next
+.astro
 out
 build
 dist
 coverage
 
 # Generated / typed files
-next-env.d.ts
 *.tsbuildinfo
+.astro/types.d.ts
 
 # Lockfiles
 pnpm-lock.yaml

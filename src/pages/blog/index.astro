@@ -1,0 +1,131 @@
+---
+import { getCollection } from "astro:content";
+import MainLayout from "../../layouts/main-layout.astro";
+import WriteupCard from "../../components/writeup-card.astro";
+import { icon } from "../../components/icons";
+import { config } from "../../config";
+
+const writeups = await getCollection("writeups");
+
+const byNewest = (
+    a: { data: { date: string } },
+    b: { data: { date: string } },
+) => Date.parse(b.data.date) - Date.parse(a.data.date);
+
+const items = [...writeups].sort(byNewest);
+
+const tagCounts = new Map<string, number>();
+for (const item of items) {
+    tagCounts.set(item.data.tag, (tagCounts.get(item.data.tag) ?? 0) + 1);
+}
+const options = [...tagCounts.entries()]
+    .map(([label, count]) => ({ label, count }))
+    .sort((a, b) => a.label.localeCompare(b.label));
+---
+
+<MainLayout
+    title={config.ui.pages.writeups.heading}
+    description={config.ui.pages.writeups.description}
+>
+    <main
+        id="main-content"
+        class="m-auto w-full max-w-6xl px-5 pt-0 pb-16 sm:px-6 md:pb-24"
+    >
+        <h1 class="sr-only">{config.ui.pages.writeups.heading}</h1>
+
+        <div data-writeups-filter class="space-y-8">
+            <div class="sticky top-16 z-40 flex flex-wrap items-center gap-x-6 gap-y-3 border-b border-smooth-border bg-background/80 py-2 backdrop-blur-md">
+                <div
+                    role="group"
+                    aria-label="Filter writeups by category"
+                    class="relative -mb-2 flex min-w-0 flex-1 flex-nowrap items-center gap-x-6 self-stretch overflow-x-auto overscroll-x-contain [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                >
+                    <button
+                        type="button"
+                        data-filter-key="all"
+                        aria-pressed="true"
+                        class="relative shrink-0 cursor-pointer px-0.5 py-1 text-xs word-spacing-wide font-medium word-spacing-wide transition-colors duration-100 text-zinc-950 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-journal-accent dark:text-zinc-50"
+                    >
+                        All <span class="opacity-60">{items.length}</span>
+                    </button>
+
+                    {options.map(({ label, count }) => (
+                        <button
+                            type="button"
+                            data-filter-key={label}
+                            aria-pressed="false"
+                            class="relative shrink-0 cursor-pointer px-0.5 py-1 text-xs word-spacing-wide font-medium transition-colors duration-100 text-zinc-700 hover:text-zinc-950 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-journal-accent dark:text-zinc-300 dark:hover:text-zinc-50"
+                        >
+                            {label} <span class="opacity-60">{count}</span>
+                        </button>
+                    ))}
+
+                    <span
+                        aria-hidden="true"
+                        data-filter-indicator
+                        class="absolute bottom-0 h-0.5 bg-journal-accent transition-all duration-300 ease-out motion-reduce:transition-none"
+                    ></span>
+                </div>
+
+                <div class="flex w-full shrink-0 items-center gap-2 sm:w-auto">
+                    <div class="w-full sm:w-64">
+                        <div class="flex items-center gap-2 rounded-full border border-smooth-border bg-neutral-100/60 py-1.5 pr-1.5 pl-3 transition-colors duration-150 hover:border-neutral-400/60 focus-within:border-journal-accent/60 motion-reduce:transition-none">
+                            <Fragment
+                                set:html={icon(
+                                    "search",
+                                    "size-3.5 shrink-0 text-neutral-500",
+                                )}
+                            />
+
+                            <input
+                                id="writeups-search"
+                                type="search"
+                                placeholder="search writeups..."
+                                aria-label="Search writeups"
+                                autocomplete="off"
+                                class="w-full min-w-0 bg-transparent text-xs word-spacing-wide font-medium text-zinc-950 outline-none placeholder:text-neutral-500 [&::-webkit-search-cancel-button]:hidden dark:text-zinc-50"
+                            />
+
+                            <button
+                                type="button"
+                                aria-label="Clear search"
+                                data-clear-search
+                                hidden
+                                class="-my-0.5 shrink-0 cursor-pointer rounded-full p-1 text-neutral-500 transition-colors duration-100 hover:text-zinc-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-journal-accent dark:hover:text-zinc-50"
+                            >
+                                <Fragment set:html={icon("x", "size-3")} />
+                            </button>
+                        </div>
+                    </div>
+
+                    <a
+                        href={config.rss}
+                        aria-label="Subscribe RSS"
+                        title="Subscribe RSS"
+                        class="inline-flex size-8 shrink-0 items-center justify-center rounded-full border border-smooth-border bg-neutral-100/60 text-neutral-500 transition-colors duration-150 hover:border-journal-accent/60 hover:text-journal-accent-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-journal-accent motion-reduce:transition-none"
+                    >
+                        <Fragment set:html={icon("rss", "size-3.5")} />
+                    </a>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {items.map((entry, index) => (
+                    <div
+                        class="writeup-card"
+                        data-tag={entry.data.tag}
+                        data-search={`${entry.data.title} ${entry.data.description}`.toLowerCase()}
+                    >
+                        <WriteupCard writeup={entry.data} />
+                    </div>
+                ))}
+            </div>
+
+            <p data-empty-message hidden class="text-sm text-neutral-500">
+                No writeups match your search or filter.
+            </p>
+        </div>
+
+        <script src="../../scripts/writeups-filter.ts"></script>
+    </main>
+</MainLayout>

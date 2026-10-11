@@ -1,0 +1,70 @@
+---
+import { icon } from "./icons";
+
+interface PagerItem {
+    href: string;
+    title: string;
+}
+
+interface Props {
+    previous?: PagerItem | null;
+    next?: PagerItem | null;
+}
+
+const { previous, next } = Astro.props;
+---
+
+{previous || next ? (
+    <nav
+        aria-label="Article navigation"
+        class="mt-16 grid grid-cols-1 gap-6 border-t border-smooth-border/70 pt-8 sm:grid-cols-2"
+    >
+        <h2 class="mb-2 text-xs word-spacing-wide font-medium uppercase tracking-wider text-neutral-500 sm:col-span-2">
+            More articles
+        </h2>
+
+        {previous ? (
+            <a
+                href={previous.href}
+                class="group flex flex-col gap-1.5 justify-self-start"
+            >
+                <span class="inline-flex items-center gap-2 text-xs word-spacing-wide font-medium uppercase tracking-wider text-neutral-500">
+                    <Fragment
+                        set:html={icon(
+                            "move-left",
+                            "size-3 transition-transform group-hover:-translate-x-1",
+                        )}
+                    />
+                    Previous
+                </span>
+                <span class="line-clamp-2 font-medium text-zinc-900 transition-colors group-hover:text-journal-accent-text dark:text-zinc-100">
+                    {previous.title}
+                </span>
+            </a>
+        ) : (
+            <span />
+        )}
+
+        {next ? (
+            <a
+                href={next.href}
+                class="group flex flex-col items-start gap-1.5 sm:items-end sm:text-right sm:justify-self-end"
+            >
+                <span class="inline-flex items-center gap-2 text-xs word-spacing-wide font-medium uppercase tracking-wider text-neutral-500">
+                    Next
+                    <Fragment
+                        set:html={icon(
+                            "move-right",
+                            "size-3 transition-transform group-hover:translate-x-1",
+                        )}
+                    />
+                </span>
+                <span class="line-clamp-2 font-medium text-zinc-900 transition-colors group-hover:text-journal-accent-text dark:text-zinc-100">
+                    {next.title}
+                </span>
+            </a>
+        ) : (
+            <span />
+        )}
+    </nav>
+) : null}

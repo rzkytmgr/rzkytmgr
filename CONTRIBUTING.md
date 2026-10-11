@@ -41,46 +41,41 @@ pnpm install
 pnpm dev
 ```
 
-The dev server runs at `http://localhost:3000`.
+The dev server runs at `http://localhost:4321`.
 
 ### Useful scripts
 
-| Script              | Purpose                                    |
-| ------------------- | ------------------------------------------ |
-| `pnpm dev`          | Start the development server               |
-| `pnpm build`        | Production build                           |
-| `pnpm start`        | Serve the production build                 |
-| `pnpm lint`         | Run ESLint                                 |
-| `pnpm format`       | Format all files with Prettier             |
-| `pnpm format:check` | Verify formatting without changing files   |
-| `pnpm typecheck`    | Type-check the project with `tsc --noEmit` |
-| `pnpm test`         | Run the Vitest test suite                  |
+| Script              | Purpose                                  |
+| ------------------- | ---------------------------------------- |
+| `pnpm dev`          | Start the development server             |
+| `pnpm build`        | Production build                         |
+| `pnpm preview`      | Serve the production build               |
+| `pnpm lint`         | Run ESLint                               |
+| `pnpm format`       | Format all files with Prettier           |
+| `pnpm format:check` | Verify formatting without changing files |
+| `pnpm typecheck`    | Type-check the project                   |
+| `pnpm test`         | Run the Vitest test suite                |
 
 ## Project structure
 
 ```text
-app/          Next.js App Router pages and layouts
-components/   Shared UI and layout components
+src/          Pages, layouts, components, scripts, and styles
 contents/     All site content as MDX files with frontmatter
-domain/       Feature-specific components and services
-lib/          Config loading, fonts, helpers
-providers/    Client-side providers (e.g. theme)
-store/        Zustand stores
 tests/        Vitest test files
-utils/        Markdown pipeline and shared utilities
+public/       Static assets
 ```
 
 ## Code style and quality gates
 
 The repository enforces a single pipeline both locally and in CI:
 
-| Gate       | Tool           | Hook / CI                     |
-| ---------- | -------------- | ----------------------------- |
-| Formatting | Prettier       | pre-commit (staged files), CI |
-| Linting    | ESLint         | pre-commit (staged files), CI |
-| Types      | `tsc --noEmit` | pre-commit, CI                |
-| Tests      | Vitest         | pre-commit, CI                |
-| Build      | `next build`   | CI                            |
+| Gate       | Tool          | Hook / CI                     |
+| ---------- | ------------- | ----------------------------- |
+| Formatting | Prettier      | pre-commit (staged files), CI |
+| Linting    | ESLint        | pre-commit (staged files), CI |
+| Types      | `astro check` | pre-commit, CI                |
+| Tests      | Vitest        | pre-commit, CI                |
+| Build      | `astro build` | CI                            |
 
 Husky hooks run automatically on every commit:
 
@@ -125,7 +120,7 @@ Examples:
 feat(navbar): add dark mode toggle
 fix(markdown): render nested blockquotes correctly
 docs(project): fix a typo
-chore(deps): bump next to 16.3.0
+chore(deps): bump astro to 7.4.0
 ```
 
 ## Branching and pull requests

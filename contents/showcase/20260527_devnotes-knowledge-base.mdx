@@ -1,0 +1,120 @@
+---
+id: SCPR-01
+link:
+    repository: "https://github.com/username/devnotes"
+    preview: "https://devnotes.vercel.app"
+title: DevNotes Knowledge Base
+description: >-
+    A web application for generating and managing invoices with support for
+    recurring billing, client management, payment tracking, and downloadable PDF
+    invoices. The project emphasizes reliability and a straightforward user
+    experience.
+category: Web App
+tech_stack:
+    - Next.js
+    - TypeScript
+    - Tailwind CSS
+    - Contentlayer
+    - Framer Motion
+date: "May 27, 2026"
+slug: devnotes-knowledge-base
+thumbnail: https://picsum.photos/seed/01_devnotes-knowledge-base/1200/675
+is_archive: false
+reading_time: 7 min read
+---
+
+> The fastest note-taking tool is the one you can still search five years later.
+
+Notes apps fail quietly. You capture things for six months, and then one day you need the decision you recorded about a legacy API and the search finds nothing — because the note was saved with a different title, or in a folder you no longer use. DevNotes was built around a single observation: what makes a knowledge base valuable over years is **how easily old notes can be found again**, not how nicely new ones can be written.
+
+## What the System Does
+
+DevNotes is a small web application with three load-bearing features:
+
+1. **Full-text search** across titles, body markdown, and tags
+2. **Backlinks** — every note shows which other notes mention it
+3. **Zero-friction capture** — a single input box that parses tags and links from plain text
+
+Everything else is deliberately secondary. There is no WYSIWYG editor, no collaboration, no templates. The product assumes one writer and many readers: future you.
+
+## Choosing Contentlayer
+
+The first version stored notes as rows in SQLite. Search worked, but the writing experience was poor: editing through a form felt like filing tax reports. Moving to markdown files on disk changed the editing experience completely, and [Contentlayer](https://contentlayer.dev) turned those files into typed, build-time-compiled data.
+
+```typescript
+// content-types.ts — the entire note schema
+defineDocumentType(() => ({
+    name: "Note",
+    filePathPattern: "**/notes/**/*.md",
+    fields: {
+        title: { type: "string", required: true },
+        tags: { type: "list", of: { type: "string" } },
+        created: { type: "date", required: true },
+    },
+    computedFields: {
+        slug: { type: "string", resolve: (note) => note._raw.sourceFileDir },
+    },
+}));
+```
+
+The build step now owns everything derived: indexes, backlink graphs, slugs. Nothing is computed at request time, which means search and rendering stay fast without a server component behind them.
+
+## Search Without a Search Server
+
+Indexing happens at build time with a small custom pipeline:
+
+- Strip markdown syntax from note bodies
+- Tokenize with the same rules the search input uses
+- Serialize the inverted index as a single compressed JSON file (~180 KB for two thousand notes)
+
+```typescript
+// the whole search path — no dependencies, runs offline
+export function search(notes: Note[], query: string): Note[] {
+    const terms = query.toLowerCase().split(/\s+/);
+    return notes
+        .map((note) => ({
+            note,
+            score: terms.reduce((sum, term) => sum + scoreTerm(note, term), 0),
+        }))
+        .filter((result) => result.score > 0)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 20)
+        .map((result) => result.note);
+}
+```
+
+Search runs entirely in the browser. For a single user's knowledge base this beats wiring up Meilisearch or Typesense — there is no service to run, pay for, or migrate when hosting changes.
+
+> [!NOTE]
+> Local-first search will hit a ceiling somewhere around ten thousand notes. Past that, the index alone stops fitting comfortably in a bundle. DevNotes predates that ceiling and documents the migration path in its README.
+
+## Backlinks: The Feature Nobody Skips Once It Exists
+
+Backlinks fell out almost for free once body markdown became data. During the build, every note's body is scanned for references to other notes' slugs, and a reverse graph is emitted as a static map.
+
+That graph quietly changes writing behavior. Notes get linked because linking makes future retrieval easier, and the knowledge base stops being a pile of chronological entries and starts being a small graph. A note about database conventions that is linked from three incident retrospectives gets maintained; an orphan does not.
+
+## What Was Deliberately Left Out
+
+- **Sync** — notes live in a git repo. Git is the sync layer.
+- **Mobile app** — the site is fast enough on a phone browser.
+- **AI anything** — retrieval ends at the note, not at a summary of the note.
+
+Each exclusion kept the system compatible with the simplest possible runtime: a static export hosted on any CDN.
+
+## Conclusion
+
+DevNotes exists because note-taking tools optimize for capture, when the hard problem is recall. The stack ended up boring on purpose — Next.js, markdown files, a build step, an in-browser index — because boring software survives.
+
+The measured outcomes after a year of daily use:
+
+| Outcome                          | Result           |
+| -------------------------------- | ---------------- |
+| Notes in the base                | ~2,100           |
+| Median time to find an old note  | under 10 seconds |
+| Notes with at least one backlink | 61%              |
+| Static bundle (incl. index)      | 1.4 MB           |
+
+> "A knowledge base is not a product you maintain. It is a system you feed — and the design question is always how the next note becomes findable."
+
+Source: [github.com/username/devnotes](https://github.com/username/devnotes) · Live preview: [devnotes.vercel.app](https://devnotes.vercel.app)

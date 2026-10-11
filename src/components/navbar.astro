@@ -1,0 +1,86 @@
+---
+import { icon } from "./icons";
+import NavbarItem from "./navbar-item.astro";
+
+interface Props {
+    title: string;
+    items: { href: string; label: string }[];
+}
+
+const { title, items } = Astro.props;
+const { pathname } = Astro.url;
+
+const isActive = (href: string) => {
+    if (href === "/") {
+        return pathname === "/";
+    }
+
+    if (href === "/blog") {
+        return pathname === "/blog" || pathname.startsWith("/blog/");
+    }
+
+    return pathname === href || pathname.startsWith(`${href}/`);
+};
+---
+
+<header class="group/nav sticky top-0 z-50 w-full bg-background">
+    <div
+        aria-hidden="true"
+        class="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-smooth-border to-transparent"
+    ></div>
+    <div class="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-5 sm:px-6">
+        <div class="flex flex-1 justify-start md:hidden">
+            <button
+                id="sidebar-toggle"
+                type="button"
+                aria-label="Open sidebar"
+                aria-expanded="false"
+                aria-controls="sidebar"
+                class="cursor-pointer rounded-md p-2 text-journal-light-muted transition-colors hover:bg-journal-accent/10 active:bg-journal-accent/10 dark:text-journal-dark-muted dark:hover:bg-journal-accent/20"
+            >
+                <Fragment set:html={icon("panel-left")} />
+            </button>
+        </div>
+
+        <a
+            href="/"
+            class="flex w-fit flex-none shrink-0 items-center text-sm font-bold tracking-tight transition-colors hover:text-journal-accent-text"
+        >
+            {title}
+        </a>
+
+        <nav
+            aria-label="Primary navigation"
+            class="hidden flex-1 shrink-0 grow-0 items-center justify-center gap-1 md:flex"
+        >
+            {items.map(({ href, label }) => (
+                <NavbarItem href={href} active={isActive(href)}>
+                    {label}
+                </NavbarItem>
+            ))}
+        </nav>
+
+        <div class="flex flex-1 items-center justify-end gap-3 md:flex-none">
+            <button
+                id="theme-toggle"
+                type="button"
+                aria-label="Toggle dark mode"
+                aria-pressed="false"
+                title="Toggle dark mode"
+                class="theme-toggle cursor-pointer rounded-full p-2 text-journal-light-muted transition-colors duration-100 hover:bg-journal-accent/10 hover:text-journal-accent-text dark:text-journal-dark-muted dark:hover:bg-journal-accent/20"
+            >
+                <span
+                    aria-hidden="true"
+                    class="theme-toggle__icon block transition-transform duration-300"
+                >
+                    <span class="theme-toggle__sun block">
+                        <Fragment set:html={icon("sun")} />
+                    </span>
+                    <span class="theme-toggle__moon block">
+                        <Fragment set:html={icon("moon")} />
+                    </span>
+                </span>
+            </button>
+        </div>
+    </div>
+</header>

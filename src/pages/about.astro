@@ -1,0 +1,315 @@
+---
+import MainLayout from "../layouts/main-layout.astro";
+import { icon, socialIcon } from "../components/icons";
+import { config } from "../config";
+
+const about = config.ui.pages.about;
+const resume = config.resume;
+
+const github = config.author.social.find(
+    ({ name }) => name.toLowerCase() === "github",
+);
+const linkedin = config.author.social.find(
+    ({ name }) => name.toLowerCase() === "linkedin",
+);
+
+const contactRows = [
+    {
+        name: "Email",
+        value: config.author.email,
+        href: `mailto:${config.author.email}`,
+    },
+    github && {
+        name: "Github",
+        value: "github.com/rzkytmgr",
+        href: github.href,
+    },
+    linkedin && {
+        name: "LinkedIn",
+        value: "linkedin.com/in/rzkytmgr",
+        href: linkedin.href,
+    },
+].filter(Boolean) as { name: string; value: string; href: string }[];
+
+const contactLinkClass =
+    "group/contact inline-flex items-center gap-1.5 font-mono text-xs text-neutral-500 transition-colors hover:text-journal-accent-text dark:text-neutral-400 motion-reduce:transition-none";
+
+const contactIconClass =
+    "size-3 transition-transform duration-300 group-hover/contact:-translate-y-0.5 group-hover/contact:translate-x-0.5 motion-reduce:transition-none motion-reduce:group-hover/contact:translate-x-0 motion-reduce:group-hover/contact:translate-y-0";
+---
+
+<MainLayout title={about.heading} description={about.description}>
+    <main id="main-content" class="m-auto w-full max-w-6xl px-6 py-20 md:py-32">
+        <div class="max-w-3xl">
+            <div>
+                <header class="space-y-3">
+                    <h1 class="text-3xl font-bold tracking-tight text-zinc-950 md:text-4xl dark:text-zinc-50">
+                        {config.author.name}
+                    </h1>
+
+                    <p class="text-base text-zinc-700 dark:text-zinc-300">
+                        {config.author.title}
+                    </p>
+
+                    {config.author.location && (
+                        <p class="flex items-center gap-1.5 font-mono text-xs text-neutral-500 dark:text-neutral-400">
+                            <Fragment set:html={icon("map-pin", "size-3.5")} />
+                            {config.author.location}
+                        </p>
+                    )}
+                </header>
+            </div>
+
+            {resume?.overview && (
+                <div>
+                    <p class="mt-8 leading-relaxed text-zinc-700 dark:text-zinc-300">
+                        {resume.overview}
+                    </p>
+                </div>
+            )}
+
+            <div>
+                <div class="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 border-y border-smooth-border/70 py-3">
+                    {contactRows.map(({ name, value, href }) => (
+                        <a
+                            href={href}
+                            target={
+                                href.startsWith("mailto:")
+                                    ? undefined
+                                    : "_blank"
+                            }
+                            rel={
+                                href.startsWith("mailto:")
+                                    ? undefined
+                                    : "noopener noreferrer"
+                            }
+                            class={contactLinkClass}
+                        >
+                            <Fragment
+                                set:html={socialIcon(
+                                    name,
+                                    "size-3.5 flex-none",
+                                )}
+                            />
+                            {value}
+                            {!href.startsWith("mailto:") && (
+                                <Fragment
+                                    set:html={icon(
+                                        "arrow-up-right",
+                                        contactIconClass,
+                                    )}
+                                />
+                            )}
+                        </a>
+                    ))}
+                </div>
+            </div>
+
+            <div class="mt-12 space-y-12">
+                {resume && (
+                    <div>
+                        <section class="scroll-mt-24">
+                            <div class="mb-5 flex items-center gap-4 border-b border-smooth-border pb-2">
+                                <h2 class="font-mono text-xs uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
+                                    Work Experience
+                                </h2>
+                                <span
+                                    aria-hidden="true"
+                                    class="h-px flex-1 bg-smooth-border/70"
+                                />
+                            </div>
+
+                            <ol class="space-y-6">
+                                {resume.workExperience.map((entry) => (
+                                    <li class="grid gap-1 sm:grid-cols-[1fr_auto]">
+                                        <div class="min-w-0">
+                                            <p class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                                                {entry.role}
+                                                {entry.company && (
+                                                    <span class="font-normal text-zinc-600 dark:text-zinc-400">
+                                                        {" "}
+                                                        · {entry.company}
+                                                    </span>
+                                                )}
+                                            </p>
+                                            {entry.points &&
+                                                entry.points.length > 0 && (
+                                                    <ul class="mt-2 space-y-1.5 text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
+                                                        {entry.points.map(
+                                                            (point) => (
+                                                                <li class="flex gap-2">
+                                                                    <span
+                                                                        aria-hidden="true"
+                                                                        class="mt-[0.55em] size-1 flex-none rounded-full bg-journal-accent"
+                                                                    />
+                                                                    <span class="min-w-0">
+                                                                        {point}
+                                                                    </span>
+                                                                </li>
+                                                            ),
+                                                        )}
+                                                    </ul>
+                                                )}
+                                        </div>
+
+                                        <div class="flex items-baseline gap-3 sm:flex-col sm:items-end">
+                                            <span class="font-mono text-xs text-neutral-500 dark:text-neutral-400">
+                                                {entry.period}
+                                            </span>
+                                            {entry.location && (
+                                                <span class="font-mono text-xs text-neutral-400 dark:text-neutral-500">
+                                                    {entry.location}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </li>
+                                ))}
+                            </ol>
+                        </section>
+                    </div>
+                )}
+
+                {resume && (
+                    <div>
+                        <section class="scroll-mt-24">
+                            <div class="mb-5 flex items-center gap-4 border-b border-smooth-border pb-2">
+                                <h2 class="font-mono text-xs uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
+                                    Education
+                                </h2>
+                                <span
+                                    aria-hidden="true"
+                                    class="h-px flex-1 bg-smooth-border/70"
+                                />
+                            </div>
+
+                            <ol class="space-y-6">
+                                {resume.education.map((entry) => (
+                                    <li class="grid gap-1 sm:grid-cols-[1fr_auto]">
+                                        <div class="min-w-0">
+                                            <p class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                                                {entry.degree}
+                                                {entry.school && (
+                                                    <span class="font-normal text-zinc-600 dark:text-zinc-400">
+                                                        {" "}
+                                                        · {entry.school}
+                                                    </span>
+                                                )}
+                                            </p>
+                                            {entry.points &&
+                                                entry.points.length > 0 && (
+                                                    <ul class="mt-2 space-y-1.5 text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
+                                                        {entry.points.map(
+                                                            (point) => (
+                                                                <li class="flex gap-2">
+                                                                    <span
+                                                                        aria-hidden="true"
+                                                                        class="mt-[0.55em] size-1 flex-none rounded-full bg-journal-accent"
+                                                                    />
+                                                                    <span class="min-w-0">
+                                                                        {point}
+                                                                    </span>
+                                                                </li>
+                                                            ),
+                                                        )}
+                                                    </ul>
+                                                )}
+                                        </div>
+
+                                        <div class="flex items-baseline gap-3 sm:flex-col sm:items-end">
+                                            <span class="font-mono text-xs text-neutral-500 dark:text-neutral-400">
+                                                {entry.period}
+                                            </span>
+                                            {entry.location && (
+                                                <span class="font-mono text-xs text-neutral-400 dark:text-neutral-500">
+                                                    {entry.location}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </li>
+                                ))}
+                            </ol>
+                        </section>
+                    </div>
+                )}
+
+                {resume && (
+                    <div>
+                        <section class="scroll-mt-24">
+                            <div class="mb-5 flex items-center gap-4 border-b border-smooth-border pb-2">
+                                <h2 class="font-mono text-xs uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
+                                    Other Experience
+                                </h2>
+                                <span
+                                    aria-hidden="true"
+                                    class="h-px flex-1 bg-smooth-border/70"
+                                />
+                            </div>
+
+                            <ol class="space-y-6">
+                                {resume.otherExperience.map((entry) => (
+                                    <li class="grid gap-1 sm:grid-cols-[1fr_auto]">
+                                        <div class="min-w-0">
+                                            <p class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                                                {entry.role}
+                                                {entry.org && (
+                                                    <span class="font-normal text-zinc-600 dark:text-zinc-400">
+                                                        {" "}
+                                                        · {entry.org}
+                                                    </span>
+                                                )}
+                                            </p>
+                                            {entry.points &&
+                                                entry.points.length > 0 && (
+                                                    <ul class="mt-2 space-y-1.5 text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
+                                                        {entry.points.map(
+                                                            (point) => (
+                                                                <li class="flex gap-2">
+                                                                    <span
+                                                                        aria-hidden="true"
+                                                                        class="mt-[0.55em] size-1 flex-none rounded-full bg-journal-accent"
+                                                                    />
+                                                                    <span class="min-w-0">
+                                                                        {point}
+                                                                    </span>
+                                                                </li>
+                                                            ),
+                                                        )}
+                                                    </ul>
+                                                )}
+                                        </div>
+
+                                        <div class="flex items-baseline gap-3 sm:flex-col sm:items-end">
+                                            <span class="font-mono text-xs text-neutral-500 dark:text-neutral-400">
+                                                {entry.period}
+                                            </span>
+                                            {entry.location && (
+                                                <span class="font-mono text-xs text-neutral-400 dark:text-neutral-500">
+                                                    {entry.location}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </li>
+                                ))}
+                            </ol>
+                        </section>
+                    </div>
+                )}
+            </div>
+
+            <div>
+                <section class="mt-12 border-t border-smooth-border/70 pt-8">
+                    <h2 class="mb-4 font-mono text-xs uppercase tracking-wider text-neutral-500">
+                        About this place
+                    </h2>
+                    <div class="space-y-4">
+                        {about.paragraphs.map((paragraph) => (
+                            <p class="leading-relaxed text-zinc-700 dark:text-zinc-300">
+                                {paragraph}
+                            </p>
+                        ))}
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+</MainLayout>

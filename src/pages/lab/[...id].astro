@@ -1,0 +1,103 @@
+---
+import { getCollection, render } from "astro:content";
+import MainLayout from "../../layouts/main-layout.astro";
+import ArticleHeader from "../../components/article-header.astro";
+import ArticlePager from "../../components/article-pager.astro";
+import GiscusComments from "../../components/giscus-comments.astro";
+import TableOfContents from "../../components/table-of-contents.astro";
+import { config } from "../../config";
+import { estimateReadingTime, extractHeadings } from "../../utils/markdown";
+
+export async function getStaticPaths() {
+    const experiments = await getCollection("laboratory");
+
+    return experiments.map((entry) => ({
+        params: { id: entry.data.slug },
+        props: { entry },
+    }));
+}
+
+const { entry } = Astro.props;
+const data = entry.data;
+const headings = extractHeadings(entry.body ?? "");
+const readingTime = estimateReadingTime(entry.body ?? "");
+const { Content } = await render(entry);
+
+const all = (await getCollection("laboratory")).sort(
+    (a, b) => Date.parse(b.data.date) - Date.parse(a.data.date),
+);
+const index = all.findIndex((item) => item.data.slug === data.slug);
+
+const previous =
+    index > 0
+        ? {
+              href: `/lab/${all[index - 1].data.slug}`,
+              title: all[index - 1].data.title,
+          }
+        : null;
+const next =
+    index >= 0 && index < all.length - 1
+        ? {
+              href: `/lab/${all[index + 1].data.slug}`,
+              title: all[index + 1].data.title,
+          }
+        : null;
+---
+
+<MainLayout title={`${data.title} - rzkytmgr`} description={data.description}>
+    <main
+        id="main-content"
+        class="m-auto w-full max-w-7xl px-6 pt-6 pb-20 md:pt-8 md:pb-32"
+    >
+        <div class="mx-auto grid w-full grid-cols-1 gap-y-12 xl:grid-cols-[minmax(0,1fr)_680px_minmax(0,1fr)] xl:gap-x-10">
+            <div class="mx-auto w-full max-w-[680px] xl:col-start-2 xl:row-start-1 xl:max-w-none">
+                <ArticleHeader
+                    idTitle="experiment-title"
+                    tagline={data.category}
+                    title={data.title}
+                    reading_time={readingTime}
+                    date={data.date}
+                    description={data.description}
+                    thumbnail={data.thumbnail}
+                    links={data.links}
+                    archiveNotice={
+                        data.is_archive
+                            ? "This experiment has been archived and is no longer maintained. Some information or links may be outdated."
+                            : undefined
+                    }
+                />
+            </div>
+
+            <div class="mx-auto w-full max-w-[680px] xl:col-start-2 xl:row-start-2 xl:max-w-none">
+                <div>
+                    <div class="markdown-body font-serif text-base">
+                        <Content />
+                    </div>
+
+                    <GiscusComments giscus={config.giscus} />
+
+                    <ArticlePager previous={previous} next={next} />
+                </div>
+            </div>
+
+            {headings.length > 0 && (
+                <aside class="hidden xl:col-start-1 xl:row-start-1 xl:row-span-2 xl:block">
+                    <div
+                        class:list={[
+                            "xl:sticky xl:flex xl:flex-col",
+                            data.is_archive
+                                ? "xl:top-28 xl:max-h-[calc(100vh_-_9rem)]"
+                                : "xl:top-24 xl:max-h-[calc(100vh_-_8rem)]",
+                        ]}
+                    >
+                        <div class="xl:flex xl:min-h-0 xl:flex-col">
+                            <TableOfContents headings={headings} />
+                        </div>
+                    </div>
+                </aside>
+            )}
+        </div>
+
+        <script src="../../scripts/article.ts"></script>
+    </main>
+</MainLayout>

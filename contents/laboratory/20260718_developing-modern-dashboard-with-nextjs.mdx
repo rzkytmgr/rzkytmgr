@@ -1,0 +1,123 @@
+---
+id: EXP-02
+title: Developing a Modern Analytics Dashboard with Next.js
+description: >-
+    Created a responsive analytics dashboard featuring server-side rendering,
+    interactive charts, authentication, and optimized performance. The application
+    provides real-time insights while maintaining an intuitive user experience
+    across desktop and mobile devices.
+category: Web App
+stack:
+    - Next.js
+    - TypeScript
+    - Tailwind CSS
+    - Recharts
+    - Supabase
+date: "Jul 18, 2026"
+slug: developing-modern-dashboard-with-nextjs
+thumbnail: https://picsum.photos/seed/02_developing-modern-dashboard-with-nextjs/1200/675
+is_archive: false
+links:
+    - label: Live preview
+      url: https://analytics-dashboard-demo.vercel.app
+    - label: Source code
+      url: https://github.com/username/analytics-dashboard
+reading_time: 7 min read
+---
+
+> "Dashboards fail in the boring way: a wall of charts, no decisions. The engineering goal of this experiment was to make every chart answer a question someone actually asks."
+
+This experiment built an analytics dashboard for a small SaaS product using [Next.js](https://nextjs.org) server components, [Recharts](https://recharts.org) for visualization, and [Supabase](https://supabase.com) for data. The constraint that shaped everything: the dashboard must stay useful on a five-year-old Android over hotel Wi-Fi, not just on a designer's MacBook.
+
+## Server Components Do the Heavy Lifting
+
+All aggregation happens in server components. The client receives finished markup for the summary cards and pre-drilled chart data; hydration is limited to actual interactive pieces — the date-range picker, the drill-down table, and the refresh button.
+
+```tsx
+// app/(dashboard)/page.tsx — reads, aggregates, renders: no client fetch
+export default async function DashboardPage({
+    searchParams,
+}: {
+    searchParams: { range?: string };
+}) {
+    const range = parseRange(searchParams.range ?? "7d");
+
+    const [overview, trendByDay] = await Promise.all([
+        queries.overview(range), // one round trip, one CTE
+        queries.sessionsPerDay(range), // pre-aggregated materialized view
+    ]);
+
+    return (
+        <DashboardShell range={range}>
+            <OverviewCards data={overview} />
+            <TrendChart data={trendByDay} />
+            <DrillDownTable title="Sessions" query={queries.sessions} />
+        </DashboardShell>
+    );
+}
+```
+
+Range changes are navigation, not client state — a `<Link href="?range=30d">` gives the browser back/forward behavior for free and keeps the chart data pass identical for every range.
+
+## The Aggregation Problem, Solved Once
+
+The first naive implementation computed sessions-per-day with `GROUP BY date_trunc` over the raw events table. Fine at 10k rows, 2.8 seconds at 4M rows. The fix was a materialized view refreshed on schedule, plus a CTE for the on-demand ranges:
+
+```sql
+CREATE MATERIALIZED VIEW sessions_per_day AS
+SELECT date_trunc('day', occurred_at) AS day,
+       count(DISTINCT session_id)     AS sessions,
+       count(*)                       AS events
+FROM events
+GROUP BY day;
+
+CREATE UNIQUE INDEX ON sessions_per_day (day);
+```
+
+With the index in place, sustainable refresh granularity is one minute, and every range query hits the view instead of the events table.
+
+## Charts That Respect Data Density
+
+[Recharts](https://recharts.org) renders the charts; the hard part is what to feed it. Two rules came out of this experiment:
+
+1. **Bin before you render.** A 30-day line chart gets/day buckets, not raw events — plotting raw data was both slower and less readable.
+2. **Idle-compute for the tooltip table.** The drill-down table fetches only when opened, from a secondary route segment, so the initial chart payload stays under 40 KB.
+
+```tsx
+<TrendChart
+    data={trendByDay}
+    onSelect={(day) => openDrawer(day)} // drawer fetches its own segment
+/>
+```
+
+## Authentication and Authorization
+
+Auth rides on Supabase with cookie-based sessions rather than localStorage tokens, so SSR reads work on the server without a client flag-wave. Authorization happens in a single `assertRole()` call at the top of each server component — there is no client-side permission logic to spoof.
+
+> [!WARNING]
+> Cookie-based auth with SSR means every navigation re-validates the session server-side. That is the correct behavior, but it makes careless `await` chains lethal for perceived speed — parallel `Promise.all` reads are the default, not the optimization.
+
+## Mobile-First Was Non-Negotiable
+
+Layout collapses to a two-metric view under `sm:` — sessions and revenue, the two answers the product owner actually asks for. Everything else gets progressively revealed rather than crammed:
+
+- The chart's x-axis drops intent labels and shows first/last only
+- The activity feed truncates to five rows with an in-place "show more"
+- The drill-down table becomes a stacked list of cards
+
+The result: a dashboard people actually open on their phones — which was the original definition of success.
+
+## Performance Numbers
+
+Measured on the production dataset (4.1M events):
+
+| Path                     | Optimization       | Before | After       |
+| ------------------------ | ------------------ | ------ | ----------- |
+| Initial dashboard render | Server components  | 4.1 s  | 380 ms      |
+| Range navigation         | View + CTE         | 2.8 s  | 190 ms      |
+| Chart interaction        | Bin first          | janky  | 16 ms/frame |
+| Mobile TTI               | Payload discipline | 9.3 s  | 2.1 s       |
+
+## Conclusion
+
+The dashboard works because it respects a boundary the design forced into existence: server components compute and render, client islands interact, and aggregate decision-making belongs to SQL — not to JavaScript running in someone's browser. "Real-time" turned out to be one materialized view and one minute of lag, and that was enough for every decision the dashboard feeds.

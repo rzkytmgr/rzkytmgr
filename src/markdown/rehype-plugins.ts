@@ -1,0 +1,357 @@
+import type { Element, Root } from "hast";
+import { getCodeLanguage } from "./code-block-labels";
+
+const EXTERNAL_LINK_ICON: Element = {
+    type: "element",
+    tagName: "svg",
+    properties: {
+        className: ["markdown-external-icon"],
+        viewBox: "0 0 24 24",
+        width: "1em",
+        height: "1em",
+        fill: "none",
+        stroke: "currentColor",
+        strokeWidth: "2",
+        strokeLinecap: "round",
+        strokeLinejoin: "round",
+        "aria-hidden": "true",
+    },
+    children: [
+        {
+            type: "element",
+            tagName: "path",
+            properties: { d: "M15 3h6v6" },
+            children: [],
+        },
+        {
+            type: "element",
+            tagName: "path",
+            properties: { d: "M10 14 21 3" },
+            children: [],
+        },
+        {
+            type: "element",
+            tagName: "path",
+            properties: {
+                d: "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6",
+            },
+            children: [],
+        },
+    ],
+};
+
+export function rehypeExternalLinks() {
+    return (tree: Root) => {
+        const walk = (node: unknown): void => {
+            if (!node || typeof node !== "object") {
+                return;
+            }
+
+            const current = node as {
+                type?: string;
+                tagName?: string;
+                properties?: Record<string, unknown>;
+                children?: unknown[];
+            };
+
+            if (current.type === "element" && current.tagName === "a") {
+                const href = current.properties?.href;
+
+                if (typeof href === "string" && /^https?:\/\//.test(href)) {
+                    current.properties = {
+                        ...current.properties,
+                        target: "_blank",
+                        rel: "noopener noreferrer",
+                    };
+
+                    const wrapsImage = (current.children ?? []).some(
+                        (child) =>
+                            (child as { type?: string; tagName?: string })
+                                .type === "element" &&
+                            (child as { tagName?: string }).tagName === "img",
+                    );
+
+                    if (!wrapsImage) {
+                        current.children = [
+                            ...(current.children ?? []),
+                            EXTERNAL_LINK_ICON,
+                        ];
+                    }
+                }
+            }
+
+            current.children?.forEach(walk);
+        };
+
+        walk(tree);
+    };
+}
+
+function collectElementText(node: Element): string {
+    let text = "";
+
+    const walk = (current: Element): void => {
+        (current.children ?? []).forEach((child) => {
+            const typed = child as { type?: string; value?: string };
+
+            if (typed.type === "text") {
+                text += typed.value ?? "";
+            } else if (typed.type === "element") {
+                walk(child as Element);
+            }
+        });
+    };
+
+    walk(node);
+
+    return text;
+}
+
+export function rehypeCodeBlockLabels() {
+    return (tree: Root) => {
+        const walk = (node: Element): void => {
+            if (
+                node.tagName === "figure" &&
+                "data-rehype-pretty-code-figure" in (node.properties ?? {})
+            ) {
+                const pre = (node.children ?? []).find(
+                    (child): child is Element =>
+                        (child as { type?: string }).type === "element" &&
+                        (child as Element).tagName === "pre",
+                );
+                const code = pre?.children?.find(
+                    (child): child is Element =>
+                        (child as { type?: string }).type === "element" &&
+                        (child as Element).tagName === "code",
+                );
+
+                const rawLanguage =
+                    typeof code?.properties?.["data-language"] === "string"
+                        ? code.properties["data-language"]
+                        : undefined;
+                const meta = getCodeLanguage(rawLanguage);
+
+                const figureChildren = node.children ?? [];
+                const figcaptionIndex = figureChildren.findIndex(
+                    (child): child is Element =>
+                        (child as { type?: string }).type === "element" &&
+                        (child as Element).tagName === "figcaption" &&
+                        "data-rehype-pretty-code-title" in
+                            ((child as Element).properties ?? {}),
+                );
+
+                let labelName = meta.name;
+
+                if (figcaptionIndex >= 0) {
+                    const title = collectElementText(
+                        figureChildren[figcaptionIndex] as Element,
+                    ).trim();
+
+                    if (title.length > 0) {
+                        labelName = title;
+                    }
+
+                    node.children = figureChildren.filter(
+                        (_, index) => index !== figcaptionIndex,
+                    );
+                }
+
+                if (labelName) {
+                    const children: Element[] = [];
+
+                    if (meta.icon) {
+                        children.push({
+                            type: "element",
+                            tagName: "svg",
+                            properties: {
+                                className: ["code-block-label__icon"],
+                                viewBox: "0 0 24 24",
+                                width: "1em",
+                                height: "1em",
+                                "aria-hidden": "true",
+                            },
+                            children: [
+                                {
+                                    type: "element",
+                                    tagName: "path",
+                                    properties: { d: meta.icon },
+                                    children: [],
+                                },
+                            ],
+                        });
+                    }
+
+                    children.push({
+                        type: "element",
+                        tagName: "span",
+                        properties: { className: ["code-block-label__name"] },
+                        children: [{ type: "text", value: labelName }],
+                    });
+
+                    children.push({
+                        type: "element",
+                        tagName: "button",
+                        properties: {
+                            type: "button",
+                            className: ["code-block-label__copy"],
+                            dataCodeBlockCopy: "",
+                            ariaLabel: "Copy code",
+                            title: "Copy code",
+                        },
+                        children: [
+                            {
+                                type: "element",
+                                tagName: "svg",
+                                properties: {
+                                    className: ["copy-icon"],
+                                    viewBox: "0 0 24 24",
+                                    width: "1em",
+                                    height: "1em",
+                                    "aria-hidden": "true",
+                                },
+                                children: [
+                                    {
+                                        type: "element",
+                                        tagName: "rect",
+                                        properties: {
+                                            x: "9",
+                                            y: "9",
+                                            width: "10",
+                                            height: "10",
+                                            rx: "1.5",
+                                        },
+                                        children: [],
+                                    },
+                                    {
+                                        type: "element",
+                                        tagName: "rect",
+                                        properties: {
+                                            x: "5",
+                                            y: "5",
+                                            width: "10",
+                                            height: "10",
+                                            rx: "1.5",
+                                            opacity: "0.45",
+                                        },
+                                        children: [],
+                                    },
+                                ],
+                            },
+                            {
+                                type: "element",
+                                tagName: "svg",
+                                properties: {
+                                    className: ["check-icon"],
+                                    viewBox: "0 0 24 24",
+                                    width: "1em",
+                                    height: "1em",
+                                    "aria-hidden": "true",
+                                },
+                                children: [
+                                    {
+                                        type: "element",
+                                        tagName: "path",
+                                        properties: { d: "M4 12.5l5 5L20 6.5" },
+                                        children: [],
+                                    },
+                                ],
+                            },
+                            {
+                                type: "element",
+                                tagName: "span",
+                                properties: {
+                                    className: ["code-block-label__copy-slot"],
+                                },
+                                children: [
+                                    {
+                                        type: "element",
+                                        tagName: "span",
+                                        properties: {
+                                            className: [
+                                                "code-block-label__copy-text",
+                                            ],
+                                        },
+                                        children: [
+                                            { type: "text", value: "Copy" },
+                                        ],
+                                    },
+                                    {
+                                        type: "element",
+                                        tagName: "span",
+                                        properties: {
+                                            className: [
+                                                "code-block-label__copied-text",
+                                            ],
+                                        },
+                                        children: [
+                                            { type: "text", value: "Copied" },
+                                        ],
+                                    },
+                                ],
+                            },
+                        ],
+                    });
+
+                    const header: Element = {
+                        type: "element",
+                        tagName: "div",
+                        properties: {
+                            className: ["code-block-label"],
+                            dataLanguageLabel: rawLanguage ?? "",
+                        },
+                        children,
+                    };
+
+                    node.children = [header, ...node.children];
+                }
+            }
+
+            (node.children ?? []).forEach((child) => {
+                if ((child as { type?: string }).type === "element") {
+                    walk(child as Element);
+                }
+            });
+        };
+
+        (tree.children ?? []).forEach((child) => {
+            if ((child as { type?: string }).type === "element") {
+                walk(child as Element);
+            }
+        });
+    };
+}
+
+export function rehypeWrapTables() {
+    return (tree: Root) => {
+        const walk = (node: Element): void => {
+            const children = node.children ?? [];
+
+            for (let index = 0; index < children.length; index += 1) {
+                const child = children[index] as unknown;
+
+                if (
+                    child &&
+                    typeof child === "object" &&
+                    (child as { type?: string }).type === "element"
+                ) {
+                    const element = child as Element;
+
+                    if (element.tagName === "table") {
+                        children[index] = {
+                            type: "element",
+                            tagName: "div",
+                            properties: {
+                                className: ["markdown-table-wrapper"],
+                            },
+                            children: [element],
+                        } as unknown as Element;
+                    } else {
+                        walk(element);
+                    }
+                }
+            }
+        };
+
+        walk(tree as unknown as Element);
+    };
+}

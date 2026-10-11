@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { renderMarkdown } from "@/utils/server/markdown-render";
+import { renderMarkdown } from "@/src/markdown/markdown-render";
 
 describe("renderMarkdown", () => {
     it("injects a language label with a copy button for fenced code blocks", async () => {
@@ -10,6 +10,9 @@ describe("renderMarkdown", () => {
         expect(html).toContain("TypeScript");
         expect(html).toContain("data-code-block-copy");
         expect(html).toContain("code-block-label__copy");
+        expect(html).toContain("code-block-label__copy-slot");
+        expect(html).toContain(">Copy</span>");
+        expect(html).toContain(">Copied</span>");
         expect(html).toContain("<button");
     });
 

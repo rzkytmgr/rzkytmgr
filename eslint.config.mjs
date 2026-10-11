@@ -1,13 +1,19 @@
 import { defineConfig, globalIgnores } from "eslint/config";
-import nextVitals from "eslint-config-next/core-web-vitals";
-import nextTs from "eslint-config-next/typescript";
 import prettier from "eslint-config-prettier/flat";
+import { configs as astroConfigs } from "eslint-plugin-astro";
+import tsParser from "@typescript-eslint/parser";
 
 const eslintConfig = defineConfig([
-    ...nextVitals,
-    ...nextTs,
+    astroConfigs.recommended,
 
-    globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts"]),
+    {
+        files: ["**/*.ts", "**/*.mts"],
+        languageOptions: {
+            parser: tsParser,
+        },
+    },
+
+    globalIgnores([".astro/**", "dist/**"]),
 
     prettier,
 ]);

@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { parseContentFilename, parseFilename, parseSlug } from "@/utils/string";
+import {
+    parseContentFilename,
+    parseFilename,
+    parseSlug,
+} from "@/src/utils/string";
 
 describe("parseContentFilename", () => {
     it("parses order, slug and filename from an mdx filename", () => {

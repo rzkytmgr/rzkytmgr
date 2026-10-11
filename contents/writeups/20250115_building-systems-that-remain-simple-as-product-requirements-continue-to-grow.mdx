@@ -1,0 +1,103 @@
+---
+id: WU-02
+title: Building Systems That Remain Simple as Product Requirements Continue to Grow
+tag: Software Engineering
+slug: building-systems-that-remain-simple-as-product-requirements-continue-to-grow
+description: >-
+    Why systems drift toward complexity as requirements accumulate, and the
+    working rules — preserving boundaries, measuring before optimizing, and
+    refusing premature complexity — that keep a growing codebase changeable.
+date: "Jan 15, 2025"
+thumbnail: https://picsum.photos/seed/01_building-systems-that-remain-simple-as-product-requirements-continue-to-grow/1200/675
+reading_time: 7 min read
+---
+
+> "Complexity is not a feature. It is a cost that should be paid only when it solves a real problem."
+
+Systems do not become complex because they contain many lines of code. They become complex when a small change requires understanding too many parts of the system. That distinction matters, because the second definition is something a team can actually manage — code lines are not.
+
+## How Complexity Accumulates
+
+A small application starts simple by accident, not by design:
+
+- One backend application
+- One database
+- One deployment process
+- One engineering team
+
+Then requirements arrive, and each arrival feels individually justified:
+
+1. The number of users increases
+2. Traffic becomes unpredictable
+3. New features must be released faster
+4. Multiple business domains begin evolving independently
+
+At this point the team considers splitting the application into services, adding a message broker, introducing a distributed cache, separating databases. Every one of those decisions can be correct. None of them is automatically correct — each solves one problem while introducing several new operational problems.
+
+## The Rules That Keep a System Simple
+
+### Understand the Problem Before Choosing a Technology
+
+The fastest way to add complexity is to let a technology decision arrive before its problem statement. Rewrite the requirement as a measurable statement — "p95 latency for the checkout read path is above 800 ms under current traffic" — and the technology choice usually becomes trivial. Without the statement, the choice is aesthetic, and aesthetic complexity is permanent.
+
+### Measure Bottlenecks Before Optimizing
+
+> [!TIP]
+> Use the simplest solution that still satisfies the requirements — then measure it before reaching for a more distributed one.
+
+Untuned but simple solutions survive longer than tuned distributed ones, because their failure modes are explainable. A single Postgres that is temporarily slow is an incident you can page about; a cache-fronted architecture that serves stale data silently is a design review.
+
+### Introduce Complexity Gradually
+
+The staged progression below is boring, and that is the point. Each stage has an exit condition — the system moves up only when measurements say so, not when ambition does.
+
+| Stage | Architecture        | Adopted when                           |
+| ----- | ------------------- | -------------------------------------- |
+| 0     | Single app, one DB  | Default                                |
+| 1     | Extract read models | Read paths measurably contended        |
+| 2     | Background workers  | Async work blocks user-facing requests |
+| 3     | Split services      | A domain evolves faster than the rest  |
+
+Skipping to stage 3 for everything is the rewrite trap: combined operational complexity grows faster than value, and the team spends its capacity operating the architecture instead of shipping.
+
+### Make Sure the Team Can Support the Operational Cost
+
+Every technology adopted is a service you now operate, upgrade, and debug at 3 a.m. A useful test before adopting anything distributed: name the person who owns its failure modes. If that question makes the room uncomfortable, the technology is premature — regardless of how well it benchmarks.
+
+## Where Coupling Actually Hides
+
+The dangerous coupling is rarely the import statements. It is:
+
+- **Implicit synchronization** — two modules that must deploy together to satisfy neither's tests
+- **Shared mutable state** — one database table owned by three domains
+- **Temporal coupling** — code that assumes another module finished its work in the same request
+
+Module boundaries fight these better than service boundaries, because modules are already compiled into one deploy: violations show up in review instead of in outages.
+
+## Trade-offs Worth Naming
+
+| Decision                  | Benefits                                | Costs                                                |
+| ------------------------- | --------------------------------------- | ---------------------------------------------------- |
+| Modular monolith          | Simple deployment and local development | Requires discipline to preserve module boundaries    |
+| Microservices             | Independent deployment and scaling      | Higher operational and distributed-system complexity |
+| Shared database           | Simple data access and transactions     | Strong coupling between services                     |
+| Database per service      | Clear data ownership                    | Difficult cross-service queries                      |
+| Synchronous communication | Easy request-response model             | Runtime dependency across services                   |
+| Asynchronous messaging    | Decoupling and resilience               | Eventual consistency and harder debugging            |
+
+There is no correct row in this table in isolation. The right choice depends on the actual constraints of the product, team, infrastructure, and business domain — which is why the measuring rule precedes this table.
+
+## Conclusion
+
+A good system is not a system that uses the largest number of technologies. A good system is one that:
+
+- Can be understood by the current team
+- Can be changed safely under test coverage
+- Has clear, enforced boundaries
+- Meets current requirements — not last year's imagined ones
+- Has a reasonable path for future evolution
+- Does not introduce complexity without a clear, measured benefit
+
+> "Good architecture does not necessarily mean using the newest technology. It means making the important decisions once, deliberately, and documenting why."
+
+Simplicity is not the absence of complexity. It is the careful management of it — one measured decision at a time.

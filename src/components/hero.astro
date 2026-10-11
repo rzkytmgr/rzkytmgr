@@ -1,0 +1,48 @@
+---
+interface Props {
+    author: {
+        name: string;
+        title: string;
+    };
+    heading: string;
+    subheading: string;
+}
+
+const { author, heading, subheading } = Astro.props;
+---
+
+<section id="hero-content" aria-labelledby="hero-heading" class="relative">
+    <div
+        aria-hidden="true"
+        class="pointer-events-none absolute top-1/2 right-4 z-[1] -translate-y-1/2 select-none [mask-image:radial-gradient(ellipse_75%_75%_at_65%_50%,black_20%,rgba(0,0,0,0.8)_58%,transparent_88%)] md:right-10"
+    >
+        <div class="font-serif text-[clamp(11rem,25vw,23rem)] leading-none tracking-[-0.03em] text-zinc-950/[0.15] dark:text-zinc-50/[0.12]">
+            Aa
+        </div>
+    </div>
+
+    <div class="relative z-10 space-y-5">
+        <div>
+            <p class="text-xs word-spacing-wide leading-relaxed text-neutral-500">
+                Written by{" "}
+                <span class="text-journal-accent-text">{author.name}</span>
+                <span class="hidden md:inline"> · {author.title}</span>
+            </p>
+        </div>
+
+        <div>
+            <h1
+                id="hero-heading"
+                class="max-w-2xl text-5xl leading-[1.15] font-extrabold tracking-tight text-zinc-950 dark:text-zinc-50"
+            >
+                {heading}
+            </h1>
+        </div>
+
+        <div>
+            <p class="max-w-3xl text-base leading-relaxed text-neutral-500 md:text-lg">
+                {subheading}
+            </p>
+        </div>
+    </div>
+</section>

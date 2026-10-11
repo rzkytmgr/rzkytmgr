@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parsePublishDate } from "@/utils/date";
+import { parsePublishDate } from "@/src/utils/date";
 
 describe("parsePublishDate", () => {
     it("splits a publish date into month, day and year", () => {

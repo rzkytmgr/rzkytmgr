@@ -1,0 +1,56 @@
+---
+export interface TocHeading {
+    level: number;
+    text: string;
+    id: string;
+}
+
+interface Props {
+    headings: TocHeading[];
+}
+
+const { headings } = Astro.props;
+---
+
+{headings.length > 0 && (
+    <nav
+        aria-label="Table of contents"
+        data-toc-for="article"
+        class="flex min-h-0 grow flex-col gap-4"
+    >
+        <h2 class="text-xs word-spacing-wide font-medium uppercase tracking-wider text-neutral-500">
+            On this page
+        </h2>
+
+        <div class="relative min-h-0 grow">
+            <span
+                aria-hidden="true"
+                class="pointer-events-none absolute top-0 right-0 bottom-0 w-px bg-gradient-to-b from-transparent via-smooth-border to-transparent"
+            ></span>
+
+            <ul class="min-h-0 h-full space-y-2.5 overflow-y-auto overscroll-contain pr-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                {headings.map((heading) => (
+                    <li>
+                        <a
+                            href={`#${heading.id}`}
+                            data-toc-link={heading.id}
+                            class:list={[
+                                "relative block text-sm leading-snug transition-colors motion-reduce:transition-none hover:text-journal-accent-text dark:hover:text-journal-accent-text",
+                                heading.level === 3 && "pl-4",
+                                heading.level === 4 && "pl-8",
+                                "text-zinc-500",
+                            ]}
+                        >
+                            <span
+                                aria-hidden="true"
+                                data-toc-marker
+                                class="absolute top-1/2 -right-4 h-4 w-0.5 -translate-y-1/2 rounded-full bg-journal-accent opacity-0 transition-opacity"
+                            />
+                            {heading.text}
+                        </a>
+                    </li>
+                ))}
+            </ul>
+        </div>
+    </nav>
+)}

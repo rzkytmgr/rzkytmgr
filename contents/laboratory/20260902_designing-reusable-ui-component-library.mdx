@@ -1,0 +1,106 @@
+---
+id: EXP-03
+title: Designing a Reusable UI Component Library
+description: >-
+    Built a collection of reusable UI components with a consistent design system,
+    accessibility support, and comprehensive documentation. The library reduced
+    development time and ensured a unified user interface across multiple
+    projects.
+category: Design System
+stack:
+    - React
+    - TypeScript
+    - Tailwind CSS
+    - Storybook
+    - Vite
+date: "Sep 02, 2026"
+slug: designing-reusable-ui-component-library
+thumbnail: https://picsum.photos/seed/03_designing-reusable-ui-component-library/1200/675
+is_archive: true
+reading_time: 7 min read
+---
+
+> "A component library succeeds when its users stop noticing it — and fails the moment its users need to fight it."
+
+This experiment built a UI component library over [React](https://react.dev) 19 + [TypeScript](https://www.typescriptlang.org), styled with [Tailwind CSS](https://tailwindcss.com), documented in [Storybook](https://storybook.js.org), and bundled with [Vite](https://vite.dev). It served four internal projects before being archived, and its most valuable output was not the components — it was the set of design constraints that turned out to be reusable in every library since.
+
+## The Adapter Boundary: Tailwind Stays an Implementation Detail
+
+Constructor-level decisions matter more than component count. The most important one: consumers never write Tailwind classes to re-style a component. Tailwind is how the library paints; not what the library exposes.
+
+```typescript
+// The public surface — semantic variants only
+export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+    variant?: "primary" | "secondary" | "ghost";
+    size?: "sm" | "md" | "lg";
+    loading?: boolean;
+}
+
+// Internal — Tailwind lives and dies here
+const styles = cva(
+    "inline-flex items-center justify-center font-medium rounded-md transition-colors",
+    {
+        variants: {
+            variant: {
+                primary: "bg-accent text-accent-fg hover:bg-accent-hover",
+                secondary:
+                    "border border-border bg-surface hover:bg-surface-hover",
+                ghost: "hover:bg-surface-hover",
+            },
+            size: { sm: "h-8 px-3 text-sm", md: "h-10 px-4", lg: "h-12 px-6" },
+        },
+        defaultVariants: { variant: "primary", size: "md" },
+    },
+);
+```
+
+Even though [class-variance-authority](https://github.com/wkweb/cva) makes variant explosion cheap, unbounded variants are how libraries rot. The cap: three variants, three sizes, no prop that exposes arbitrary class strings.
+
+## Accessibility Was a Gate, Not a Checklist
+
+Every component shipped with a Storybook interaction test that fails the build if keyboard behavior or ARIA is wrong. The gate, implemented with `play` functions:
+
+```typescript
+// Button.stories.tsx — a11y exits at build time, not review time
+export const KeyboardBehavior: Story = {
+    play: async ({ canvas }) => {
+        await userEvent.tab();
+        expect(canvas.getByRole("button")).toHaveFocus();
+        expect(canvas.getByRole("button")).toHaveAttribute(
+            "aria-disabled",
+            "false",
+        );
+    },
+};
+```
+
+The Dialog component took the longest — focus trap, `aria-modal`, Escape-to-close, and scroll locking all required their own tests, and the final version regressed through six iterations before it passed all of them in one run.
+
+## Versioning and Distribution
+
+The library published as ES modules with a single entry point and zero runtime dependencies. Peer dependencies are just `react`; everything else (cva, Tailwind classes) gets inlined at build time.
+
+```jsonc
+// package.json — the whole build story
+"exports": { ".": { "import": "./dist/index.js" } },
+"sideEffects": false,
+"peerDependencies": { "react": "^19.0.0" }
+```
+
+Storybook was not documentation garnish — each story doubles as the visual contract for a change, and release review happened against the rendered component rather than against text.
+
+## What 4 Projects Taught
+
+- **Uncontrolled-first** components (`defaultValue` before `value`) covered 90% of real usage and cut callback plumbing dramatically
+- **Compound components** (`<Tabs> + <Tabs.List> + <Tabs.Item>`) beat configuration-object APIs the moment structure got non-trivial
+- **Variant caps are load-bearing.** Every "can we add just one more" argument lost — and every one of the lost arguments would have created a maintenance obligation for a single consumer's taste
+
+## Why It Was Archived
+
+The library's actual consumer base saturated at four products, each of which had drifted to a private fork with a few divergent components. Eventually, keeping the forks aligned cost more than the shared core saved — the classic destiny of a design system inside an organization too small to keep one. It was archived with the core components' Storybook still passing, which is the cleanest possible failure mode.
+
+## Conclusion
+
+The lesson outlasts the library: build API surfaces as small as possible and enforce them with tooling (variant caps, adapter boundaries, build-time a11y tests). Components get rewritten; constraints get reused.
+
+> "Reusable is not a property of a component. It is a property of the constraints around it."

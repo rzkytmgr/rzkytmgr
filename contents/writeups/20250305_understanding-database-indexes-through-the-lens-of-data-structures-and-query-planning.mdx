@@ -1,0 +1,129 @@
+---
+id: WU-04
+title: Understanding Database Indexes Through the Lens of Data Structures and
+    Query Planning
+tag: Performance
+slug: >-
+    understanding-database-indexes-through-the-lens-of-data-structures-and-query-planning
+description: >-
+    A practical story of a multi-table join that slowed down as data grew, how
+    EXPLAIN revealed the missing index, and the query-planning principles worth
+    carrying forward.
+date: "Mar 05, 2025"
+thumbnail: https://picsum.photos/seed/01_understanding-database-indexes-through-the-lens-of-data-structures-and-query-planning/1200/675
+reading_time: 7 min read
+---
+
+> "Most index discussions happen as advice. This one started as a monitor alert."
+
+At some point every growing product meets the same alert: a read endpoint that took 40 ms for a year starts taking 2.4 seconds, with no code change. This article walks through the one on this blog's underlying product that taught me more about indexes than any documentation — via the B-tree structures underneath, and the query planner that decides whether to use them.
+
+## The Query That Degraded
+
+The endpoint joins orders, users, and a lookup of the latest payment per order:
+
+```sql
+SELECT o.id, u.name, p.amount
+FROM orders o
+JOIN users u ON u.id = o.user_id
+JOIN payments p ON p.order_id = o.id
+WHERE p.status = 'succeeded'
+  AND o.created_at >= now() - interval '30 days'
+ORDER BY o.created_at DESC
+LIMIT 50;
+```
+
+With 1 million payments and 2 million orders it was a nonissue. At 40 million payments it crawled. Nothing in application code changes; the data outgrew every scan strategy the table's indexes could support.
+
+## Reading EXPLAIN Before Guessing
+
+The first instinct is to throw indexes at every column and hope. The useful move is to let the planner report the plan:
+
+```text
+EXPLAIN ANALYZE the query above →
+
+Limit (rows=50) (actual time=2370.1..2370.2)
+  -> Sort (actual rows=198112)
+       Sort Key: o.created_at DESC
+       -> Nested Loop (actual rows=198112)
+            -> Seq Scan on orders o
+                 Filter: created_at >= (now() - '30 days')
+                 Rows Removed: 1,940,000
+            -> Index Scan using payments_order_id_idx on payments p
+                 Filter: status = 'succeeded'
+                 Rows Removed: 7,816,000
+```
+
+Three facts fall out of the plan, and all three are better than intuition:
+
+1. **Seq scan on orders removed 1.94M rows** — the range predicate on `created_at` has no supporting index
+2. **Index scan on payments removed 7.8M of 8M rows** — an index exists on `order_id`, but the filter on `status` forces row fetches
+3. **The sort of 198k rows happens before the limit** — the planner cannot use the limit to prune work because nothing preserves `created_at` order
+
+Every per-row fetch is a page in memory the query never needed. The cost lives in the removed rows.
+
+## The Data Structure Underneath
+
+Index design in practice means understanding what the platter looks like underneath:
+
+### B-trees: the default negotiation
+
+A B-tree stores keys in sorted order with high fan-out, so lookups are O(log n) in pages, not rows. Two properties drive almost every practical decision:
+
+- **Ordered access.** A B-tree on `(created_at DESC)` can satisfy `ORDER BY ... LIMIT 50` by walking the tree from the right edge — pruning 2M candidates to 50 before any join.
+- **Prefix rule.** A composite index `(a, b, c)` serves predicates on `a`, `a AND b`, and `a AND b AND c`. It cannot serve a predicate on `b` alone. Every "why is my composite index ignored" question is the prefix rule.
+
+### The covering index: pay once, fetch nothing after
+
+If the query only needs `order_id` and `status` from payments, the index can carry both — then the heap is never read:
+
+```sql
+CREATE INDEX payments_order_status_covering
+    ON payments (order_id) INCLUDE (status);
+```
+
+This is the single highest-leverage pattern in the fix below, and it costs an in-memory lookup instead of a heap fetch per match.
+
+### Hash and bitmap scans
+
+Hash indexes support equality but nothing ordered — never a substitute for the B-tree in the sort path. Bitmap index scans are a planner detail worth knowing: they combine several cheap indexes when the table appears between them, and usually show up on read-heavy, low-write tables.
+
+## The Fix: Three Indexes That Match the Plan
+
+One per fact the EXPLAIN exposed, in order of leverage:
+
+```sql
+-- 1. Order the scan so the LIMIT prunes immediately
+CREATE INDEX orders_created_at_desc ON orders (created_at DESC);
+
+-- 2. Cover the join + filter so no heap fetches happen on payments
+CREATE INDEX payments_order_status_covering
+    ON payments (order_id) INCLUDE (status) WHERE status IS NOT NULL;
+```
+
+After these two:
+
+```text
+Limit (rows=50) (actual time=0.42..0.51 ms)
+  -> Nested Loop (actual rows=50)
+       -> Index Scan Backward using orders_created_at_desc
+       -> Index Only Scan using payments_order_status_covering
+```
+
+**2,370 ms → 0.5 ms** — 4,700× at the same data volume, achieved with two statements and no application change.
+
+## Principles Worth Carrying Forward
+
+- **Read the plan, not the query.** EXPLAIN's removed-rows and fill-factor numbers localize the cost; guessing from SQL text spreads work across the wrong columns.
+- **Index for the query shape the planners will actually see**, including `ORDER BY` and `LIMIT` — an index that speeds up the filter but not the sort can still lose.
+- **Partially covering indexes beat full covering widths.** Column bloat in an index is a write amplification tax on every insert.
+- **Indexes are a production contract, not a build artifact.** Every index added must justify the write cost it adds to every insert, update, and delete of that table.
+
+> [!WARNING]
+> Do not optimize before identifying the actual bottleneck. The first EXPLAIN in this story killed three plausible-sounding theories — including "the database needs more memory" — within thirty seconds each.
+
+## Conclusion
+
+A slow query is usually a data structure mismatch: a predicate or an ordering with no supporting structure, so the planner must fetch and discard. The lesson generalizes beyond databases — when something degrades at scale without a code change, read the low-level plan before reacting to the alert.
+
+> "An index is a data structure choice made in advance of the query. The query planner is the reviewer who tells you whether you got it right."

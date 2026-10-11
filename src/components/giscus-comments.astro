@@ -1,0 +1,88 @@
+---
+import type { GiscusConfigType } from "../config";
+import { SITE_THEMES } from "./site-themes";
+
+interface Props {
+    giscus?: GiscusConfigType;
+}
+
+const { giscus } = Astro.props;
+
+const enabled = Boolean(
+    giscus?.repo && giscus?.repoId && giscus?.category && giscus?.categoryId,
+);
+---
+
+{enabled && (
+    <section
+        id="comments"
+        aria-label="Comments"
+        class="mt-16 w-full scroll-mt-24 border-t border-smooth-border pt-8"
+    >
+        <h2 class="mb-5 text-xs word-spacing-wide font-medium uppercase tracking-wider text-neutral-500">
+            Comments
+        </h2>
+
+        <div class="giscus" />
+        <script
+            is:inline
+            src="https://giscus.app/client.js"
+            data-repo={giscus?.repo}
+            data-repo-id={giscus?.repoId}
+            data-category={giscus?.category}
+            data-category-id={giscus?.categoryId}
+            data-mapping={giscus?.mapping ?? "pathname"}
+            data-strict="0"
+            data-reactions-enabled={giscus?.reactionsEnabled ? "1" : "0"}
+            data-emit-metadata="1"
+            data-input-position={giscus?.inputPosition ?? "bottom"}
+            data-theme="light"
+            data-lang={giscus?.lang ?? "en"}
+            data-loading="lazy"
+            crossorigin="anonymous"
+            async
+        />
+        <script is:inline define:vars={{ siteThemes: SITE_THEMES }}>
+            (function () {
+                var MAP = {
+                    "clean-light": "light",
+                    charcoal: "dark_dimmed",
+                };
+                function current() {
+                    var attr =
+                        document.documentElement.getAttribute("data-theme");
+                    return MAP[attr] || "light";
+                }
+                function push() {
+                    var frame = document.querySelector("iframe.giscus-frame");
+                    frame &&
+                        frame.contentWindow &&
+                        frame.contentWindow.postMessage(
+                            {
+                                giscus: {
+                                    setConfig: { theme: current() },
+                                },
+                            },
+                            "https://giscus.app",
+                        );
+                }
+                new MutationObserver(function () {
+                    push();
+                }).observe(document.documentElement, {
+                    attributes: true,
+                    attributeFilter: ["data-theme"],
+                });
+                window.addEventListener("message", function (event) {
+                    if (
+                        event.origin === "https://giscus.app" &&
+                        event.data &&
+                        event.data.giscus &&
+                        event.data.giscus.loaded
+                    ) {
+                        push();
+                    }
+                });
+            })();
+        </script>
+    </section>
+)}

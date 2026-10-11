@@ -1,0 +1,98 @@
+---
+import { getCollection } from "astro:content";
+import MainLayout from "../layouts/main-layout.astro";
+import Hero from "../components/hero.astro";
+import HomeSection from "../components/home-section.astro";
+import WriteupsListItem from "../components/writeups-list-item.astro";
+import ShowcaseCard from "../components/showcase-card.astro";
+import ExplorationItem from "../components/exploration-item.astro";
+import LaboratoryCard from "../components/laboratory-card.astro";
+import { config } from "../config";
+
+const [writeups, showcases, laboratory, exploration] = await Promise.all([
+    getCollection("writeups"),
+    getCollection("showcase"),
+    getCollection("laboratory"),
+    getCollection("exploration"),
+]);
+
+const byNewest = (
+    a: { data: { date: string } },
+    b: { data: { date: string } },
+) => Date.parse(b.data.date) - Date.parse(a.data.date);
+
+const writeupItems = writeups.sort(byNewest).slice(0, 4);
+const showcaseItems = showcases.sort(byNewest).slice(0, 6);
+const laboratoryItems = laboratory.sort(byNewest).slice(0, 4);
+const explorationItems = exploration.sort(byNewest).slice(0, 4);
+---
+
+<MainLayout title="Home" description={config.ui.home.hero.subheading}>
+    <main
+        id="main-content"
+        class="mx-auto w-full max-w-6xl px-5 py-20 md:py-32 sm:px-6"
+    >
+        <Hero
+            author={{ name: config.author.name, title: config.author.title }}
+            heading={config.ui.home.hero.heading}
+            subheading={config.ui.home.hero.subheading}
+        />
+
+        <HomeSection
+            id="writeups"
+            title={config.ui.home.sections.writeups}
+            linkHref="/blog"
+            class="mb-8"
+        >
+            <div>
+                {writeupItems.map((entry, index) => (
+                    <div>
+                        <WriteupsListItem writeup={entry.data} />
+                    </div>
+                ))}
+            </div>
+        </HomeSection>
+
+        <HomeSection
+            id="showcase"
+            title={config.ui.home.sections.showcase}
+            linkHref="/showcase"
+            class="mb-8"
+        >
+            <div class="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {showcaseItems.map((entry, index) => (
+                    <div>
+                        <ShowcaseCard showcase={entry.data} />
+                    </div>
+                ))}
+            </div>
+        </HomeSection>
+
+        <HomeSection
+            id="exploration"
+            title={config.ui.home.sections.exploration}
+            class="mb-8"
+        >
+            {explorationItems.map((entry, index) => (
+                <div>
+                    <ExplorationItem item={entry.data} />
+                </div>
+            ))}
+        </HomeSection>
+
+        <HomeSection
+            id="laboratory"
+            title={config.ui.home.sections.laboratory}
+            linkHref="/lab"
+            linkLabel="View archived"
+        >
+            <div class="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2">
+                {laboratoryItems.map((entry, index) => (
+                    <div>
+                        <LaboratoryCard experiment={entry.data} />
+                    </div>
+                ))}
+            </div>
+        </HomeSection>
+    </main>
+</MainLayout>

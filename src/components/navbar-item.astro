@@ -1,0 +1,21 @@
+---
+interface Props {
+    href: string;
+    active?: boolean;
+    class?: string;
+}
+
+const { href, active = false, class: className } = Astro.props;
+---
+
+<a
+    href={href}
+    aria-current={active ? "page" : undefined}
+    class={`group/item inline-flex items-center px-2.5 py-1.5 text-sm ${className ?? ""}`}
+>
+    <span
+        class={`font-medium transition-colors duration-100 group-hover/item:text-journal-accent-text ${active ? "font-semibold text-journal-accent-text" : ""}`}
+    >
+        <slot />
+    </span>
+</a>

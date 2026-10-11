@@ -1,0 +1,99 @@
+---
+import { parsePublishDate } from "../utils/date";
+interface Props {
+    showcase: {
+        id: string;
+        slug: string;
+        title: string;
+        description: string;
+        category: string;
+        tech_stack: string[];
+        date: string;
+        reading_time: string;
+        is_archive: boolean;
+        thumbnail: string;
+    };
+    featured?: boolean;
+    showThumbnail?: boolean;
+}
+
+const { showcase: data, featured = false, showThumbnail = false } = Astro.props;
+const published = parsePublishDate(data.date);
+---
+
+<article
+    class:list={[
+        "group relative overflow-visible rounded-md bg-surface p-6 transition-colors duration-100",
+        data.is_archive
+            ? "border-[1.5px] border-warning/60"
+            : "border border-smooth-border hover:border-journal-accent/60",
+    ]}
+>
+    <div
+        aria-hidden="true"
+        class="pointer-events-none absolute inset-0 z-0 overflow-hidden rounded-md"
+    >
+        <div class="absolute -top-12 -right-12 size-40 rounded-full opacity-0 transition-opacity duration-150 group-hover:opacity-70 motion-reduce:transition-none blur-2xl bg-[radial-gradient(closest-side,color-mix(in_oklab,var(--journal-accent)_35%,transparent),transparent)]"></div>
+    </div>
+
+    <div class="relative flex h-full flex-col gap-1.5">
+        <div class="flex min-h-7 flex-wrap items-center justify-between gap-x-3 gap-y-1 text-xs word-spacing-wide font-medium text-neutral-500">
+            <span class="min-w-0 whitespace-nowrap">{published.full}</span>
+            <span class="shrink-0 whitespace-nowrap">{data.reading_time}</span>
+        </div>
+
+        {showThumbnail && data.thumbnail && (
+            <div class="overflow-hidden rounded-md border border-smooth-border">
+                <img
+                    src={data.thumbnail}
+                    alt=""
+                    width="1200"
+                    height="675"
+                    loading="eager"
+                    decoding="async"
+                    class="aspect-video h-auto w-full object-cover"
+                />
+            </div>
+        )}
+
+        <div class="mb-2 flex flex-col gap-1.5">
+            <h3
+                class:list={[
+                    "font-bold",
+                    featured ? "line-clamp-2 text-xl" : "line-clamp-1 text-lg",
+                ]}
+            >
+                <a
+                    href={`/showcase/${data.slug}`}
+                    class="transition-colors duration-100 hover:text-journal-accent-text focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-journal-accent"
+                >
+                    {data.title}
+                </a>
+            </h3>
+
+            <p class="max-w-3xl line-clamp-3 text-sm text-neutral-500">
+                {data.description}
+            </p>
+        </div>
+
+        <div class="mt-auto flex items-center justify-between gap-3 border-t border-smooth-border pt-4">
+            <span class="text-xs word-spacing-wide font-medium text-journal-accent-text">
+                {data.category}
+            </span>
+
+            <a
+                href={`/showcase/${data.slug}`}
+                aria-label={`Read more about ${data.title}`}
+                class="inline-flex shrink-0 items-center gap-1 text-xs word-spacing-wide font-medium text-neutral-600 underline transition-[color,transform] duration-100 group-hover:translate-x-1 hover:text-journal-accent-text motion-reduce:group-hover:translate-x-0 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-journal-accent"
+            >
+                read more
+            </a>
+        </div>
+    </div>
+
+    {data.is_archive && (
+        <span class="absolute -top-3 right-4 rounded-full border border-warning-border bg-warning-bg px-2.5 py-0.5 text-xs word-spacing-wide font-medium text-warning-text">
+            unmaintained
+        </span>
+    )}
+</article>

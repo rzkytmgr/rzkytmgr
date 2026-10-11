@@ -1,0 +1,107 @@
+---
+id: SCPR-03
+link:
+    repository: "https://github.com/username/taskflow"
+    preview: "https://taskflow-demo.vercel.app"
+title: TaskFlow - Project Management Dashboard
+description: >-
+    A project management dashboard for small teams: task boards, sprint views,
+    workload balancing across assignees, and lightweight reporting — built around
+    optimistic UI updates so the interface never waits for the network.
+category: Web App
+tech_stack:
+    - Next.js
+    - TypeScript
+    - Tailwind CSS
+    - Prisma
+    - PostgreSQL
+date: "Sep 03, 2026"
+slug: taskflow-project-management-dashboard
+thumbnail: https://picsum.photos/seed/03_taskflow-project-management-dashboard/1200/675
+is_archive: false
+reading_time: 7 min read
+---
+
+> "A task tracker is only adopted if updating a task is faster than updating a chat message about the task."
+
+TaskFlow is a project management dashboard built for teams of five to fifty. The market is full of tools in this category, which is exactly why the design brief was narrow: make every mutation feel instant, and make the data model boring enough that reporting stays reliable. Everything else is secondary.
+
+## The Data Model: Three Tables and a Join
+
+The schema is deliberately minimal. Projects, tasks, and users; one join table for assignment history that exists purely for reporting.
+
+```prisma
+model Task {
+    id          String   @id @default(cuid())
+    title       String
+    status      String   // "todo" | "doing" | "review" | "done"
+    projectId   String
+    project     Project  @relation(fields: [projectId], references: [id])
+    assigneeId  String?
+    order       Int      // position within its status column
+    completedAt DateTime?
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+
+    @@index([projectId, status, order])
+}
+```
+
+The compound index on `(projectId, status, order)` is the single most important line in the codebase. Board queries — the ones that run on every drag-and-drop — are covered by it, and at 200k tasks they serve in under 10 ms.
+
+## Optimistic UI on the Board
+
+Drag-and-drop is where most dashboards feel slow, because the naive flow is: drop → await server → re-render. TaskFlow flips it. The client mutates local state immediately, then sends a reorder patch; the server response either confirms or restores.
+
+```typescript
+async function onDrop(taskId: string, next: Position) {
+    updateLocalState(taskId, next); // instant, visible to the user
+    try {
+        await api.patch(`/tasks/${taskId}/position`, next);
+    } catch {
+        restoreLocalState(taskId, prev); // rollback + subtle toast
+        toast.error("Move failed — reverted");
+    }
+}
+```
+
+Disconnect the network mid-organization and the board keeps working with exactly one of two outcomes per mutation: confirmed or reverted. There is no intermediate state where the board lies about the server.
+
+> [!NOTE]
+> Optimistic updates only work when mutations are idempotent-style and last-writer-wins is acceptable. For a task board it is; for a billing system it is not. That distinction is why TaskFlow has one optimistic surface (the board) and everything else uses normal request/response.
+
+## Workload Balancing
+
+The left rail shows per-assignee load for the current sprint: open task count, story points, and a red flag when someone holds more than 40% of in-flight points. The calculation is a single SQL aggregate, run on an interval and cached in the server component's lifecycle:
+
+```sql
+SELECT u.name,
+       count(*)                    AS open_tasks,
+       coalesce(sum(t.points), 0)  AS points
+FROM tasks t
+JOIN users u ON u.id = t.assignee_id
+WHERE t.project_id = $1 AND t.status <> 'done'
+GROUP BY u.name
+ORDER BY points DESC;
+```
+
+Reporting uses the same queries the board uses — a deliberate constraint so the dashboard never invents a second truth about the data.
+
+## Sprint Report
+
+The report page answers three questions, in order of how often they are asked: what shipped, what slipped, and who is blocked. Each answer is a Prisma query plus one chart; there are no configurable dashboards, and that is a feature — a small team needs answers, not a reporting tool to learn.
+
+> [!TIP]
+> If your sprint report takes longer than two minutes to read, the report is the bottleneck. TaskFlow caps itself at three charts and one table per sprint.
+
+## Performance Notes
+
+- Server components for all reads; the board itself is a [Next.js](https://nextjs.org) client island (~90 KB gzipped, loader-split)
+- Board state lives in a reducer, not in React context, so drag operations don't re-render the sprint report tree
+- Postgres connection via Prisma pool sizing tuned to `p95` live traffic, not to benchmarks
+
+## Conclusion
+
+TaskFlow succeeded by doing fewer things than it could have. No mentions system, no native mobile app, no integrations marketplace — just boards, balance, and reports, with the drag-and-drop path treated as the product's critical section and optimized accordingly.
+
+Source: [github.com/username/taskflow](https://github.com/username/taskflow) · Live demo: [taskflow-demo.vercel.app](https://taskflow-demo.vercel.app)

@@ -1,0 +1,120 @@
+---
+id: WU-09
+title: >-
+    From Local Development to Production: Creating a Deployment Process Engineers
+    Can Trust
+tag: Infrastructure
+slug: >-
+    from-local-development-to-production-creating-a-deployment-process-engineers-can-trust
+description: >-
+    A detailed overview of building predictable deployment workflows with
+    automated testing, reproducible builds, environment consistency, safe
+    rollouts, monitoring, and reliable rollback strategies.
+date: "Apr 28, 2026"
+thumbnail: https://picsum.photos/seed/02_from-local-development-to-production-creating-a-deployment-process-engineers-can-trust/1200/675
+reading_time: 7 min read
+---
+
+> "Trust in a deployment process is not a feeling. It is a property of the shortest path between a merge and a confident revert."
+
+Every team has a deployment story it tells in incident reviews. Ours, before this redesign, was a 40-minute manual sequence that worked most of the time and whose failures were indistinguishable from application bugs. This article describes the process we built to replace it — and the four invariants that made engineers trust it, one by one.
+
+## Invariant 1: The Artifact Is Immutable and.fullName-Addressed
+
+The root cause of "works on my machine" is well understood: the bytes that ran locally were not the bytes that ran in production. The fix is a hard rule about artifacts:
+
+- Every merge produces **one container image**, tagged with the commit SHA
+- The image is built **in CI, once**, and every environment references it by that tag — nobody builds on a server, ever again
+- `latest` is banned as a deploy reference
+
+```yaml
+# deploy.yml — production consumes the CI-built artifact by SHA
+image: registry.internal/app:${{ github.sha }}
+```
+
+Thenu consequence is cultural: since the artifact passing CI is the artifact shipping, "it passed CI" stops being a hope and starts being an identity.
+
+## Invariant 2: One Promotion Path
+
+A deployment process is trustworthy when it has exactly one route from merge to production, and every deploy uses it — including hotfixes. Ours:
+
+1. Merge to `main` → CI gates (lint, typecheck, tests, build)
+2. Automatic deploy to staging using the CI image
+3. Smoke tests against staging (2-minute soak)
+4. Automatic production deploy if and only if staging smoke passed
+
+```text
+merge ──▶ CI ──▶ staging ──▶ smoke ──▶ prod
+                     │                     │
+                     └── always            └── only if smoke green
+```
+
+The weird-but-load-bearing detail: **staging runs the same image tag**. Its value is not its similarity to production in data or traffic — it is the second trial run of the exact artifact about to serve users.
+
+## Invariant 3: Rollback Designed Before the First Incident
+
+Rollback is usually designed during an outage, which is the worst possible requirements process. Ours was specified on day one, with two constraints: under 30 seconds, and never requires a rebuild.
+
+```bash
+# scripts/rollback.sh — redeploys the previous SHA-pinned image
+set -eu
+PREV=$(ssh "$HOST" "cat /srv/app/.previous")
+./scripts/deploy.sh --host "$HOST" --tag "$PREV"
+```
+
+Because every image since the first deploy still exists in the registry, rollback reuses the deployment mechanism — one command, no build, no SSH archaeology. Its existence changed team behavior more than any other piece: **smaller, more frequent deploys** followed naturally, because the blast radius of a mistake became one command.
+
+## Invariant 4: Migrations Are Deployable Separately
+
+Schema changes are the classic way a "safe" deploy takes the system down. The contract for the process:
+
+- Migrations run as a **separate one-off job** before the app deploy
+- Every migration must be **backward-compatible one step**: ship the schema that supports both old and new code, deploy the code, and only then ship the schema change that removes the old path
+
+```text
+Week 1: migration 12 (add column, nullable — old code unaffected)
+Week 1: code deploy writing to both paths
+Week 2: migration 13 (backfill + set default)
+Week 3: migration 14 (drop old column)
+```
+
+This Expand-Migrate-Contract pattern slows schema evolution by a release cycle. That delay is the price — and it is far less expensive than the coordinated schema-and-code deploys it replaces.
+
+## Observability: The Deploy Has a Probe
+
+A deploy is not complete when the process exit code is zero. It completes when **synthetic traffic confirms the new image serves real requests**:
+
+- Smoke test hitting `/healthz` and one authenticated read path
+- Error rate and p95 latency watched over a 15-minute auto-canary window
+- Automatic rollback triggered if error rate exceeds the release baseline
+
+This check is what makes invariant 2 possible: staging smoke and production canary trip the same threshold logic, so the go/no-go criteria do not change between environments.
+
+> [!WARNING]
+> Every page-level alert should come with a runbook. An alert without a runbook is just noise with a higher volume knob — including the alert that fires on your own deploys.
+
+## What It Replaced, Measured
+
+| Metric                   | Before (manual) | After (pipeline)      |
+| ------------------------ | --------------- | --------------------- |
+| Deploy duration          | 35–60 min       | 6 min                 |
+| Rollback                 | ~40 min, manual | < 30 sec, one command |
+| Failed deploys per month | 4–6             | < 1                   |
+| Deploys per week         | 2–3             | 15+                   |
+
+The last row is the real deliverable. Once deploying stopped being an event, change batches shrank — and small batches fail softer than big ones.
+
+## Why Engineers Trust It Now
+
+Trust shortened to a checklist that holds in practice, not a promise made in a README:
+
+- **The artifact is one identity** across local, CI, staging, and production
+- **Failure path beats success path**: rollback is faster than fixing forward, so no one dreads a deploy
+- **The system watches its own releases** and reverts autonomously inside a bounded window
+- **Schema changes cannot take production down** because they always land one step behind the code
+
+## Conclusion
+
+A deployment process engineers trust is not built from clever tooling — it is built from invariants that make failures uninteresting: immutable SHA-pinned artifacts, a single promotion route, pre-designed rollback, and migrations that move at their own pace.
+
+> "The goal is not zero failed deploys. The goal is for a failed deploy to be the least interesting thing that happens that week."

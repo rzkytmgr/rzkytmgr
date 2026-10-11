@@ -1,6 +1,6 @@
 # 🧪 rzkytmgr
 
-A personal website and portfolio built with Next.js — home to long-form
+A personal website and portfolio built with Astro — home to long-form
 engineering writeups, selected projects, explorations, and laboratory
 experiments.
 
@@ -13,13 +13,11 @@ experiments.
 
 - **MDX content pipeline** — unified/remark/rehype with Shiki syntax
   highlighting, GitHub-style alerts, code block labels, and copy buttons
-- **Article experience** — table of contents, reading progress bar, and
-  adjacent article pager
+- **Article experience** — table of contents and adjacent article pager
 - **Comments** — Giscus integration on every article
-- **Theme** — dark/light mode via `next-themes`
+- **Theme** — dark/light mode with a hand-tuned theme registry
 - **SEO** — RSS feed, sitemap, and robots.txt
 - **Writeups archive** — articles grouped by year
-- **Animations** — Framer Motion micro-interactions
 - **Quality gates** — Husky hooks (lint-staged, typecheck, tests) and a GitHub
   Actions CI pipeline
 
@@ -27,10 +25,9 @@ experiments.
 
 | Layer     | Technology                                                     |
 | --------- | -------------------------------------------------------------- |
-| Framework | Next.js 16 (App Router)                                        |
-| UI        | React 19, TypeScript, Tailwind CSS v4                          |
+| Framework | Astro 7 (static output)                                        |
+| UI        | Astro components, TypeScript, Tailwind CSS v4                  |
 | Content   | MDX + unified/remark/rehype, Shiki                             |
-| State     | Zustand                                                        |
 | Comments  | Giscus                                                         |
 | Tooling   | pnpm, Husky, lint-staged, commitlint, ESLint, Prettier, Vitest |
 
@@ -49,33 +46,28 @@ pnpm install
 pnpm dev
 ```
 
-The dev server runs at `http://localhost:3000`.
+The dev server runs at `http://localhost:4321`.
 
 ### Scripts
 
-| Script              | Purpose                                    |
-| ------------------- | ------------------------------------------ |
-| `pnpm dev`          | Start the development server               |
-| `pnpm build`        | Production build                           |
-| `pnpm start`        | Serve the production build                 |
-| `pnpm lint`         | Run ESLint                                 |
-| `pnpm format`       | Format all files with Prettier             |
-| `pnpm format:check` | Verify formatting without changing files   |
-| `pnpm typecheck`    | Type-check the project with `tsc --noEmit` |
-| `pnpm test`         | Run the Vitest test suite                  |
+| Script              | Purpose                                  |
+| ------------------- | ---------------------------------------- |
+| `pnpm dev`          | Start the development server             |
+| `pnpm build`        | Production build                         |
+| `pnpm preview`      | Serve the production build               |
+| `pnpm lint`         | Run ESLint                               |
+| `pnpm format`       | Format all files with Prettier           |
+| `pnpm format:check` | Verify formatting without changing files |
+| `pnpm typecheck`    | Type-check the project                   |
+| `pnpm test`         | Run the Vitest test suite                |
 
 ## Project structure
 
 ```text
-app/          Next.js App Router pages and layouts
-components/   Shared UI and layout components
+src/          Pages, layouts, components, scripts, and styles
 contents/     All site content as MDX files with frontmatter
-domain/       Feature-specific components and services
-lib/          Config loading, fonts, helpers
-providers/    Client-side providers (e.g. theme)
-store/        Zustand stores
 tests/        Vitest test files
-utils/        Markdown pipeline and shared utilities
+public/       Static assets
 ```
 
 ## Content

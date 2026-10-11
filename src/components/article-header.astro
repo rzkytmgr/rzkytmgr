@@ -1,0 +1,273 @@
+---
+import ArchiveNotice from "./archive-notice.astro";
+import { icon, brandIcon } from "./icons";
+
+export interface ArticleLink {
+    label: string;
+    url: string;
+}
+
+interface Props {
+    idTitle: string;
+    tagline?: string;
+    title: string;
+    reading_time: string;
+    date: string;
+    description: string;
+    thumbnail: string;
+    showActions?: boolean;
+    repository?: string;
+    preview?: string;
+    links?: ArticleLink[];
+    sharePosition?: "left" | "right";
+    archiveNotice?: string;
+}
+
+const {
+    idTitle,
+    tagline,
+    title,
+    reading_time,
+    date,
+    description,
+    thumbnail,
+    showActions = true,
+    repository,
+    preview,
+    links,
+    sharePosition = "left",
+    archiveNotice,
+} = Astro.props;
+
+const genericLinks = (links ?? []).filter((link) => link.label && link.url);
+
+const hasProjectLinks = Boolean(preview || repository);
+const hasLinks = hasProjectLinks || genericLinks.length > 0;
+
+const linkClass =
+    "group inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-md px-2 text-sm font-medium text-neutral-600 transition-colors duration-100 hover:bg-journal-accent/10 hover:text-journal-accent-text motion-reduce:transition-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-journal-accent";
+
+const disabledLinkClass =
+    "inline-flex h-8 cursor-not-allowed items-center gap-1.5 rounded-md px-2 text-sm font-medium text-neutral-400 dark:text-neutral-600";
+
+const shareButtonClass =
+    "group inline-flex size-8 cursor-pointer items-center justify-center rounded-md p-2 text-neutral-500 transition-colors duration-100 hover:text-journal-accent-text motion-reduce:transition-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-journal-accent";
+
+const shareIconHtml = icon(
+    "share",
+    "size-4 transition-transform duration-300 group-hover:rotate-12 motion-reduce:transition-none motion-reduce:transform-none",
+);
+---
+
+<section aria-labelledby={idTitle} class="relative">
+    {tagline && (
+        <p class="text-xs word-spacing-wide font-medium capitalize tracking-wider text-journal-accent-text">
+            {tagline}
+        </p>
+    )}
+
+    <h1
+        id={idTitle}
+        class="mt-3 text-3xl leading-[1.25] font-extrabold tracking-tight text-zinc-950 md:text-4xl dark:text-zinc-50"
+    >
+        {title}
+    </h1>
+
+    <p class="mt-4 text-xs word-spacing-wide font-medium leading-relaxed text-zinc-600 dark:text-zinc-400">
+        {reading_time}
+        {date && ` · ${date}`}
+    </p>
+
+    {showActions && (
+        <Fragment>
+            <div
+                data-article-actions
+                class="mt-6 flex items-center justify-between border-y border-smooth-border py-2"
+            >
+                <div class="flex items-center gap-1">
+                    <button
+                        type="button"
+                        aria-label="Like article"
+                        title="Like article"
+                        class="group inline-flex size-8 cursor-pointer items-center justify-center rounded-md p-2 text-neutral-500 transition-colors duration-100 hover:text-journal-accent-text motion-reduce:transition-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-journal-accent"
+                    >
+                        <Fragment
+                            set:html={icon(
+                                "thumbs-up",
+                                "size-4 transition-transform duration-300 group-hover:rotate-12 motion-reduce:transition-none motion-reduce:transform-none",
+                            )}
+                        />
+                    </button>
+
+                    <button
+                        type="button"
+                        aria-label="Jump to comments"
+                        title="Jump to comments"
+                        data-jump-comments
+                        class="group inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-md px-2 text-neutral-500 transition-colors duration-100 hover:text-journal-accent-text motion-reduce:transition-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-journal-accent"
+                    >
+                        <Fragment
+                            set:html={icon(
+                                "message-circle",
+                                "size-4 transition-transform duration-300 group-hover:rotate-12 motion-reduce:transition-none motion-reduce:transform-none",
+                            )}
+                        />
+                        <span
+                            data-comment-count
+                            hidden
+                            class="text-xs font-medium"
+                        />
+                    </button>
+
+                    {sharePosition === "left" && (
+                        <button
+                            type="button"
+                            aria-label="Share article"
+                            title="Share article"
+                            data-share
+                            class={shareButtonClass}
+                        >
+                            <Fragment set:html={shareIconHtml} />
+                        </button>
+                    )}
+                </div>
+
+                {hasLinks && (
+                    <div class="flex items-center gap-1">
+                        {hasProjectLinks ? (
+                            <Fragment>
+                                {preview ? (
+                                    <a
+                                        href={preview}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        title="Live preview"
+                                        class={linkClass}
+                                    >
+                                        <Fragment
+                                            set:html={icon(
+                                                "globe-code",
+                                                "size-4 transition-transform duration-300 group-hover:rotate-12 motion-reduce:transition-none motion-reduce:transform-none",
+                                            )}
+                                        />
+                                        <span class="hidden sm:inline">
+                                            Live preview
+                                        </span>
+                                    </a>
+                                ) : (
+                                    <span
+                                        aria-disabled="true"
+                                        title="This project has no live preview"
+                                        class={disabledLinkClass}
+                                    >
+                                        <Fragment
+                                            set:html={icon(
+                                                "globe-code",
+                                                "size-4",
+                                            )}
+                                        />
+                                        <span class="hidden sm:inline">
+                                            Live preview
+                                        </span>
+                                    </span>
+                                )}
+
+                                {repository ? (
+                                    <a
+                                        href={repository}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        title="Open source"
+                                        class={linkClass}
+                                    >
+                                        <Fragment
+                                            set:html={brandIcon(
+                                                "github",
+                                                "size-4 transition-transform duration-300 group-hover:rotate-12 motion-reduce:transition-none motion-reduce:transform-none",
+                                            )}
+                                        />
+                                        <span class="hidden sm:inline">
+                                            Open source
+                                        </span>
+                                    </a>
+                                ) : (
+                                    <span
+                                        aria-disabled="true"
+                                        title="This project has no repository"
+                                        class={disabledLinkClass}
+                                    >
+                                        <Fragment
+                                            set:html={brandIcon(
+                                                "github",
+                                                "size-4",
+                                            )}
+                                        />
+                                        <span class="hidden sm:inline">
+                                            Open source
+                                        </span>
+                                    </span>
+                                )}
+                            </Fragment>
+                        ) : (
+                            genericLinks.map((link) => (
+                                <a
+                                    href={link.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    title={link.label}
+                                    class={linkClass}
+                                >
+                                    <Fragment
+                                        set:html={icon(
+                                            "globe",
+                                            "size-4 transition-transform duration-300 group-hover:rotate-12 motion-reduce:transition-none motion-reduce:transform-none",
+                                        )}
+                                    />
+                                    <span class="hidden sm:inline">
+                                        {link.label}
+                                    </span>
+                                </a>
+                            ))
+                        )}
+                    </div>
+                )}
+
+                {sharePosition === "right" && (
+                    <button
+                        type="button"
+                        aria-label="Share article"
+                        title="Share article"
+                        data-share
+                        class={shareButtonClass}
+                    >
+                        <Fragment set:html={shareIconHtml} />
+                    </button>
+                )}
+            </div>
+
+            {archiveNotice && (
+                <div class="mt-3">
+                    <ArchiveNotice variant="inline" message={archiveNotice} />
+                </div>
+            )}
+        </Fragment>
+    )}
+
+    <div
+        class:list={[
+            "relative aspect-video w-full overflow-hidden rounded-md border border-smooth-border/70",
+            archiveNotice ? "mt-3" : "mt-8",
+        ]}
+    >
+        <img
+            src={thumbnail}
+            alt=""
+            loading="eager"
+            class="h-full w-full object-cover"
+        />
+    </div>
+
+    <p class="mt-6 text-base leading-relaxed text-zinc-600 md:text-lg dark:text-zinc-400">
+        {description}
+    </p>
+</section>

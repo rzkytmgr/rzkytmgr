@@ -1,0 +1,106 @@
+---
+id: EXP-04
+title: Automating CI/CD Deployment Pipeline for Web Applications
+description: >-
+    Implemented an automated deployment workflow that performs testing, code
+    quality checks, containerization, and production deployment. The pipeline
+    significantly reduced manual deployment effort while improving reliability and
+    release consistency.
+category: DevOps
+stack:
+    - GitHub Actions
+    - Docker
+    - Nginx
+    - Linux
+    - AWS
+date: "Oct 21, 2026"
+slug: automating-ci-cd-deployment-pipeline
+thumbnail: https://picsum.photos/seed/04_automating-ci-cd-deployment-pipeline/1200/675
+is_archive: false
+reading_time: 7 min read
+---
+
+> "A deployment pipeline is not finished when it works. It is finished when a failed deploy is the least interesting thing to happen all week."
+
+This experiment took a web application that deployed by hand — a `ssh` script, a hotfix culture, and an optional changelog — and rebuilt its path to production as a fully automated pipeline: CI gates, containerization, staged deploys, and one-command rollback. On [GitHub Actions](https://github.com/features/actions), with [Docker](https://www.docker.com), behind [Nginx](https://nginx.org), on Linux hosts in [AWS](https://aws.amazon.com).
+
+## The Pipeline Shape
+
+Three stages, each with a hard gate on the previous one:
+
+1. **CI** — lint, typecheck, unit tests, build (runs on every push)
+2. **Staging deploy** — automatic on merge to `main`, smoke tests against staging
+3. **Production deploy** — automatic if staging smoke passed; production requires no human click, only a two-minute soak on staging
+
+```yaml
+# .github/workflows/deploy.yml — the production stage outline
+deploy-prod:
+    needs: [ci, deploy-staging]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+        - uses: actions/checkout@v7
+        - name: Build & push image
+          run: ./scripts/build-image.sh ${{ github.sha }}
+        - name: Deploy to prod
+          run: ./scripts/deploy.sh --host $PROD_HOST --tag ${{ github.sha }}
+        - name: Smoke test prod
+          run: ./scripts/smoke.sh https://production-url
+```
+
+The most valuable gate is also the least glamorous: the build in CI uses the **same pre-shrunk Docker image** that will ship, so the artifact that passed CI is the artifact that deploys — "works in staging" is no longer a heuristic.
+
+## Containerization: One Image, Immutable Tags
+
+The image builds on every merge, tagged with the commit SHA rather than `latest`. Deploys never rebuild on the host — they pin a tag that already exists in the registry:
+
+```bash
+# scripts/deploy.sh — the deploy step is 6 lines by design
+set -eu
+ssh "$HOST_EXT" "docker pull $REGISTRY/app:$TAG"
+ssh "$HOST_EXT" "docker compose -p web up -d --no-build --detach"
+ssh "$HOST_EXT" "curl -fsSL -m 5 localhost/healthz"
+```
+
+Reproducibility mattered more than cache cleverness: builds happen in CI where they can fail loudly, not on a production server where they can half-succeed quietly.
+
+## Nginx as a Thin, Boring Edge
+
+The front proxy owns exactly three concerns: TLS termination, gzip/brotli, and static export assets with a long cache. Application routing stays inside the container, so the proxy needs almost no configuration changes on redeploys.
+
+```nginx
+location /assets/ {
+    add_header Cache-Control "public, max-age=31536000, immutable";
+    expires 1y;
+    try_files $uri =404;
+}
+```
+
+## Rollback: The Feature That Changed Team Behavior
+
+Rollback is `./scripts/rollback.sh`, which flips to the previous SHA-pinned image and re-runs smoke. Because the previous image still exists in the registry, rollback takes under 30 seconds and never needs a rebuild:
+
+```bash
+# scripts/rollback.sh — previous tag from /srv/app/.previous
+PREV=$(ssh "$HOST_EXT" "cat /srv/app/.previous")
+./scripts/deploy.sh --host "$HOST_EXT" --tag "$PREV"
+```
+
+This single scripted path removed the.Protocol of deploy-day heroics: before it, a failed deploy meant 40 minutes of debugging the host; after, it meant one command and a choice to ship the fix forward or stay.
+
+## Measured Outcomes
+
+| Metric                   | Before (manual) | After (pipeline) |
+| ------------------------ | --------------- | ---------------- |
+| Deploy duration          | 35–60 min       | 6 min            |
+| Failed deploys per month | 4–6             | < 1              |
+| Time to rollback         | ~40 min         | 30 sec           |
+| Deploys per week         | 2–3 (dreaded)   | 15+ (routine)    |
+
+The behavior shift was the real deliverable. Once deploys stopped being an event, the team stopped batching changes — and small batches have better failure modes than big ones.
+
+## Conclusion
+
+A good pipeline is a set of small scripts and a hard rule: the CI gate tests the artifact you intend to ship, the deploy references it by name, and rollback reuses the same mechanism. Everything else — dashboards, approvals, matrices — is optional. Velocity came almost entirely from making failure cheap, not from making success faster.
+
+> "Automate the boring parts with enough discipline that the failure path stays interesting."

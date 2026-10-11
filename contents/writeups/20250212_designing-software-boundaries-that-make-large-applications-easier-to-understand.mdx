@@ -1,0 +1,124 @@
+---
+id: WU-03
+title: Designing Software Boundaries That Make Large Applications Easier to
+    Understand
+tag: Software Architecture
+slug: >-
+    designing-software-boundaries-that-make-large-applications-easier-to-understand
+description: >-
+    An exploration of how clear module boundaries can reduce coupling, improve
+    maintainability, and help engineering teams evolve large applications without
+    losing architectural clarity.
+date: "Feb 12, 2025"
+thumbnail: https://picsum.photos/seed/02_designing-software-boundaries-that-make-large-applications-easier-to-understand/1200/675
+reading_time: 7 min read
+---
+
+> "A boundary is not a folder. A boundary is something that fails the build when you cross it."
+
+Large applications do not lose architectural clarity in a single refactor. They lose it one justified exception at a time — a service that reads another service's table, a module that imports a private helper, a util that becomes a dependency magnet. This article is about the only answer that has survived for me: design boundaries as tooling-enforced contracts, not as diagrams.
+
+## Why Boundaries Go Soft
+
+When a boundary is written down in an architecture document but is not represented in the compiler, every violation starts as a one-line shortcut:
+
+```typescript
+// checkout reads directly from the users module's internals
+import { findUserRowById } from "../../users/internal/repository";
+```
+
+It works. It ships. Six months later, checkout is unknowingly coupled to user schema decisions, and nobody planned it that way. The failure is structural: **convention-declared boundaries get renegotiated by every deadline.**
+
+## Boundaries as Public Interfaces
+
+The cheapest effective boundary is a single file per module that declares everything other modules may reach:
+
+```typescript
+// modules/checkout/index.ts — the entire public surface
+export { createCheckout, getCheckoutStatus } from "./service";
+export type { Checkout, CheckoutStatus } from "./types";
+```
+
+Then enforce it with an import-boundary rule so violations fail lint, not code review:
+
+```jsonc
+// eslint.config.json fragment
+"no-restricted-imports": [
+    "error",
+    {
+        "patterns": [
+            {
+                "group": ["**/modules/*/!(index.*)", "**/modules/*/**/!(index.*)"],
+                "message": "Import modules through their public index.ts only."
+            }
+        ]
+    }
+]
+```
+
+The first week of enabling this rule produces a long list of violations. The second week produces silence. That silence is the boundary.
+
+## What Makes a Good Seam
+
+A seam is where the application splits along a real axis of change — not along an org chart and not along file types:
+
+- **Rate of change** — things that change together belong together. Different rates of change are an argument for a boundary.
+- **Ownership of data** — a module owns its invariants or does not have one.
+- **Failure blast radius** — if this module's bug can corrupt another module's state, the boundary is imaginary.
+- **Team cognitive load** — a new engineer should be able to understand the surface of a module in one sitting.
+
+Seams discovered by scanning the dependency graph for clusters are honest; seams drawn by copying a textbook layering diagram rarely match how the code actually behaves.
+
+> [!NOTE]
+> Layering (controller/service/repository) is orthogonal to modular boundaries. A layer inside a module is fine; layers spanning all modules make every feature a cross-cutting change.
+
+## The Interface Is Where Design Actually Happens
+
+Once a module has a public interface, the interface itself becomes the reviewable product:
+
+```typescript
+// Where should cancellation live? The interface forces the answer.
+export interface CheckoutModule {
+    createCheckout(input: CreateCheckoutInput): Promise<Checkout>;
+    getCheckoutStatus(id: string): Promise<CheckoutStatus>;
+    cancelCheckout(id: string, reason: string): Promise<void>;
+}
+```
+
+Cancellation was a hidden assumption until adding it to the interface forced a decision: does it belong here, what invariants does it preserve, and can it be retried? Interface design delays implementation just long enough to get these questions answered once.
+
+## Handling the Inevitable Exceptions
+
+Real systems need legitimate cross-module behavior — for example, reporting queries spanning modules. The solution is not loosening the rule; it is giving exceptions a governed route:
+
+1. **Events for state propagation** — modules publish facts, not commands, and nobody imports anyone
+2. **A query service with explicit cross-module read contracts** — documented, tested, and versioned like a real integration
+3. **Temporary exemptions with an owner and a delete date** — a lint ignore is allowed only with a comment assigning blame and a deadline
+
+Item 3 is the pressure valve. Without it, teams frequently reverse the whole boundary system; with it, violations stay visible and temporary.
+
+## Measuring Whether It Worked
+
+After a year of operating this way in a codebase of moderate size:
+
+| Signal                                  | Trend           |
+| --------------------------------------- | --------------- |
+| Cross-module imports outside index.ts   | ↓ to zero       |
+| Files touched by the median feature PR  | 1 module        |
+| Merge conflicts in shared directories   | Rare            |
+| Time for a new engineer's first real PR | Days, not weeks |
+
+The PR-surface metric turned out to be the best leading indicator: when one feature requires editing three modules, either the boundary is wrong or the feature belongs in one module — the measurement makes the decision mechanical instead of political.
+
+## Conclusion
+
+Boundaries that live in the compiler are boundaries that survive contact with deadlines. The recipe is small:
+
+- One public interface per module, enforced by lint
+- Seams along real axes of change, discovered from the dependency graph
+- Exceptions routed through governed mechanisms, never around them
+- A single leading metric — how many files a median feature touches
+
+> "Architecture is the set of decisions you make once and wish you could make again. Enforced boundaries are how you get to make them deliberately."
+
+Large applications do not become easy to understand by documentation. They become easy when the code says no to the wrong dependencies, on its own, on every build.

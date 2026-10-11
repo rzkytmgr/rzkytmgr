@@ -1,0 +1,99 @@
+---
+id: WU-07
+title:
+    Why Distributed Systems Become Difficult Even When Every Individual Service
+    Looks Simple
+tag: System Design
+slug: >-
+    why-distributed-systems-become-difficult-even-when-every-individual-service-looks-simple
+description: >-
+    An examination of how network failures, partial availability, data
+    consistency, coordination, and operational complexity make distributed systems
+    fundamentally different from single-process applications.
+date: "Feb 10, 2026"
+thumbnail: https://picsum.photos/seed/01_why-distributed-systems-become-difficult-even-when-every-individual-service-looks-simple/1200/675
+reading_time: 7 min read
+---
+
+> "Splitting a monolith into services does not distribute the complexity. It embeds the complexity into the network."
+
+Draw any single service on a distributed-systems diagram and the box looks simple: parse a request, do a read or a write, respond. The difficulty was never inside the boxes. It lives in the arrows between them — and practically nothing in our training as application developers prepares us for what arrows do.
+
+## The Network Is Not a Function Call
+
+In-process code offers a contract the network does not: a call either returns a value or throws something attributable to your code. Remote calls add states functions cannot have:
+
+- **Request lost** — did it arrive? Unknown.
+- **Response lost** — the work completed. You do not know it.
+- **Response very late** — not an error yet, but no longer useful.
+
+Every remote call, including the ones that always succeed in staging, eventually exercises all three states in production. A system that treats remote calls as fast, reliable function calls — by not having retry, timeout, and result-question-mark handling at each hop — is a system that has simply not yet met a bad afternoon.
+
+```typescript
+// Theminimum vocabulary required before calling out
+const result = await withRetry(() => paymentService.charge(request), {
+    timeoutMs: 800,
+    retries: 2,
+}); // and even this answers only about transport, not about outcome
+```
+
+The example illustrates the trap: after timeouts and retries, the charge may still have succeeded twice or zero times. Ambiguity about outcome is where payments systems discover idempotency keys — and every other distributed system discovers them one storm later.
+
+## Partial Failures Break Boolean Thinking
+
+Single-process failure is boolean: it works, or it does not, or the process is down and the answer is false. Distributed failure is partial, and partial is what breaks assumption-first code:
+
+- Service A is healthy; its database is not
+- Region 1 serves reads; writes are down
+- Queue is up; but one poison message holds a group of consumers hostage
+
+Observability tooling built around single services — CPU, memory, per-process latency — reports green during exactly the state where users are having a bad day: a fully healthy collection of boxes through which no request can pass. Symptom alerts ("checkout success rate below 98%") side-step this gap by measuring user experience rather than player health.
+
+## Data Consistency: The Actual Source of Pain
+
+State in one process is a variable — one truth, mutated transactionally. State spread across nodes can only be negotiated:
+
+### Replication always chooses something
+
+- **Synchronous replication** pays latency on every read-write for zero staleness risk
+- **Asynchronous replication** pays staleness — a user reads a value from a lagging replica right after their own write, and the UI is wrong with no error anywhere
+
+### Partitioning always chooses something else
+
+Two-phase commit, the textbook answer to atomic updates across the partition, is exactly the kind of answer that looks embarrassingly simple until you own it:
+
+```text
+1. Coordinator: prepare  → participants lock
+2. Coordinator: commit/abort
+And what does the coordinator do if a participant fails to answer?
+It holds the lock — and the world waits.
+```
+
+Holding a lock across a partition failure is how availability turns into downtime. The actual lernen from 2PC is not "never use it" — it is that atomicity and availability are trade-offs, and every system between them (Paxos-style consensus, transactional outboxes) is somebody paying that trade-off with acknowledged complexity.
+
+> [!IMPORTANT]
+> Before adopting any data pattern, make sure important architectural decisions have clear and documented reasons. In distributed systems the reasons are the deliverable — code without them is a topology choice nobody can defend in an outage.
+
+## Coordination Tax
+
+Every operation requiring two services to agree — two-phase commits, leader elections, distributed locks, distributed rate limiters — pays a coordination tax of latency, failure mode, and code. The advice that survives every consulting engagement is the boring one: **checking if you can simply not do this.** A task that reads as "needs consensus" routinely turns out to be "needs an idempotent consumer and at-least-once delivery."
+
+## Operational Complexity Is a Feature Cost
+
+A single service was a running process with logs. A distributed system is:
+
+- Twelve deployable units with independent schedules
+- Network configuration that changes runtimes' behavior
+- Clocks that are irrelevant to correctness but everywhere in your logs (metadata and causality)
+- Test environments that cannot actually reproduce the production topology
+- On-call that must know a system, not a codebase
+
+This is why "we will split it later" is a deferred cost with compounding. The split costs engineering hours adoption week — then costs operational capacity forever.
+
+## Conclusion
+
+Individual services are simple because they were always simple. Distributed systems are difficult because the difficulty lives between them, and that territory requires different tools: idempotency instead of atomicity, symptom alerts instead of health alerts, interfaces over events instead of interfaces over call stacks.
+
+None of this code belongs to the hype. It deserves to be read before the split into services, not in the postmortem after it.
+
+> "The monolith is not the opposite of a distributed system. It is the cheapest form of one."

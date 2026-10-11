@@ -1,0 +1,104 @@
+---
+id: SCPR-04
+title: FinTrack Expense Tracker
+description: >-
+    A lightweight expense tracking application with fast capture, automatic
+    monthly summaries, budget rollovers, and import from bank CSV exports —
+    designed for one user who wants answers, not accounting features.
+category: Web App
+tech_stack:
+    - Vue.js
+    - Nuxt
+    - Supabase
+    - Tailwind CSS
+    - Chart.js
+date: "Nov 12, 2026"
+slug: fintrack-expense-tracker
+thumbnail: https://picsum.photos/seed/04_fintrack-expense-tracker/1200/675
+is_archive: true
+reading_time: 7 min read
+# Contoh showcase TANPA live preview (dihapus karena app sudah offline).
+# Tombol "Live preview" akan tampil sebagai disabled/muted di halaman artikel.
+link:
+    repository: "https://github.com/username/fintrack"
+---
+
+> "The best expense tracker is one you can use on a train, one-handed, in four seconds."
+
+FinTrack is a personal expense tracker built with [Vue.js](https://vuejs.org) and [Nuxt](https://nuxt.com), backed by [Supabase](https://supabase.com). It is archived now — not because it failed, but because it had served its purpose for two full years and the marginal next feature was not worth the maintenance budget. This writeup is the record of what it was and why it ended.
+
+## Capturing an Expense in Four Seconds
+
+Capture is the feature everything else existed to serve. The add-expense screen has three fields and one of them guesses itself:
+
+- **Amount** — numeric keypad, first autofocus
+- **Category** — defaults to the most frequent category at this hour of day (coffee in the morning is almost always right)
+- **Note** — optional, single line
+
+Submission posts one row to Supabase and navigates back instantly. No modals, no date pickers (today is the default and a manual date edit is a rare path), and no confirmation screens.
+
+```typescript
+// composables/useCapture.ts — the whole happy path
+export function useCapture() {
+    async function add(amount: number, category: string, note?: string) {
+        const { error } = await client.from("expenses").insert({
+            amount,
+            category,
+            note,
+            occurred_at: new Date().toISOString(),
+        });
+        if (error) queueOfflineAdd({ amount, category, note }); // sync later
+    }
+
+    return { add };
+}
+```
+
+Failed submissions queue in IndexedDB and reconcile on next load — the only offline tolerance in the app, and the only one ever needed.
+
+## Budget Rollovers
+
+The budget model has one non-obvious rule: unspent budget rolls forward at month boundaries, but only into a "savings" bucket, never into next month's spendable budget. This choice came after two redesigns of the same mistake — letting rollover inflate the spending allowance just taught the app to justify drift.
+
+```typescript
+export function computeRollover(month: MonthSummary, budget: number) {
+    const spent = month.totalExpense;
+    const unspent = Math.max(0, budget - spent);
+    return { savings: unspent, nextMonthBudget: budget }; // constant, never inflated
+}
+```
+
+Monthly summaries are computed as SQL views on Supabase and read directly — the app never aggregates on the client, because the year-in-review charts would otherwise need the whole table.
+
+## Import: The Ingestion Path for Reality
+
+Manual capture only covers spending after the app exists. The CSV importer covers the backlog: map bank export columns to FinTrack's fields, apply a saved mapping next time, dedupe on `(occurred_at, amount, description_hash)`.
+
+```typescript
+const dedupeKey = (row: CsvRow) =>
+    `${row.occurred_at}|${row.amount}|${hash(row.description)}`;
+```
+
+The importer was written last and used most — it absorbed about 40% of historical data, everything before install day, and the dedupe rule carried all of it.
+
+## The Charts
+
+Three [Chart.js](https://www.chartjs.org) views, no dashboards:
+
+1. **Month summary** — spend by category, single bar chart
+2. **Trend** — six-month trailing spend per category, line chart
+3. **Year in review** — monthly totals versus budget
+
+Charts read from monthly summary views, so rendering is a map-and-paint job with no client aggregation.
+
+## Why It Was Archived
+
+FinTrack's purpose was to make spending visible enough to change behavior — and it did. Two years in, the spending patterns it surfaced had stabilized, the wanted features (receipt OCR, multi-currency) quadrupled scope with no matching need, and the monthly maintenance cost of Supabase row-level-security policies plus dependency updates was no longer proportionate.
+
+The shutdown was quiet by design: data exported via the built-in CSV export, the preview taken offline, the repository archived with the README noting the migration path to the SQLite export.
+
+## Conclusion
+
+Small personal tools deserve the same architectural honesty as bigger systems — a narrow surface, a data model of four tables, and charts that answer questions the data can actually support. FinTrack's longest-lived decisions were the ones it refused to make: no receipt photos, no shared budgets, and no rollover rule that quietly raises your limits.
+
+Source: [github.com/username/fintrack](https://github.com/username/fintrack) (archived)

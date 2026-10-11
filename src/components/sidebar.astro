@@ -1,0 +1,43 @@
+---
+import NavbarItem from "./navbar-item.astro";
+
+interface Props {
+    items: { href: string; label: string }[];
+}
+
+const { items } = Astro.props;
+const { pathname } = Astro.url;
+
+const isActive = (href: string) => {
+    if (href === "/") {
+        return pathname === "/";
+    }
+
+    if (href === "/blog") {
+        return pathname === "/blog" || pathname.startsWith("/blog/");
+    }
+
+    return pathname === href || pathname.startsWith(`${href}/`);
+};
+---
+
+<aside
+    id="sidebar"
+    aria-hidden="true"
+    inert
+    class="fixed top-0 left-0 z-40 min-h-screen w-72 border-r border-smooth-border bg-background shadow-2xl transition-transform duration-300 ease-out md:hidden -translate-x-full"
+>
+    <div class="p-6">
+        <h2 class="text-xs word-spacing-wide font-medium uppercase tracking-wider text-neutral-500">
+            Navigation
+        </h2>
+
+        <nav aria-label="Mobile navigation" class="mt-8 flex flex-col gap-3">
+            {items.map(({ href, label }) => (
+                <NavbarItem href={href} active={isActive(href)}>
+                    {label}
+                </NavbarItem>
+            ))}
+        </nav>
+    </div>
+</aside>

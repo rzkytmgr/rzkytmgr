@@ -7,7 +7,7 @@ import {
     generateShapeScene,
     generateTestTubeScene,
     projectShapeScene,
-} from "@/lib/shapes-3d";
+} from "@/src/utils/shapes-3d";
 
 describe("generateShapeScene", () => {
     it("is deterministic for the same seed", () => {

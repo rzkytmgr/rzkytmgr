@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getCodeLanguage } from "@/utils/server/code-block-labels";
+import { getCodeLanguage } from "@/src/markdown/code-block-labels";
 
 describe("getCodeLanguage", () => {
     it("maps known language identifiers to display names with icons", () => {

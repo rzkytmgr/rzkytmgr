@@ -1,0 +1,112 @@
+---
+id: SCPR-02
+link:
+    repository: "https://github.com/username/portfolio-v2"
+    preview: "https://portfolio-v2.vercel.app"
+title: Personal Portfolio V2
+description: >-
+    A customizable portfolio template for developers and designers featuring
+    smooth animations, dark mode support, SEO optimization, and a modular
+    component system that makes personalization quick and effortless.
+category: Website
+tech_stack:
+    - Astro
+    - React
+    - Tailwind CSS
+    - MDX
+date: "Jul 18, 2026"
+slug: personal-portfolio-v2
+thumbnail: https://picsum.photos/seed/02_personal-portfolio-v2/1200/675
+is_archive: false
+reading_time: 7 min read
+---
+
+> "Complexity is not a feature. It is a cost that should be paid only when it solves a real problem."
+
+Personal Portfolio V2 is the second version of a portfolio template that shipped after the first version failed in an instructive way: everyone who downloaded it rebuilt it. Same layout, same pages — but the template structure fought their content instead of absorbing it. V2 inverts that. Content owns the structure; the template only owns presentation.
+
+## Architecture: Content-Time Over Request-Time
+
+V2 is built with Astro and renders almost entirely at build time. Every page is static HTML with islands of React where interactivity earns its place — the theme switcher and the contact-form validation are the only client components.
+
+```astro
+---
+// pages/blog/${slug}.astro — the whole data path is 10 lines
+import { getCollection, render } from "astro:content";
+
+const posts = await getCollection("posts");
+const { entry, next } = Astro.props;
+const { Content, headings } = await render(entry);
+---
+
+<Layout title={entry.data.title} description={entry.data.description}>
+    <ArticleHeader post={entry.data} />
+    <article class="prose"><Content /></article>
+    <PostPager next={next} />
+</ArticleLayout>
+```
+
+Two consequences fall out immediately:
+
+1. **Lighthouse is boring** — every page scores 100 because there is nothing dynamic to optimize
+2. **MDX is the interface** — contributors customize a page by editing a markdown file, not a component tree
+
+## The Component Contract
+
+Modularity in V2 is enforced by a narrow contract rather than reuse of everything. A "section" is any component that satisfies:
+
+```typescript
+// Full static render — no client JS, no fetch, no theme reads
+interface SectionProps {
+    config: SectionConfig; // parsed from site.config.md
+    data: CollectionEntry[]; // pre-filtered, pre-sorted, pre-sliced
+}
+```
+
+Sections never talk to each other. Reordering the homepage is a one-line change in the config file: `[hero, showcase, exploration, lab]`. That single decisions replaced three separate page-layout variants from V1.
+
+## Dark Mode With Zero Flash
+
+Theme is applied synchronously in an inline script in `<head>`, before first paint — the standard trick, but worth showing because it is the one piece of client JS that runs unconditionally:
+
+```html
+<script is:inline>
+    document.documentElement.dataset.theme =
+        localStorage.getItem("theme") ?? "system";
+</script>
+```
+
+The [React](https://react.dev) theme toggle then lives in one small island, mutating `dataset` and `localStorage`. The effect is simple: no layout shift, no white flash, no hydration dependency. Dark mode is a property of the document, not of a React context.
+
+## SEO Without a Framework
+
+Metadata is generated per-page from frontmatter. Sitemap, RSS, and OG tags are all build-time copies of data that already exists on entries:
+
+```typescript
+// utils/seo.ts
+export function meta(entry) {
+    return {
+        title: `${entry.data.title} — rzkytmgr`,
+        description: entry.data.description.slice(0, 160),
+        image: entry.data.thumbnail,
+        canonical: target("/" + entry.id),
+    };
+}
+```
+
+No SSG plugin, no selector library — a function and a spread into `<Fragment slot="head">`.
+
+## What V2 Fixes From V1
+
+| V1 Problem                    | V2 Approach                                                    |
+| ----------------------------- | -------------------------------------------------------------- |
+| Users rebuilt the layout      | Content config owns structure; layout renders list of sections |
+| Every rewrite broke SEO       | SEO generated from frontmatter per entry                       |
+| Hard-coded "featured" post    | Feature flag per entry in frontmatter                          |
+| Slowest page was the homepage | Homepage is now 40 KB HTML, zero client JS                     |
+
+## Conclusion
+
+The lesson from V2 is architectural restraint. The most defensible thing a portfolio template can do is be a shell that disappears behind content: no client runtime where none is needed, no cloudy component hierarchy in place of a config file, no SEO library where frontmatter plus a spread was enough.
+
+Source: [github.com/username/portfolio-v2](https://github.com/username/portfolio-v2) · Live preview: [portfolio-v2.vercel.app](https://portfolio-v2.vercel.app)

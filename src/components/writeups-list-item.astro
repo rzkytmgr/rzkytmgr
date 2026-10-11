@@ -1,0 +1,71 @@
+---
+import { parsePublishDate } from "../utils/date";
+
+interface Props {
+    writeup: {
+        id: string;
+        slug: string;
+        title: string;
+        description: string;
+        tag: string;
+        date: string;
+        reading_time: string;
+    };
+}
+
+const { writeup: data } = Astro.props;
+const published = parsePublishDate(data.date);
+---
+
+<article class="group relative grid grid-cols-1 gap-3 border-b border-smooth-border py-8 md:grid-cols-12">
+    <div
+        aria-hidden="true"
+        class="pointer-events-none absolute inset-0 z-0 overflow-hidden"
+    >
+        <div class="absolute -top-12 -right-12 size-40 rounded-full opacity-0 transition-opacity duration-150 group-hover:opacity-70 motion-reduce:transition-none blur-2xl bg-[radial-gradient(closest-side,color-mix(in_oklab,var(--journal-accent)_30%,transparent),transparent)]"></div>
+    </div>
+
+    <div class="relative col-span-1 hidden lg:block">
+        <div class="flex items-center text-xs word-spacing-wide text-neutral-500">
+            <span class="whitespace-nowrap text-zinc-950/60 dark:text-zinc-50/55">
+                {published.day} {published.month}
+            </span>
+        </div>
+    </div>
+
+    <div class="relative col-span-11 flex flex-col gap-2 md:gap-2">
+        <div class="flex items-center text-xs word-spacing-wide text-neutral-500">
+            <span class="mr-2 shrink-0 lg:hidden">{published.label}</span>
+            <span class="line-clamp-1 text-journal-accent-text">
+                {data.tag}
+            </span>
+        </div>
+
+        <h3 class="line-clamp-2 max-w-4xl text-xl font-bold md:text-2xl">
+            <a
+                href={`/blog/${data.slug}`}
+                class="transition-colors duration-100 hover:text-journal-accent-text focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-journal-accent"
+            >
+                {data.title}
+            </a>
+        </h3>
+
+        <p class="max-w-3xl line-clamp-2 text-neutral-500">
+            {data.description}
+        </p>
+
+        <div class="mt-2 flex items-center justify-between gap-3">
+            <span class="text-xs word-spacing-wide text-neutral-500">
+                {data.reading_time}
+            </span>
+
+            <a
+                href={`/blog/${data.slug}`}
+                aria-label={`Read more about ${data.title}`}
+                class="inline-flex items-center text-xs word-spacing-wide font-medium text-neutral-600 underline transition-[color,transform] duration-100 group-hover:translate-x-1 hover:text-journal-accent-text motion-reduce:group-hover:translate-x-0 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-journal-accent"
+            >
+                read more
+            </a>
+        </div>
+    </div>
+</article>
