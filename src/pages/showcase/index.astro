@@ -110,81 +110,24 @@ const pillActiveClass = "text-zinc-950 dark:text-zinc-50";
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 gap-10 lg:grid-cols-[26rem_minmax(0,1fr)] lg:gap-14">
-                <aside
-                    aria-label="Project preview"
-                    class="hidden lg:sticky lg:top-24 lg:block lg:self-start"
-                >
-                    <div data-preview-slot>
-                        {items.map((entry, index) => (
-                            <div
-                                data-preview-panel={entry.data.id}
-                                hidden={index !== 0}
-                            >
-                                <div>
-                                    <ShowcaseCard
-                                        showcase={entry.data}
-                                        featured={true}
-                                        showThumbnail={true}
-                                    />
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </aside>
-
-                <ul
-                    class="border-t border-smooth-border lg:border-t-0"
-                    data-showcase-rows
-                >
-                    {items.map((entry, index) => (
-                        <li
-                            class="border-b border-smooth-border"
-                            data-showcase-row
-                            data-project-id={entry.data.id}
-                            data-filter-tag={entry.data.category.toLowerCase()}
-                            data-search={`${entry.data.title} ${entry.data.description} ${entry.data.category}`.toLowerCase()}
-                        >
-                            <button
-                                type="button"
-                                class="group/row flex w-full cursor-pointer items-baseline gap-4 py-5 text-left md:gap-6 md:py-6"
-                            >
-                                <span
-                                    aria-hidden="true"
-                                    data-row-index
-                                    class="text-xs word-spacing-wide text-neutral-400 transition-colors duration-100 motion-reduce:transition-none dark:text-neutral-600"
-                                >
-                                    {String(index + 1).padStart(2, "0")}
-                                </span>
-
-                                <span
-                                    data-row-title
-                                    class="flex-1 text-xl leading-tight font-semibold tracking-tight text-neutral-400 transition-colors duration-100 motion-reduce:transition-none group-hover/row:text-zinc-950 dark:text-neutral-500 dark:group-hover/row:text-zinc-50"
-                                >
-                                    {entry.data.title}
-                                </span>
-
-                                {entry.data.is_archive && (
-                                    <span class="shrink-0 rounded-full border border-warning-border bg-warning-bg px-2.5 py-0.5 text-xs word-spacing-wide font-medium text-warning-text">
-                                        unmaintained
-                                    </span>
-                                )}
-
-                                <span class="hidden max-w-40 truncate text-xs word-spacing-wide font-medium text-neutral-500 md:block">
-                                    {entry.data.category}
-                                </span>
-
-                                <Fragment
-                                    set:html={icon(
-                                        "arrow-up-right",
-                                        "size-4 shrink-0 self-center text-neutral-400 transition-all duration-100 group-hover/row:-translate-y-0.5 group-hover/row:translate-x-0.5 group-hover/row:text-journal-accent-text motion-reduce:transition-none motion-reduce:group-hover/row:translate-x-0 motion-reduce:group-hover/row:translate-y-0",
-                                    )}
-                                />
-                            </button>
-                        </li>
-                    ))}
-                </ul>
-            </div>
+            <ul
+                class="mt-8 grid list-none grid-cols-1 gap-6 p-0 md:grid-cols-2 lg:grid-cols-3"
+                data-showcase-rows
+            >
+                {items.map((entry) => (
+                    <li
+                        class="flex"
+                        data-showcase-row
+                        data-project-id={entry.data.id}
+                        data-filter-tag={entry.data.category.toLowerCase()}
+                        data-search={`${entry.data.title} ${entry.data.description} ${entry.data.category}`.toLowerCase()}
+                    >
+                        <div class="w-full">
+                            <ShowcaseCard showcase={entry.data} />
+                        </div>
+                    </li>
+                ))}
+            </ul>
 
             <p data-empty-message hidden class="text-sm text-neutral-500">
                 No projects match your search or filter.

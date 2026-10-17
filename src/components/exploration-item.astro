@@ -1,4 +1,6 @@
 ---
+import { parsePublishDate } from "../utils/date";
+
 interface Props {
     item: {
         id: string;
@@ -7,46 +9,35 @@ interface Props {
         link: string;
         date: string;
     };
+    index: number;
 }
 
-const { item: data } = Astro.props;
-const year = new Date(data.date).getFullYear();
+const { item: data, index } = Astro.props;
+const retrieved = parsePublishDate(data.date);
+const domain = new URL(data.link).hostname;
 ---
 
-<article class="grid grid-cols-1 gap-3 border-b border-smooth-border py-5 first:pt-8 md:grid-cols-12 md:gap-2">
-    <span class="col-span-1 hidden text-xs word-spacing-wide font-medium text-neutral-500 lg:flex">
-        {year}
+<li class="grid grid-cols-[auto_minmax(0,1fr)] items-baseline gap-x-2.5 py-2.5 text-sm leading-relaxed">
+    <span
+        aria-hidden="true"
+        class="min-w-5 select-none text-xs word-spacing-wide font-medium text-neutral-400"
+    >
+        [{index + 1}]
     </span>
 
-    <div class="col-span-11 flex flex-col gap-1">
-        <span class="text-xs word-spacing-wide font-medium text-neutral-500">
-            <span class="lg:hidden">{year} · </span>
-            <span class="text-journal-accent-text">{data.category}</span>
-        </span>
-
+    <p class="min-w-0 text-neutral-500 dark:text-zinc-400">
         <a
             href={data.link}
             target="_blank"
             rel="noopener noreferrer"
-            class="inline-flex items-center gap-2 transition-colors duration-100 hover:text-journal-accent-text focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-journal-accent"
+            class="text-zinc-950 underline decoration-zinc-400 underline-offset-4 transition-colors duration-100 hover:text-journal-accent-text hover:decoration-journal-accent-text focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-journal-accent dark:text-zinc-50"
         >
-            <h3 class="line-clamp-1 font-bold md:text-lg">{data.title}</h3>
-
-            <svg
-                aria-hidden="true"
-                viewBox="0 0 24 24"
-                width="1em"
-                height="1em"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="size-4 shrink-0"
-            >
-                <path d="M7 7h10v10"></path>
-                <path d="M7 17 17 7"></path>
-            </svg>
+            {`"${data.title}"`}
         </a>
-    </div>
-</article>
+        . <span class="text-zinc-950/70 dark:text-zinc-100/70">{domain}</span>.{" "}
+        {retrieved.year}.{" "}
+        <span class="text-xs word-spacing-wide text-neutral-400 dark:text-neutral-600">
+            {data.category}
+        </span>
+    </p>
+</li>

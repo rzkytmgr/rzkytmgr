@@ -85,7 +85,6 @@ export type AppConfigType = Readonly<{
             about: Readonly<{
                 heading: string;
                 description: string;
-                paragraphs: readonly string[];
             }>;
         }>;
         footer: Readonly<{

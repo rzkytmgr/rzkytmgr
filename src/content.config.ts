@@ -1,4 +1,4 @@
-import { glob } from "astro/loaders";
+import { file, glob } from "astro/loaders";
 import { defineCollection, z } from "astro:content";
 
 const writeups = defineCollection({
@@ -80,12 +80,7 @@ const laboratory = defineCollection({
 });
 
 const exploration = defineCollection({
-    loader: glob({
-        base: "./contents/exploration",
-        pattern: "*.mdx",
-        generateId: ({ entry }) =>
-            entry.replace(/\.mdx$/, "").replace(/^\d{8}_/, ""),
-    }),
+    loader: file("contents/exploration.yaml"),
     schema: z.object({
         id: z.string(),
         title: z.string(),
@@ -95,7 +90,16 @@ const exploration = defineCollection({
     }),
 });
 
+const about = defineCollection({
+    loader: glob({
+        base: "./contents",
+        pattern: "about.mdx",
+    }),
+    schema: z.object({}),
+});
+
 export const collections = {
+    about,
     writeups,
     showcase,
     laboratory,

@@ -2,8 +2,8 @@
 import { getCollection } from "astro:content";
 import MainLayout from "../../layouts/main-layout.astro";
 import { icon } from "../../components/icons";
+import LabRowItem from "../../components/lab-row-item.astro";
 import { config } from "../../config";
-import { parsePublishDate } from "../../utils/date";
 
 const experiments = await getCollection("laboratory");
 
@@ -111,89 +111,9 @@ const pillActiveClass = "text-zinc-950 dark:text-zinc-50";
             </div>
 
             <div class="border-t border-smooth-border" data-lab-rows>
-                {items.map((entry, index) => {
-                    const published = parsePublishDate(entry.data.date);
-
-                    return (
-                        <article
-                            class="group relative border-b border-smooth-border py-5"
-                            data-lab-row
-                            data-filter-tag={entry.data.category.toLowerCase()}
-                            data-search={`${entry.data.title} ${entry.data.description} ${entry.data.category}`.toLowerCase()}
-                        >
-                            <div
-                                aria-hidden="true"
-                                class="pointer-events-none absolute inset-0 z-0 overflow-hidden"
-                            >
-                                <div class="absolute -top-12 -right-12 size-40 rounded-full opacity-0 transition-opacity duration-150 group-hover:opacity-50 motion-reduce:transition-none blur-2xl bg-[radial-gradient(closest-side,color-mix(in_oklab,var(--journal-accent)_30%,transparent),transparent)]" />
-                            </div>
-
-                            <div class="relative z-10 flex items-baseline gap-4 md:grid md:grid-cols-[2.5rem_7.5rem_minmax(0,1fr)_auto] md:gap-x-6">
-                                <span
-                                    aria-hidden="true"
-                                    class="text-xs word-spacing-wide font-medium text-neutral-400 dark:text-neutral-600"
-                                >
-                                    {String(index + 1).padStart(2, "0")}
-                                </span>
-
-                                <span class="hidden text-xs word-spacing-wide font-medium whitespace-nowrap text-neutral-500 md:block">
-                                    {published.full}
-                                </span>
-
-                                <div class="min-w-0 flex-1">
-                                    <h3 class="line-clamp-1 font-semibold md:text-lg">
-                                        <a
-                                            href={`/lab/${entry.data.slug}`}
-                                            class="after:absolute after:inset-0 transition-colors duration-100 hover:text-journal-accent-text focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-journal-accent"
-                                        >
-                                            {entry.data.title}
-                                        </a>
-                                    </h3>
-
-                                    <p class="mt-1 line-clamp-1 text-sm text-neutral-500">
-                                        {entry.data.description}
-                                    </p>
-
-                                    <span class="mt-2 flex flex-wrap items-center gap-x-3 text-xs word-spacing-wide font-medium text-neutral-500 md:hidden">
-                                        <span>{published.full}</span>
-                                        {entry.data.is_archive && (
-                                            <span class="rounded-full border border-warning-border bg-warning-bg px-2.5 py-0.5 text-warning-text">
-                                                archived
-                                            </span>
-                                        )}
-                                        <span class="text-journal-accent-text">
-                                            {entry.data.category}
-                                        </span>
-                                        <span>{entry.data.reading_time}</span>
-                                    </span>
-                                </div>
-
-                                <div class="hidden items-center gap-4 text-xs word-spacing-wide font-medium md:flex">
-                                    {entry.data.is_archive && (
-                                        <span class="shrink-0 rounded-full border border-warning-border bg-warning-bg px-2.5 py-0.5 text-warning-text">
-                                            archived
-                                        </span>
-                                    )}
-
-                                    <span class="whitespace-nowrap text-journal-accent-text">
-                                        {entry.data.category}
-                                    </span>
-
-                                    <span class="whitespace-nowrap text-neutral-500">
-                                        {entry.data.reading_time}
-                                    </span>
-
-                                    <Fragment
-                                        set:html={icon(
-                                            "arrow-up-right",
-                                            "size-4 shrink-0 text-neutral-400 transition-colors duration-100 group-hover:text-journal-accent-text",
-                                        )}
-                                    />
-                                </div>
-                            </div>
-                        </article>
-                    );
-                })}
+                {items.map((entry, index) => (
+                    <LabRowItem experiment={entry.data} index={index} />
+                ))}
             </div>
 
             <p data-empty-message hidden class="text-sm text-neutral-500">

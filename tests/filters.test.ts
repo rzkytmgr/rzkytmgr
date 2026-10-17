@@ -139,7 +139,7 @@ describe.skipIf(!hasDist)("blog filter (bundled)", () => {
 });
 
 describe.skipIf(!hasDist)("showcase filter (bundled)", () => {
-    it("filters rows by category and swaps the preview panel", () => {
+    it("filters cards by category pill", () => {
         const window = loadPage("showcase/index.html");
         const document = window.document;
 
@@ -148,16 +148,10 @@ describe.skipIf(!hasDist)("showcase filter (bundled)", () => {
         );
         expect(rows.length).toBe(4);
 
-        const panels = Array.from(
-            document.querySelectorAll<HTMLElement>("[data-preview-panel]"),
+        // The preview-panel layout was replaced by the homepage card grid.
+        expect(document.querySelectorAll("[data-preview-panel]").length).toBe(
+            0,
         );
-        expect(panels.length).toBe(4);
-
-        // Initial state: first panel visible, the rest hidden.
-        expect(
-            panels.filter((panel) => !panel.hasAttribute("hidden")).length,
-        ).toBe(1);
-        expect(panels[0].dataset.previewPanel).toBe(rows[0].dataset.projectId);
 
         // Click the first real category pill rendered on the page.
         const categoryKey = document.querySelector<HTMLElement>(
@@ -173,32 +167,52 @@ describe.skipIf(!hasDist)("showcase filter (bundled)", () => {
         expectPillState(window, categoryKey, true);
         expectPillState(window, "all", false);
 
-        const activePanel = panels.find(
-            (panel) => !panel.hasAttribute("hidden"),
-        );
-        expect(activePanel?.dataset.previewPanel).toBe(
-            inCategory[0].dataset.projectId,
-        );
-
         clickPills(window, categoryKey);
         expect(visibleCount(rows)).toBe(4);
         expectPillState(window, categoryKey, false);
         expectPillState(window, "all", true);
     });
 
-    it("highlights the hovered row", () => {
+    it("combines category filter with search and shows empty message", () => {
         const window = loadPage("showcase/index.html");
         const document = window.document;
 
         const rows = Array.from(
             document.querySelectorAll<HTMLElement>("[data-showcase-row]"),
         );
+        const search = document.querySelector<HTMLInputElement>(
+            "[data-showcase-search]",
+        )!;
+        const empty = document.querySelector<HTMLElement>(
+            "[data-empty-message]",
+        )!;
 
-        rows[2].dispatchEvent(new window.MouseEvent("mouseenter"));
+        clickPills(window, "all");
+        const firstTitle = rows[0].dataset.search!.split(" ")[0];
+        search.value = firstTitle;
+        search.dispatchEvent(new window.Event("input", { bubbles: true }));
 
-        const activeTitle =
-            rows[2].querySelector<HTMLElement>("[data-row-title]")!;
-        expect(activeTitle.classList.contains("text-zinc-950")).toBe(true);
+        expect(visibleCount(rows)).toBeGreaterThan(0);
+        expect(
+            rows.filter(
+                (row) =>
+                    !row.hasAttribute("hidden") &&
+                    !(row.dataset.search ?? "").includes(firstTitle),
+            ).length,
+        ).toBe(0);
+
+        search.value = "zzz-no-match";
+        search.dispatchEvent(new window.Event("input", { bubbles: true }));
+        expect(visibleCount(rows)).toBe(0);
+        expect(empty.hasAttribute("hidden")).toBe(false);
+
+        const clear = document.querySelector<HTMLElement>(
+            "[data-clear-search]",
+        )!;
+        clear.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+
+        expect(visibleCount(rows)).toBe(4);
+        expect(empty.hasAttribute("hidden")).toBe(true);
     });
 });
 

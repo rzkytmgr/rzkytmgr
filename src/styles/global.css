@@ -197,11 +197,11 @@ html[data-theme="charcoal"] .theme-toggle__sun {
 }
 
 .markdown-body h1 {
-    @apply mb-6 mt-12 scroll-mt-24 text-3xl font-extrabold tracking-tight text-zinc-950 md:text-4xl dark:text-zinc-50;
+    @apply mb-6 mt-12 scroll-mt-24 text-3xl font-bold tracking-tight text-zinc-950 md:text-4xl dark:text-zinc-50;
 }
 
 .markdown-body h2 {
-    @apply mb-4 mt-12 scroll-mt-24 text-2xl font-extrabold tracking-tight text-zinc-950 dark:text-zinc-50;
+    @apply mb-4 mt-12 scroll-mt-24 text-2xl font-bold tracking-tight text-zinc-950 dark:text-zinc-50;
 }
 
 .markdown-body h3 {

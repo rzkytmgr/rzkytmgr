@@ -1,0 +1,20 @@
+- id: READING-01
+  title: Released My First Open Source Project on GitHub
+  category: Open Source
+  link: https://github.com/
+  date: "Jun 27, 2026"
+- id: READING-02
+  title: Published an Article About Modern Frontend Development
+  category: Writing
+  link: https://dev.to/
+  date: "Jul 09, 2026"
+- id: READING-03
+  title: Launched a Developer Portfolio Template
+  category: Product Launch
+  link: https://www.producthunt.com/
+  date: "Aug 16, 2026"
+- id: READING-04
+  title: Started a New Role as Full Stack Developer
+  category: Career
+  link: https://www.linkedin.com/
+  date: "Sep 03, 2026"

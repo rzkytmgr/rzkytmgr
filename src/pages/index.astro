@@ -3,10 +3,10 @@ import { getCollection } from "astro:content";
 import MainLayout from "../layouts/main-layout.astro";
 import Hero from "../components/hero.astro";
 import HomeSection from "../components/home-section.astro";
-import WriteupsListItem from "../components/writeups-list-item.astro";
-import ShowcaseCard from "../components/showcase-card.astro";
+import WriteupCard from "../components/writeup-card.astro";
 import ExplorationItem from "../components/exploration-item.astro";
-import LaboratoryCard from "../components/laboratory-card.astro";
+import ShowcaseCard from "../components/showcase-card.astro";
+import LabRowItem from "../components/lab-row-item.astro";
 import { config } from "../config";
 
 const [writeups, showcases, laboratory, exploration] = await Promise.all([
@@ -21,8 +21,8 @@ const byNewest = (
     b: { data: { date: string } },
 ) => Date.parse(b.data.date) - Date.parse(a.data.date);
 
-const writeupItems = writeups.sort(byNewest).slice(0, 4);
-const showcaseItems = showcases.sort(byNewest).slice(0, 6);
+const writeupItems = writeups.sort(byNewest).slice(0, 6);
+const showcaseItems = showcases.sort(byNewest).slice(0, 3);
 const laboratoryItems = laboratory.sort(byNewest).slice(0, 4);
 const explorationItems = exploration.sort(byNewest).slice(0, 4);
 ---
@@ -44,11 +44,24 @@ const explorationItems = exploration.sort(byNewest).slice(0, 4);
             linkHref="/blog"
             class="mb-8"
         >
-            <div>
+            <div class="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {writeupItems.map((entry, index) => (
                     <div>
-                        <WriteupsListItem writeup={entry.data} />
+                        <WriteupCard writeup={entry.data} />
                     </div>
+                ))}
+            </div>
+        </HomeSection>
+
+        <HomeSection
+            id="laboratory"
+            title={config.ui.home.sections.laboratory}
+            linkHref="/lab"
+            linkLabel="View archived"
+        >
+            <div class="mt-8 border-t border-smooth-border">
+                {laboratoryItems.map((entry, index) => (
+                    <LabRowItem experiment={entry.data} index={index} />
                 ))}
             </div>
         </HomeSection>
@@ -60,7 +73,7 @@ const explorationItems = exploration.sort(byNewest).slice(0, 4);
             class="mb-8"
         >
             <div class="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {showcaseItems.map((entry, index) => (
+                {showcaseItems.map((entry) => (
                     <div>
                         <ShowcaseCard showcase={entry.data} />
                     </div>
@@ -73,26 +86,11 @@ const explorationItems = exploration.sort(byNewest).slice(0, 4);
             title={config.ui.home.sections.exploration}
             class="mb-8"
         >
-            {explorationItems.map((entry, index) => (
-                <div>
-                    <ExplorationItem item={entry.data} />
-                </div>
-            ))}
-        </HomeSection>
-
-        <HomeSection
-            id="laboratory"
-            title={config.ui.home.sections.laboratory}
-            linkHref="/lab"
-            linkLabel="View archived"
-        >
-            <div class="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2">
-                {laboratoryItems.map((entry, index) => (
-                    <div>
-                        <LaboratoryCard experiment={entry.data} />
-                    </div>
+            <ol class="list-none grid grid-cols-1 gap-x-8 gap-y-0 p-0 md:grid-cols-2">
+                {explorationItems.map((entry, index) => (
+                    <ExplorationItem item={entry.data} index={index} />
                 ))}
-            </div>
+            </ol>
         </HomeSection>
     </main>
 </MainLayout>
